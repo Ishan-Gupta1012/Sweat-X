@@ -1,0 +1,2175 @@
+[
+  {
+    "food_id": "librefit_brk_001",
+    "food_name": "Upma",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.3,
+      "protein": 0.035,
+      "carbs": 0.23,
+      "fat": 0.03,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180,
+      "plate": 300
+    }
+  },
+  {
+    "food_id": "librefit_brk_002",
+    "food_name": "Poha",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.6,
+      "protein": 0.035,
+      "carbs": 0.28,
+      "fat": 0.04,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 200,
+      "katori": 150,
+      "plate": 250
+    }
+  },
+  {
+    "food_id": "librefit_brk_003",
+    "food_name": "Vegetable Poha",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.5,
+      "protein": 0.03,
+      "carbs": 0.25,
+      "fat": 0.05,
+      "fiber": 0.015
+    },
+    "servings": {
+      "bowl": 220,
+      "katori": 160,
+      "plate": 280
+    }
+  },
+  {
+    "food_id": "librefit_brk_004",
+    "food_name": "Idli",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.1,
+      "protein": 0.03,
+      "carbs": 0.24,
+      "fat": 0.005,
+      "fiber": 0.015
+    },
+    "servings": {
+      "piece": 50,
+      "plate": 150
+    }
+  },
+  {
+    "food_id": "librefit_brk_005",
+    "food_name": "Dosa (Plain)",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.7,
+      "protein": 0.04,
+      "carbs": 0.32,
+      "fat": 0.03,
+      "fiber": 0.006
+    },
+    "servings": {
+      "piece": 80,
+      "plate": 160
+    }
+  },
+  {
+    "food_id": "librefit_brk_006",
+    "food_name": "Plain Omelette",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.85,
+      "protein": 0.12,
+      "carbs": 0.01,
+      "fat": 0.15,
+      "fiber": 0
+    },
+    "servings": {
+      "piece": 60,
+      "plate": 120
+    }
+  },
+  {
+    "food_id": "librefit_brk_007",
+    "food_name": "Egg Bhurji",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.95,
+      "protein": 0.13,
+      "carbs": 0.02,
+      "fat": 0.16,
+      "fiber": 0
+    },
+    "servings": {
+      "bowl": 200,
+      "katori": 150,
+      "plate": 250
+    }
+  },
+  {
+    "food_id": "librefit_brk_008",
+    "food_name": "Boiled Eggs",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.55,
+      "protein": 0.13,
+      "carbs": 0.01,
+      "fat": 0.11,
+      "fiber": 0
+    },
+    "servings": {
+      "piece": 50
+    }
+  },
+  {
+    "food_id": "librefit_brk_009",
+    "food_name": "Paneer Bhurji",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.15,
+      "protein": 0.14,
+      "carbs": 0.04,
+      "fat": 0.16,
+      "fiber": 0
+    },
+    "servings": {
+      "bowl": 200,
+      "katori": 150,
+      "plate": 250
+    }
+  },
+  {
+    "food_id": "librefit_brk_010",
+    "food_name": "Oats (Plain)",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.7,
+      "protein": 0.02,
+      "carbs": 0.12,
+      "fat": 0.015,
+      "fiber": 0.02
+    },
+    "servings": {
+      "bowl": 300,
+      "katori": 200,
+      "cup": 250
+    }
+  },
+  {
+    "food_id": "librefit_brk_011",
+    "food_name": "Masala Oats",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.85,
+      "protein": 0.03,
+      "carbs": 0.14,
+      "fat": 0.02,
+      "fiber": 0.02
+    },
+    "servings": {
+      "bowl": 300,
+      "katori": 200,
+      "cup": 250
+    }
+  },
+  {
+    "food_id": "librefit_brk_012",
+    "food_name": "Oats with Milk",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.1,
+      "protein": 0.045,
+      "carbs": 0.15,
+      "fat": 0.035,
+      "fiber": 0.015
+    },
+    "servings": {
+      "bowl": 300,
+      "katori": 200,
+      "cup": 250
+    }
+  },
+  {
+    "food_id": "librefit_brk_013",
+    "food_name": "Besan Chilla",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.65,
+      "protein": 0.08,
+      "carbs": 0.22,
+      "fat": 0.05,
+      "fiber": 0.03
+    },
+    "servings": {
+      "piece": 80,
+      "plate": 240
+    }
+  },
+  {
+    "food_id": "librefit_brk_014",
+    "food_name": "Moong Dal Chilla",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.45,
+      "protein": 0.1,
+      "carbs": 0.2,
+      "fat": 0.03,
+      "fiber": 0.03
+    },
+    "servings": {
+      "piece": 80,
+      "plate": 240
+    }
+  },
+  {
+    "food_id": "librefit_brk_015",
+    "food_name": "Aloo Paratha",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.3,
+      "protein": 0.05,
+      "carbs": 0.32,
+      "fat": 0.09,
+      "fiber": 0.02
+    },
+    "servings": {
+      "piece": 120,
+      "plate": 240
+    }
+  },
+  {
+    "food_id": "librefit_brk_016",
+    "food_name": "Paneer Paratha",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.65,
+      "protein": 0.1,
+      "carbs": 0.28,
+      "fat": 0.12,
+      "fiber": 0.02
+    },
+    "servings": {
+      "piece": 120,
+      "plate": 240
+    }
+  },
+  {
+    "food_id": "librefit_brk_017",
+    "food_name": "Plain Paratha",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.9,
+      "protein": 0.07,
+      "carbs": 0.45,
+      "fat": 0.09,
+      "fiber": 0.04
+    },
+    "servings": {
+      "piece": 80,
+      "plate": 160
+    }
+  },
+  {
+    "food_id": "librefit_brk_018",
+    "food_name": "Toast (Brown)",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.6,
+      "protein": 0.09,
+      "carbs": 0.48,
+      "fat": 0.03,
+      "fiber": 0.05
+    },
+    "servings": {
+      "piece": 30,
+      "slice": 30
+    }
+  },
+  {
+    "food_id": "librefit_brk_019",
+    "food_name": "Peanut Butter Toast",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.8,
+      "protein": 0.12,
+      "carbs": 0.35,
+      "fat": 0.22,
+      "fiber": 0.06
+    },
+    "servings": {
+      "piece": 45
+    }
+  },
+  {
+    "food_id": "librefit_brk_020",
+    "food_name": "Banana",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.89,
+      "protein": 0.011,
+      "carbs": 0.23,
+      "fat": 0.003,
+      "fiber": 0.026
+    },
+    "servings": {
+      "piece": 120
+    }
+  },
+  {
+    "food_id": "librefit_brk_021",
+    "food_name": "Apple",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.52,
+      "protein": 0.003,
+      "carbs": 0.14,
+      "fat": 0.002,
+      "fiber": 0.024
+    },
+    "servings": {
+      "piece": 150
+    }
+  },
+  {
+    "food_id": "librefit_brk_022",
+    "food_name": "Papaya",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.43,
+      "protein": 0.005,
+      "carbs": 0.11,
+      "fat": 0.003,
+      "fiber": 0.017
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180,
+      "plate": 300
+    }
+  },
+  {
+    "food_id": "librefit_brk_023",
+    "food_name": "Sprouts Salad",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.2,
+      "protein": 0.08,
+      "carbs": 0.18,
+      "fat": 0.015,
+      "fiber": 0.05
+    },
+    "servings": {
+      "bowl": 200,
+      "katori": 150
+    }
+  },
+  {
+    "food_id": "librefit_brk_024",
+    "food_name": "Curd",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.6,
+      "protein": 0.05,
+      "carbs": 0.05,
+      "fat": 0.03,
+      "fiber": 0
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180,
+      "cup": 200
+    }
+  },
+  {
+    "food_id": "librefit_brk_025",
+    "food_name": "Greek Yogurt",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.95,
+      "protein": 0.09,
+      "carbs": 0.04,
+      "fat": 0.05,
+      "fiber": 0
+    },
+    "servings": {
+      "cup": 150
+    }
+  },
+  {
+    "food_id": "librefit_brk_026",
+    "food_name": "Milk (Toned)",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.58,
+      "protein": 0.031,
+      "carbs": 0.047,
+      "fat": 0.03,
+      "fiber": 0
+    },
+    "servings": {
+      "glass": 250,
+      "cup": 200
+    }
+  },
+  {
+    "food_id": "librefit_brk_027",
+    "food_name": "Milk (Full Cream)",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.72,
+      "protein": 0.033,
+      "carbs": 0.048,
+      "fat": 0.045,
+      "fiber": 0
+    },
+    "servings": {
+      "glass": 250,
+      "cup": 200
+    }
+  },
+  {
+    "food_id": "librefit_brk_028",
+    "food_name": "Protein Shake (Whey)",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.45,
+      "protein": 0.08,
+      "carbs": 0.01,
+      "fat": 0.005,
+      "fiber": 0.005
+    },
+    "servings": {
+      "glass": 300
+    }
+  },
+  {
+    "food_id": "librefit_brk_029",
+    "food_name": "Black Coffee",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.02,
+      "protein": 0.001,
+      "carbs": 0.001,
+      "fat": 0,
+      "fiber": 0
+    },
+    "servings": {
+      "cup": 200,
+      "glass": 250
+    }
+  },
+  {
+    "food_id": "librefit_brk_030",
+    "food_name": "Tea (with milk)",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.45,
+      "protein": 0.015,
+      "carbs": 0.06,
+      "fat": 0.015,
+      "fiber": 0
+    },
+    "servings": {
+      "cup": 150,
+      "glass": 200
+    }
+  },
+  {
+    "food_id": "librefit_brk_031",
+    "food_name": "Tea (without sugar)",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.25,
+      "protein": 0.015,
+      "carbs": 0.02,
+      "fat": 0.015,
+      "fiber": 0
+    },
+    "servings": {
+      "cup": 150,
+      "glass": 200
+    }
+  },
+  {
+    "food_id": "librefit_brk_032",
+    "food_name": "Smoothie (Fruit)",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.65,
+      "protein": 0.02,
+      "carbs": 0.13,
+      "fat": 0.005,
+      "fiber": 0.02
+    },
+    "servings": {
+      "glass": 300
+    }
+  },
+  {
+    "food_id": "librefit_brk_033",
+    "food_name": "Smoothie (Protein)",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.85,
+      "protein": 0.06,
+      "carbs": 0.12,
+      "fat": 0.015,
+      "fiber": 0.02
+    },
+    "servings": {
+      "glass": 350
+    }
+  },
+  {
+    "food_id": "librefit_brk_034",
+    "food_name": "Cornflakes",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.4,
+      "protein": 0.06,
+      "carbs": 0.52,
+      "fat": 0.01,
+      "fiber": 0.02
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_brk_035",
+    "food_name": "Muesli",
+    "category": "Breakfast",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.8,
+      "protein": 0.08,
+      "carbs": 0.55,
+      "fat": 0.04,
+      "fiber": 0.06
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_036",
+    "food_name": "White Rice (Cooked)",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.3,
+      "protein": 0.027,
+      "carbs": 0.28,
+      "fat": 0.003,
+      "fiber": 0.004
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180,
+      "plate": 350
+    }
+  },
+  {
+    "food_id": "librefit_lun_037",
+    "food_name": "Brown Rice",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.11,
+      "protein": 0.026,
+      "carbs": 0.23,
+      "fat": 0.009,
+      "fiber": 0.018
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180,
+      "plate": 350
+    }
+  },
+  {
+    "food_id": "librefit_lun_038",
+    "food_name": "Jeera Rice",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.45,
+      "protein": 0.03,
+      "carbs": 0.3,
+      "fat": 0.015,
+      "fiber": 0.005
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180,
+      "plate": 350
+    }
+  },
+  {
+    "food_id": "librefit_lun_039",
+    "food_name": "Lemon Rice",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.8,
+      "protein": 0.04,
+      "carbs": 0.35,
+      "fat": 0.03,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180,
+      "plate": 350
+    }
+  },
+  {
+    "food_id": "librefit_lun_040",
+    "food_name": "Veg Pulao",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.4,
+      "protein": 0.035,
+      "carbs": 0.28,
+      "fat": 0.02,
+      "fiber": 0.015
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180,
+      "plate": 350
+    }
+  },
+  {
+    "food_id": "librefit_lun_041",
+    "food_name": "Khichdi",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.1,
+      "protein": 0.045,
+      "carbs": 0.22,
+      "fat": 0.015,
+      "fiber": 0.012
+    },
+    "servings": {
+      "bowl": 300,
+      "katori": 200,
+      "plate": 400
+    }
+  },
+  {
+    "food_id": "librefit_lun_042",
+    "food_name": "Roti",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.65,
+      "protein": 0.08,
+      "carbs": 0.5,
+      "fat": 0.03,
+      "fiber": 0.1
+    },
+    "servings": {
+      "piece": 40
+    }
+  },
+  {
+    "food_id": "librefit_lun_043",
+    "food_name": "Butter Roti",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.1,
+      "protein": 0.08,
+      "carbs": 0.48,
+      "fat": 0.09,
+      "fiber": 0.1
+    },
+    "servings": {
+      "piece": 45
+    }
+  },
+  {
+    "food_id": "librefit_lun_044",
+    "food_name": "Naan",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.9,
+      "protein": 0.09,
+      "carbs": 0.55,
+      "fat": 0.04,
+      "fiber": 0.02
+    },
+    "servings": {
+      "piece": 100,
+      "plate": 200
+    }
+  },
+  {
+    "food_id": "librefit_lun_045",
+    "food_name": "Plain Pasta",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.58,
+      "protein": 0.06,
+      "carbs": 0.31,
+      "fat": 0.01,
+      "fiber": 0.02
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_046",
+    "food_name": "Veg Pasta",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.45,
+      "protein": 0.05,
+      "carbs": 0.28,
+      "fat": 0.03,
+      "fiber": 0.03
+    },
+    "servings": {
+      "bowl": 300,
+      "plate": 400
+    }
+  },
+  {
+    "food_id": "librefit_lun_047",
+    "food_name": "Dal Tadka",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.05,
+      "protein": 0.06,
+      "carbs": 0.16,
+      "fat": 0.03,
+      "fiber": 0.05
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_048",
+    "food_name": "Dal Fry",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.25,
+      "protein": 0.06,
+      "carbs": 0.15,
+      "fat": 0.06,
+      "fiber": 0.05
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_049",
+    "food_name": "Rajma",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.15,
+      "protein": 0.07,
+      "carbs": 0.18,
+      "fat": 0.03,
+      "fiber": 0.06
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_050",
+    "food_name": "Chole",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.45,
+      "protein": 0.06,
+      "carbs": 0.22,
+      "fat": 0.05,
+      "fiber": 0.06
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_051",
+    "food_name": "Paneer Curry",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.85,
+      "protein": 0.09,
+      "carbs": 0.08,
+      "fat": 0.13,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_052",
+    "food_name": "Paneer Bhurji (L/D)",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.15,
+      "protein": 0.14,
+      "carbs": 0.04,
+      "fat": 0.16,
+      "fiber": 0
+    },
+    "servings": {
+      "bowl": 200,
+      "katori": 150
+    }
+  },
+  {
+    "food_id": "librefit_lun_053",
+    "food_name": "Tofu Curry",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.95,
+      "protein": 0.1,
+      "carbs": 0.05,
+      "fat": 0.045,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_054",
+    "food_name": "Chicken Curry",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.55,
+      "protein": 0.16,
+      "carbs": 0.04,
+      "fat": 0.08,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_055",
+    "food_name": "Chicken Breast (Grilled)",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.65,
+      "protein": 0.31,
+      "carbs": 0,
+      "fat": 0.036,
+      "fiber": 0
+    },
+    "servings": {
+      "piece": 150,
+      "plate": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_056",
+    "food_name": "Egg Curry",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.4,
+      "protein": 0.1,
+      "carbs": 0.04,
+      "fat": 0.09,
+      "fiber": 0
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_057",
+    "food_name": "Fish Curry",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.3,
+      "protein": 0.15,
+      "carbs": 0.04,
+      "fat": 0.06,
+      "fiber": 0
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_058",
+    "food_name": "Mixed Veg Sabzi",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.95,
+      "protein": 0.03,
+      "carbs": 0.12,
+      "fat": 0.05,
+      "fiber": 0.03
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180,
+      "plate": 300
+    }
+  },
+  {
+    "food_id": "librefit_lun_059",
+    "food_name": "Aloo Sabzi",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.4,
+      "protein": 0.02,
+      "carbs": 0.22,
+      "fat": 0.06,
+      "fiber": 0.02
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180,
+      "plate": 300
+    }
+  },
+  {
+    "food_id": "librefit_lun_060",
+    "food_name": "Bhindi Sabzi",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.1,
+      "protein": 0.025,
+      "carbs": 0.14,
+      "fat": 0.06,
+      "fiber": 0.04
+    },
+    "servings": {
+      "bowl": 200,
+      "katori": 150,
+      "plate": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_061",
+    "food_name": "Lauki Sabzi",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.55,
+      "protein": 0.01,
+      "carbs": 0.06,
+      "fat": 0.03,
+      "fiber": 0.02
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_062",
+    "food_name": "Gajar Matar",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.85,
+      "protein": 0.03,
+      "carbs": 0.12,
+      "fat": 0.03,
+      "fiber": 0.04
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_063",
+    "food_name": "Palak Paneer",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.6,
+      "protein": 0.11,
+      "carbs": 0.06,
+      "fat": 0.11,
+      "fiber": 0.03
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_064",
+    "food_name": "Palak Sabzi",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.65,
+      "protein": 0.03,
+      "carbs": 0.06,
+      "fat": 0.04,
+      "fiber": 0.03
+    },
+    "servings": {
+      "bowl": 200,
+      "katori": 150
+    }
+  },
+  {
+    "food_id": "librefit_lun_065",
+    "food_name": "Cabbage Sabzi",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.75,
+      "protein": 0.02,
+      "carbs": 0.09,
+      "fat": 0.04,
+      "fiber": 0.03
+    },
+    "servings": {
+      "bowl": 200,
+      "katori": 150
+    }
+  },
+  {
+    "food_id": "librefit_lun_066",
+    "food_name": "Mushroom Sabzi",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.9,
+      "protein": 0.04,
+      "carbs": 0.08,
+      "fat": 0.05,
+      "fiber": 0.03
+    },
+    "servings": {
+      "bowl": 200,
+      "katori": 150
+    }
+  },
+  {
+    "food_id": "librefit_lun_067",
+    "food_name": "Raita",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.85,
+      "protein": 0.04,
+      "carbs": 0.07,
+      "fat": 0.05,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_068",
+    "food_name": "Salad (Raw Veg)",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.25,
+      "protein": 0.01,
+      "carbs": 0.05,
+      "fat": 0.005,
+      "fiber": 0.02
+    },
+    "servings": {
+      "bowl": 200,
+      "plate": 300
+    }
+  },
+  {
+    "food_id": "librefit_lun_069",
+    "food_name": "Papad",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.5,
+      "protein": 0.18,
+      "carbs": 0.45,
+      "fat": 0.1,
+      "fiber": 0.12
+    },
+    "servings": {
+      "piece": 15
+    }
+  },
+  {
+    "food_id": "librefit_lun_070",
+    "food_name": "Pickle",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.8,
+      "protein": 0.02,
+      "carbs": 0.08,
+      "fat": 0.15,
+      "fiber": 0.02
+    },
+    "servings": {
+      "spoon": 15
+    }
+  },
+  {
+    "food_id": "librefit_lun_071",
+    "food_name": "Butter Chicken",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.15,
+      "protein": 0.14,
+      "carbs": 0.06,
+      "fat": 0.15,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_072",
+    "food_name": "Mutton Curry",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.95,
+      "protein": 0.16,
+      "carbs": 0.04,
+      "fat": 0.13,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_073",
+    "food_name": "Tandoori Chicken",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.5,
+      "protein": 0.24,
+      "carbs": 0.01,
+      "fat": 0.06,
+      "fiber": 0
+    },
+    "servings": {
+      "piece": 150
+    }
+  },
+  {
+    "food_id": "librefit_lun_074",
+    "food_name": "Kadai Paneer",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.05,
+      "protein": 0.12,
+      "carbs": 0.08,
+      "fat": 0.14,
+      "fiber": 0.02
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_075",
+    "food_name": "Baingan Bharta",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.1,
+      "protein": 0.02,
+      "carbs": 0.09,
+      "fat": 0.08,
+      "fiber": 0.03
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_076",
+    "food_name": "Aloo Matar",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.2,
+      "protein": 0.03,
+      "carbs": 0.18,
+      "fat": 0.05,
+      "fiber": 0.03
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_077",
+    "food_name": "Malai Kofta",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.65,
+      "protein": 0.08,
+      "carbs": 0.15,
+      "fat": 0.2,
+      "fiber": 0.02
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_078",
+    "food_name": "Dum Aloo",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.85,
+      "protein": 0.03,
+      "carbs": 0.22,
+      "fat": 0.1,
+      "fiber": 0.02
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_079",
+    "food_name": "Gobi Masala",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.25,
+      "protein": 0.04,
+      "carbs": 0.12,
+      "fat": 0.07,
+      "fiber": 0.04
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_080",
+    "food_name": "Bhindi Fry",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.1,
+      "protein": 0.03,
+      "carbs": 0.15,
+      "fat": 0.16,
+      "fiber": 0.05
+    },
+    "servings": {
+      "bowl": 200
+    }
+  },
+  {
+    "food_id": "librefit_lun_081",
+    "food_name": "Chicken Tikka",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.5,
+      "protein": 0.22,
+      "carbs": 0.02,
+      "fat": 0.06,
+      "fiber": 0
+    },
+    "servings": {
+      "piece": 40
+    }
+  },
+  {
+    "food_id": "librefit_lun_082",
+    "food_name": "Fish Fry",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.45,
+      "protein": 0.18,
+      "carbs": 0.1,
+      "fat": 0.15,
+      "fiber": 0
+    },
+    "servings": {
+      "piece": 100
+    }
+  },
+  {
+    "food_id": "librefit_lun_083",
+    "food_name": "Keema",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.1,
+      "protein": 0.18,
+      "carbs": 0.04,
+      "fat": 0.14,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 200
+    }
+  },
+  {
+    "food_id": "librefit_lun_084",
+    "food_name": "Veg Jalfrezi",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.15,
+      "protein": 0.04,
+      "carbs": 0.12,
+      "fat": 0.06,
+      "fiber": 0.04
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_085",
+    "food_name": "Shrimp Curry",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.25,
+      "protein": 0.16,
+      "carbs": 0.05,
+      "fat": 0.05,
+      "fiber": 0
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_086",
+    "food_name": "Methi Matar Malai",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.4,
+      "protein": 0.07,
+      "carbs": 0.1,
+      "fat": 0.2,
+      "fiber": 0.04
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_087",
+    "food_name": "Navratan Korma",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.3,
+      "protein": 0.06,
+      "carbs": 0.14,
+      "fat": 0.17,
+      "fiber": 0.03
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_lun_088",
+    "food_name": "Dahi Vada",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.65,
+      "protein": 0.06,
+      "carbs": 0.25,
+      "fat": 0.045,
+      "fiber": 0.02
+    },
+    "servings": {
+      "piece": 60,
+      "plate": 180
+    }
+  },
+  {
+    "food_id": "librefit_lun_089",
+    "food_name": "Curd Rice",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.2,
+      "protein": 0.04,
+      "carbs": 0.2,
+      "fat": 0.03,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 300
+    }
+  },
+  {
+    "food_id": "librefit_lun_090",
+    "food_name": "Paneer Tikka (Grilled)",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.1,
+      "protein": 0.18,
+      "carbs": 0.04,
+      "fat": 0.14,
+      "fiber": 0.01
+    },
+    "servings": {
+      "piece": 40,
+      "plate": 200
+    }
+  },
+  {
+    "food_id": "librefit_lun_091",
+    "food_name": "Kadhi Pakoda",
+    "category": "Lunch-Dinner",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.1,
+      "protein": 0.04,
+      "carbs": 0.12,
+      "fat": 0.05,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 250,
+      "katori": 180
+    }
+  },
+  {
+    "food_id": "librefit_snk_092",
+    "food_name": "Roasted Peanuts",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 5.85,
+      "protein": 0.26,
+      "carbs": 0.16,
+      "fat": 0.49,
+      "fiber": 0.09
+    },
+    "servings": {
+      "katori": 100
+    }
+  },
+  {
+    "food_id": "librefit_snk_093",
+    "food_name": "Boiled Corn",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.96,
+      "protein": 0.03,
+      "carbs": 0.21,
+      "fat": 0.015,
+      "fiber": 0.02
+    },
+    "servings": {
+      "cup": 200
+    }
+  },
+  {
+    "food_id": "librefit_snk_094",
+    "food_name": "Popcorn",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.8,
+      "protein": 0.12,
+      "carbs": 0.72,
+      "fat": 0.04,
+      "fiber": 0.14
+    },
+    "servings": {
+      "bowl": 50
+    }
+  },
+  {
+    "food_id": "librefit_snk_095",
+    "food_name": "Fruit Salad",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.55,
+      "protein": 0.01,
+      "carbs": 0.14,
+      "fat": 0.003,
+      "fiber": 0.02
+    },
+    "servings": {
+      "bowl": 250
+    }
+  },
+  {
+    "food_id": "librefit_snk_096",
+    "food_name": "Peanut Chikki",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 4.9,
+      "protein": 0.14,
+      "carbs": 0.55,
+      "fat": 0.25,
+      "fiber": 0.04
+    },
+    "servings": {
+      "piece": 30
+    }
+  },
+  {
+    "food_id": "librefit_snk_097",
+    "food_name": "Protein Bar",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 4.1,
+      "protein": 0.3,
+      "carbs": 0.4,
+      "fat": 0.15,
+      "fiber": 0.08
+    },
+    "servings": {
+      "piece": 50
+    }
+  },
+  {
+    "food_id": "librefit_snk_098",
+    "food_name": "Roasted Chana",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.65,
+      "protein": 0.19,
+      "carbs": 0.58,
+      "fat": 0.06,
+      "fiber": 0.12
+    },
+    "servings": {
+      "katori": 100
+    }
+  },
+  {
+    "food_id": "librefit_snk_099",
+    "food_name": "Makhana",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.5,
+      "protein": 0.1,
+      "carbs": 0.72,
+      "fat": 0.02,
+      "fiber": 0.14
+    },
+    "servings": {
+      "bowl": 50
+    }
+  },
+  {
+    "food_id": "librefit_snk_100",
+    "food_name": "Cheese Slice",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.2,
+      "protein": 0.18,
+      "carbs": 0.04,
+      "fat": 0.26,
+      "fiber": 0
+    },
+    "servings": {
+      "slice": 20
+    }
+  },
+  {
+    "food_id": "librefit_snk_101",
+    "food_name": "Paneer Cubes",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.65,
+      "protein": 0.18,
+      "carbs": 0.03,
+      "fat": 0.21,
+      "fiber": 0
+    },
+    "servings": {
+      "piece": 20
+    }
+  },
+  {
+    "food_id": "librefit_snk_102",
+    "food_name": "Boiled Eggs (Snack)",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.55,
+      "protein": 0.13,
+      "carbs": 0.01,
+      "fat": 0.11,
+      "fiber": 0
+    },
+    "servings": {
+      "piece": 50
+    }
+  },
+  {
+    "food_id": "librefit_snk_103",
+    "food_name": "Banana (Snack)",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.89,
+      "protein": 0.011,
+      "carbs": 0.23,
+      "fat": 0.003,
+      "fiber": 0.026
+    },
+    "servings": {
+      "piece": 120
+    }
+  },
+  {
+    "food_id": "librefit_snk_104",
+    "food_name": "Apple (Snack)",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.52,
+      "protein": 0.003,
+      "carbs": 0.14,
+      "fat": 0.002,
+      "fiber": 0.024
+    },
+    "servings": {
+      "piece": 150
+    }
+  },
+  {
+    "food_id": "librefit_snk_105",
+    "food_name": "Orange",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.47,
+      "protein": 0.009,
+      "carbs": 0.12,
+      "fat": 0.001,
+      "fiber": 0.024
+    },
+    "servings": {
+      "piece": 130
+    }
+  },
+  {
+    "food_id": "librefit_snk_106",
+    "food_name": "Buttermilk",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.4,
+      "protein": 0.03,
+      "carbs": 0.05,
+      "fat": 0.01,
+      "fiber": 0
+    },
+    "servings": {
+      "glass": 250
+    }
+  },
+  {
+    "food_id": "librefit_snk_107",
+    "food_name": "Coconut Water",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 0.19,
+      "protein": 0.007,
+      "carbs": 0.037,
+      "fat": 0,
+      "fiber": 0.01
+    },
+    "servings": {
+      "glass": 250
+    }
+  },
+  {
+    "food_id": "librefit_snk_108",
+    "food_name": "Dark Chocolate",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 5.45,
+      "protein": 0.08,
+      "carbs": 0.45,
+      "fat": 0.35,
+      "fiber": 0.07
+    },
+    "servings": {
+      "piece": 10
+    }
+  },
+  {
+    "food_id": "librefit_snk_109",
+    "food_name": "Biscuits",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 4.6,
+      "protein": 0.07,
+      "carbs": 0.65,
+      "fat": 0.18,
+      "fiber": 0.04
+    },
+    "servings": {
+      "piece": 12
+    }
+  },
+  {
+    "food_id": "librefit_snk_110",
+    "food_name": "Samosa",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.1,
+      "protein": 0.05,
+      "carbs": 0.35,
+      "fat": 0.17,
+      "fiber": 0.02
+    },
+    "servings": {
+      "piece": 100
+    }
+  },
+  {
+    "food_id": "librefit_snk_111",
+    "food_name": "Pakora",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.4,
+      "protein": 0.08,
+      "carbs": 0.3,
+      "fat": 0.22,
+      "fiber": 0.03
+    },
+    "servings": {
+      "piece": 30
+    }
+  },
+  {
+    "food_id": "librefit_snk_112",
+    "food_name": "Veg Sandwich",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.1,
+      "protein": 0.06,
+      "carbs": 0.35,
+      "fat": 0.05,
+      "fiber": 0.04
+    },
+    "servings": {
+      "piece": 150
+    }
+  },
+  {
+    "food_id": "librefit_snk_113",
+    "food_name": "Paneer Sandwich",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.45,
+      "protein": 0.1,
+      "carbs": 0.3,
+      "fat": 0.1,
+      "fiber": 0.03
+    },
+    "servings": {
+      "piece": 180
+    }
+  },
+  {
+    "food_id": "librefit_snk_114",
+    "food_name": "Peanut Butter Sandwich",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.9,
+      "protein": 0.13,
+      "carbs": 0.36,
+      "fat": 0.23,
+      "fiber": 0.06
+    },
+    "servings": {
+      "piece": 80
+    }
+  },
+  {
+    "food_id": "librefit_snk_115",
+    "food_name": "Milkshake",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.1,
+      "protein": 0.03,
+      "carbs": 0.15,
+      "fat": 0.04,
+      "fiber": 0.01
+    },
+    "servings": {
+      "glass": 300
+    }
+  },
+  {
+    "food_id": "librefit_snk_116",
+    "food_name": "Ice Cream",
+    "category": "Snack",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.1,
+      "protein": 0.03,
+      "carbs": 0.24,
+      "fat": 0.11,
+      "fiber": 0
+    },
+    "servings": {
+      "cup": 100
+    }
+  },
+  {
+    "food_id": "librefit_occ_117",
+    "food_name": "Pizza Slice",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.65,
+      "protein": 0.11,
+      "carbs": 0.28,
+      "fat": 0.12,
+      "fiber": 0.02
+    },
+    "servings": {
+      "piece": 100
+    }
+  },
+  {
+    "food_id": "librefit_occ_118",
+    "food_name": "Burger",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.5,
+      "protein": 0.12,
+      "carbs": 0.3,
+      "fat": 0.1,
+      "fiber": 0.03
+    },
+    "servings": {
+      "piece": 200
+    }
+  },
+  {
+    "food_id": "librefit_occ_119",
+    "food_name": "French Fries",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.12,
+      "protein": 0.03,
+      "carbs": 0.41,
+      "fat": 0.15,
+      "fiber": 0.04
+    },
+    "servings": {
+      "bowl": 150
+    }
+  },
+  {
+    "food_id": "librefit_occ_120",
+    "food_name": "Momos",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.6,
+      "protein": 0.06,
+      "carbs": 0.22,
+      "fat": 0.05,
+      "fiber": 0.01
+    },
+    "servings": {
+      "piece": 30
+    }
+  },
+  {
+    "food_id": "librefit_occ_121",
+    "food_name": "Chowmein",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.55,
+      "protein": 0.05,
+      "carbs": 0.26,
+      "fat": 0.04,
+      "fiber": 0.02
+    },
+    "servings": {
+      "bowl": 300
+    }
+  },
+  {
+    "food_id": "librefit_occ_122",
+    "food_name": "Fried Rice",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.65,
+      "protein": 0.04,
+      "carbs": 0.28,
+      "fat": 0.04,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 300
+    }
+  },
+  {
+    "food_id": "librefit_occ_123",
+    "food_name": "Biryani",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.1,
+      "protein": 0.1,
+      "carbs": 0.3,
+      "fat": 0.06,
+      "fiber": 0.01
+    },
+    "servings": {
+      "bowl": 350
+    }
+  },
+  {
+    "food_id": "librefit_occ_124",
+    "food_name": "Pav Bhaji",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.8,
+      "protein": 0.05,
+      "carbs": 0.28,
+      "fat": 0.06,
+      "fiber": 0.02
+    },
+    "servings": {
+      "plate": 400
+    }
+  },
+  {
+    "food_id": "librefit_occ_125",
+    "food_name": "Vada Pav",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.9,
+      "protein": 0.06,
+      "carbs": 0.38,
+      "fat": 0.12,
+      "fiber": 0.02
+    },
+    "servings": {
+      "piece": 150
+    }
+  },
+  {
+    "food_id": "librefit_occ_126",
+    "food_name": "Dabeli",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 2.4,
+      "protein": 0.05,
+      "carbs": 0.35,
+      "fat": 0.09,
+      "fiber": 0.02
+    },
+    "servings": {
+      "piece": 120
+    }
+  },
+  {
+    "food_id": "librefit_occ_127",
+    "food_name": "Gulab Jamun",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.2,
+      "protein": 0.04,
+      "carbs": 0.5,
+      "fat": 0.12,
+      "fiber": 0.005
+    },
+    "servings": {
+      "piece": 50
+    }
+  },
+  {
+    "food_id": "librefit_occ_128",
+    "food_name": "Rasgulla",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 1.85,
+      "protein": 0.05,
+      "carbs": 0.38,
+      "fat": 0.02,
+      "fiber": 0
+    },
+    "servings": {
+      "piece": 60
+    }
+  },
+  {
+    "food_id": "librefit_occ_129",
+    "food_name": "Cake",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.7,
+      "protein": 0.05,
+      "carbs": 0.5,
+      "fat": 0.17,
+      "fiber": 0.02
+    },
+    "servings": {
+      "piece": 80
+    }
+  },
+  {
+    "food_id": "librefit_occ_130",
+    "food_name": "Pastry",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 3.3,
+      "protein": 0.04,
+      "carbs": 0.45,
+      "fat": 0.15,
+      "fiber": 0.01
+    },
+    "servings": {
+      "piece": 80
+    }
+  },
+  {
+    "food_id": "librefit_occ_131",
+    "food_name": "Ladoo",
+    "category": "Occasional",
+    "base_unit": "grams",
+    "nutrition_per_gram": {
+      "calories": 4.5,
+      "protein": 0.08,
+      "carbs": 0.55,
+      "fat": 0.22,
+      "fiber": 0.02
+    },
+    "servings": {
+      "piece": 40
+    }
+  }
+]

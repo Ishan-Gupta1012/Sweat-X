@@ -1,0 +1,173 @@
+const fs = require('fs');
+
+const B = "Breakfast";
+const L = "Lunch-Dinner";
+const S = "Snack";
+const O = "Occasional";
+
+const foods = [
+    // BREAKFAST (35 items)
+    { name: "Upma", cat: B, cal: 1.30, p: 0.035, c: 0.23, f: 0.03, fib: 0.01, s: { bowl: 250, katori: 180, plate: 300 } },
+    { name: "Poha", cat: B, cal: 1.60, p: 0.035, c: 0.28, f: 0.04, fib: 0.01, s: { bowl: 200, katori: 150, plate: 250 } },
+    { name: "Vegetable Poha", cat: B, cal: 1.50, p: 0.03, c: 0.25, f: 0.05, fib: 0.015, s: { bowl: 220, katori: 160, plate: 280 } },
+    { name: "Idli", cat: B, cal: 1.10, p: 0.03, c: 0.24, f: 0.005, fib: 0.015, s: { piece: 50, plate: 150 } },
+    { name: "Dosa (Plain)", cat: B, cal: 1.70, p: 0.04, c: 0.32, f: 0.03, fib: 0.006, s: { piece: 80, plate: 160 } },
+    { name: "Plain Omelette", cat: B, cal: 1.85, p: 0.12, c: 0.01, f: 0.15, fib: 0.0, s: { piece: 60, plate: 120 } },
+    { name: "Egg Bhurji", cat: B, cal: 1.95, p: 0.13, c: 0.02, f: 0.16, fib: 0.0, s: { bowl: 200, katori: 150, plate: 250 } },
+    { name: "Boiled Eggs", cat: B, cal: 1.55, p: 0.13, c: 0.01, f: 0.11, fib: 0.0, s: { piece: 50 } },
+    { name: "Paneer Bhurji", cat: B, cal: 2.15, p: 0.14, c: 0.04, f: 0.16, fib: 0.0, s: { bowl: 200, katori: 150, plate: 250 } },
+    { name: "Oats (Plain)", cat: B, cal: 0.70, p: 0.02, c: 0.12, f: 0.015, fib: 0.02, s: { bowl: 300, katori: 200, cup: 250 } },
+    { name: "Masala Oats", cat: B, cal: 0.85, p: 0.03, c: 0.14, f: 0.02, fib: 0.02, s: { bowl: 300, katori: 200, cup: 250 } },
+    { name: "Oats with Milk", cat: B, cal: 1.10, p: 0.045, c: 0.15, f: 0.035, fib: 0.015, s: { bowl: 300, katori: 200, cup: 250 } },
+    { name: "Besan Chilla", cat: B, cal: 1.65, p: 0.08, c: 0.22, f: 0.05, fib: 0.03, s: { piece: 80, plate: 240 } },
+    { name: "Moong Dal Chilla", cat: B, cal: 1.45, p: 0.10, c: 0.20, f: 0.03, fib: 0.03, s: { piece: 80, plate: 240 } },
+    { name: "Aloo Paratha", cat: B, cal: 2.30, p: 0.05, c: 0.32, f: 0.09, fib: 0.02, s: { piece: 120, plate: 240 } },
+    { name: "Paneer Paratha", cat: B, cal: 2.65, p: 0.10, c: 0.28, f: 0.12, fib: 0.02, s: { piece: 120, plate: 240 } },
+    { name: "Plain Paratha", cat: B, cal: 2.90, p: 0.07, c: 0.45, f: 0.09, fib: 0.04, s: { piece: 80, plate: 160 } },
+    { name: "Toast (Brown)", cat: B, cal: 2.60, p: 0.09, c: 0.48, f: 0.03, fib: 0.05, s: { piece: 30, slice: 30 } },
+    { name: "Peanut Butter Toast", cat: B, cal: 3.80, p: 0.12, c: 0.35, f: 0.22, fib: 0.06, s: { piece: 45 } },
+    { name: "Banana", cat: B, cal: 0.89, p: 0.011, c: 0.23, f: 0.003, fib: 0.026, s: { piece: 120 } },
+    { name: "Apple", cat: B, cal: 0.52, p: 0.003, c: 0.14, f: 0.002, fib: 0.024, s: { piece: 150 } },
+    { name: "Papaya", cat: B, cal: 0.43, p: 0.005, c: 0.11, f: 0.003, fib: 0.017, s: { bowl: 250, katori: 180, plate: 300 } },
+    { name: "Sprouts Salad", cat: B, cal: 1.20, p: 0.08, c: 0.18, f: 0.015, fib: 0.05, s: { bowl: 200, katori: 150 } },
+    { name: "Curd", cat: B, cal: 0.60, p: 0.05, c: 0.05, f: 0.03, fib: 0.0, s: { bowl: 250, katori: 180, cup: 200 } },
+    { name: "Greek Yogurt", cat: B, cal: 0.95, p: 0.09, c: 0.04, f: 0.05, fib: 0.0, s: { cup: 150 } },
+    { name: "Milk (Toned)", cat: B, cal: 0.58, p: 0.031, c: 0.047, f: 0.03, fib: 0.0, s: { glass: 250, cup: 200 } },
+    { name: "Milk (Full Cream)", cat: B, cal: 0.72, p: 0.033, c: 0.048, f: 0.045, fib: 0.0, s: { glass: 250, cup: 200 } },
+    { name: "Protein Shake (Whey)", cat: B, cal: 0.45, p: 0.08, c: 0.01, f: 0.005, fib: 0.005, s: { glass: 300 } },
+    { name: "Black Coffee", cat: B, cal: 0.02, p: 0.001, c: 0.001, f: 0.0, fib: 0.0, s: { cup: 200, glass: 250 } },
+    { name: "Tea (with milk)", cat: B, cal: 0.45, p: 0.015, c: 0.06, f: 0.015, fib: 0.0, s: { cup: 150, glass: 200 } },
+    { name: "Tea (without sugar)", cat: B, cal: 0.25, p: 0.015, c: 0.02, f: 0.015, fib: 0.0, s: { cup: 150, glass: 200 } },
+    { name: "Smoothie (Fruit)", cat: B, cal: 0.65, p: 0.02, c: 0.13, f: 0.005, fib: 0.02, s: { glass: 300 } },
+    { name: "Smoothie (Protein)", cat: B, cal: 0.85, p: 0.06, c: 0.12, f: 0.015, fib: 0.02, s: { glass: 350 } },
+    { name: "Cornflakes", cat: B, cal: 2.40, p: 0.06, c: 0.52, f: 0.01, fib: 0.02, s: { bowl: 250 } },
+    { name: "Muesli", cat: B, cal: 2.80, p: 0.08, c: 0.55, f: 0.04, fib: 0.06, s: { bowl: 250 } },
+
+    // LUNCH / DINNER (55 items)
+    { name: "White Rice (Cooked)", cat: L, cal: 1.30, p: 0.027, c: 0.28, f: 0.003, fib: 0.004, s: { bowl: 250, katori: 180, plate: 350 } },
+    { name: "Brown Rice", cat: L, cal: 1.11, p: 0.026, c: 0.23, f: 0.009, fib: 0.018, s: { bowl: 250, katori: 180, plate: 350 } },
+    { name: "Jeera Rice", cat: L, cal: 1.45, p: 0.03, c: 0.30, f: 0.015, fib: 0.005, s: { bowl: 250, katori: 180, plate: 350 } },
+    { name: "Lemon Rice", cat: L, cal: 1.80, p: 0.04, c: 0.35, f: 0.03, fib: 0.01, s: { bowl: 250, katori: 180, plate: 350 } },
+    { name: "Veg Pulao", cat: L, cal: 1.40, p: 0.035, c: 0.28, f: 0.02, fib: 0.015, s: { bowl: 250, katori: 180, plate: 350 } },
+    { name: "Khichdi", cat: L, cal: 1.10, p: 0.045, c: 0.22, f: 0.015, fib: 0.012, s: { bowl: 300, katori: 200, plate: 400 } },
+    { name: "Roti", cat: L, cal: 2.65, p: 0.08, c: 0.50, f: 0.03, fib: 0.10, s: { piece: 40 } },
+    { name: "Butter Roti", cat: L, cal: 3.10, p: 0.08, c: 0.48, f: 0.09, fib: 0.10, s: { piece: 45 } },
+    { name: "Naan", cat: L, cal: 2.90, p: 0.09, c: 0.55, f: 0.04, fib: 0.02, s: { piece: 100, plate: 200 } },
+    { name: "Plain Pasta", cat: L, cal: 1.58, p: 0.06, c: 0.31, f: 0.01, fib: 0.02, s: { bowl: 250 } },
+    { name: "Veg Pasta", cat: L, cal: 1.45, p: 0.05, c: 0.28, f: 0.03, fib: 0.03, s: { bowl: 300, plate: 400 } },
+    { name: "Dal Tadka", cat: L, cal: 1.05, p: 0.06, c: 0.16, f: 0.03, fib: 0.05, s: { bowl: 250, katori: 180 } },
+    { name: "Dal Fry", cat: L, cal: 1.25, p: 0.06, c: 0.15, f: 0.06, fib: 0.05, s: { bowl: 250, katori: 180 } },
+    { name: "Rajma", cat: L, cal: 1.15, p: 0.07, c: 0.18, f: 0.03, fib: 0.06, s: { bowl: 250, katori: 180 } },
+    { name: "Chole", cat: L, cal: 1.45, p: 0.06, c: 0.22, f: 0.05, fib: 0.06, s: { bowl: 250, katori: 180 } },
+    { name: "Paneer Curry", cat: L, cal: 1.85, p: 0.09, c: 0.08, f: 0.13, fib: 0.01, s: { bowl: 250, katori: 180 } },
+    { name: "Paneer Bhurji (L/D)", cat: L, cal: 2.15, p: 0.14, c: 0.04, f: 0.16, fib: 0.0, s: { bowl: 200, katori: 150 } },
+    { name: "Tofu Curry", cat: L, cal: 0.95, p: 0.10, c: 0.05, f: 0.045, fib: 0.01, s: { bowl: 250, katori: 180 } },
+    { name: "Chicken Curry", cat: L, cal: 1.55, p: 0.16, c: 0.04, f: 0.08, fib: 0.01, s: { bowl: 250, katori: 180 } },
+    { name: "Chicken Breast (Grilled)", cat: L, cal: 1.65, p: 0.31, c: 0.0, f: 0.036, fib: 0.0, s: { piece: 150, plate: 250 } },
+    { name: "Egg Curry", cat: L, cal: 1.40, p: 0.10, c: 0.04, f: 0.09, fib: 0.0, s: { bowl: 250, katori: 180 } },
+    { name: "Fish Curry", cat: L, cal: 1.30, p: 0.15, c: 0.04, f: 0.06, fib: 0.0, s: { bowl: 250, katori: 180 } },
+    { name: "Mixed Veg Sabzi", cat: L, cal: 0.95, p: 0.03, c: 0.12, f: 0.05, fib: 0.03, s: { bowl: 250, katori: 180, plate: 300 } },
+    { name: "Aloo Sabzi", cat: L, cal: 1.40, p: 0.02, c: 0.22, f: 0.06, fib: 0.02, s: { bowl: 250, katori: 180, plate: 300 } },
+    { name: "Bhindi Sabzi", cat: L, cal: 1.10, p: 0.025, c: 0.14, f: 0.06, fib: 0.04, s: { bowl: 200, katori: 150, plate: 250 } },
+    { name: "Lauki Sabzi", cat: L, cal: 0.55, p: 0.01, c: 0.06, f: 0.03, fib: 0.02, s: { bowl: 250, katori: 180 } },
+    { name: "Gajar Matar", cat: L, cal: 0.85, p: 0.03, c: 0.12, f: 0.03, fib: 0.04, s: { bowl: 250, katori: 180 } },
+    { name: "Palak Paneer", cat: L, cal: 1.60, p: 0.11, c: 0.06, f: 0.11, fib: 0.03, s: { bowl: 250, katori: 180 } },
+    { name: "Palak Sabzi", cat: L, cal: 0.65, p: 0.03, c: 0.06, f: 0.04, fib: 0.03, s: { bowl: 200, katori: 150 } },
+    { name: "Cabbage Sabzi", cat: L, cal: 0.75, p: 0.02, c: 0.09, f: 0.04, fib: 0.03, s: { bowl: 200, katori: 150 } },
+    { name: "Mushroom Sabzi", cat: L, cal: 0.90, p: 0.04, c: 0.08, f: 0.05, fib: 0.03, s: { bowl: 200, katori: 150 } },
+    { name: "Raita", cat: L, cal: 0.85, p: 0.04, c: 0.07, f: 0.05, fib: 0.01, s: { bowl: 250, katori: 180 } },
+    { name: "Salad (Raw Veg)", cat: L, cal: 0.25, p: 0.01, c: 0.05, f: 0.005, fib: 0.02, s: { bowl: 200, plate: 300 } },
+    { name: "Papad", cat: L, cal: 3.50, p: 0.18, c: 0.45, f: 0.10, fib: 0.12, s: { piece: 15 } },
+    { name: "Pickle", cat: L, cal: 1.80, p: 0.02, c: 0.08, f: 0.15, fib: 0.02, s: { spoon: 15 } },
+    // Adding 19 more L/D items to reach 55
+    { name: "Butter Chicken", cat: L, cal: 2.15, p: 0.14, c: 0.06, f: 0.15, fib: 0.01, s: { bowl: 250 } },
+    { name: "Mutton Curry", cat: L, cal: 1.95, p: 0.16, c: 0.04, f: 0.13, fib: 0.01, s: { bowl: 250 } },
+    { name: "Tandoori Chicken", cat: L, cal: 1.50, p: 0.24, c: 0.01, f: 0.06, fib: 0.0, s: { piece: 150 } },
+    { name: "Kadai Paneer", cat: L, cal: 2.05, p: 0.12, c: 0.08, f: 0.14, fib: 0.02, s: { bowl: 250 } },
+    { name: "Baingan Bharta", cat: L, cal: 1.10, p: 0.02, c: 0.09, f: 0.08, fib: 0.03, s: { bowl: 250 } },
+    { name: "Aloo Matar", cat: L, cal: 1.20, p: 0.03, c: 0.18, f: 0.05, fib: 0.03, s: { bowl: 250 } },
+    { name: "Malai Kofta", cat: L, cal: 2.65, p: 0.08, c: 0.15, f: 0.20, fib: 0.02, s: { bowl: 250 } },
+    { name: "Dum Aloo", cat: L, cal: 1.85, p: 0.03, c: 0.22, f: 0.10, fib: 0.02, s: { bowl: 250 } },
+    { name: "Gobi Masala", cat: L, cal: 1.25, p: 0.04, c: 0.12, f: 0.07, fib: 0.04, s: { bowl: 250 } },
+    { name: "Bhindi Fry", cat: L, cal: 2.10, p: 0.03, c: 0.15, f: 0.16, fib: 0.05, s: { bowl: 200 } },
+    { name: "Chicken Tikka", cat: L, cal: 1.50, p: 0.22, c: 0.02, f: 0.06, fib: 0.0, s: { piece: 40 } },
+    { name: "Fish Fry", cat: L, cal: 2.45, p: 0.18, c: 0.10, f: 0.15, fib: 0.0, s: { piece: 100 } },
+    { name: "Keema", cat: L, cal: 2.10, p: 0.18, c: 0.04, f: 0.14, fib: 0.01, s: { bowl: 200 } },
+    { name: "Veg Jalfrezi", cat: L, cal: 1.15, p: 0.04, c: 0.12, f: 0.06, fib: 0.04, s: { bowl: 250 } },
+    { name: "Shrimp Curry", cat: L, cal: 1.25, p: 0.16, c: 0.05, f: 0.05, fib: 0.0, s: { bowl: 250 } },
+    { name: "Methi Matar Malai", cat: L, cal: 2.40, p: 0.07, c: 0.10, f: 0.20, fib: 0.04, s: { bowl: 250 } },
+    { name: "Navratan Korma", cat: L, cal: 2.30, p: 0.06, c: 0.14, f: 0.17, fib: 0.03, s: { bowl: 250 } },
+    { name: "Dahi Vada", cat: L, cal: 1.65, p: 0.06, c: 0.25, f: 0.045, fib: 0.02, s: { piece: 60, plate: 180 } },
+    { name: "Curd Rice", cat: L, cal: 1.20, p: 0.04, c: 0.20, f: 0.03, fib: 0.01, s: { bowl: 300 } },
+    { name: "Paneer Tikka (Grilled)", cat: L, cal: 2.10, p: 0.18, c: 0.04, f: 0.14, fib: 0.01, s: { piece: 40, plate: 200 } },
+    { name: "Kadhi Pakoda", cat: L, cal: 1.10, p: 0.04, c: 0.12, f: 0.05, fib: 0.01, s: { bowl: 250, katori: 180 } },
+
+    // SNACKS (25 items)
+    { name: "Roasted Peanuts", cat: S, cal: 5.85, p: 0.26, c: 0.16, f: 0.49, fib: 0.09, s: { katori: 100 } },
+    { name: "Boiled Corn", cat: S, cal: 0.96, p: 0.03, c: 0.21, f: 0.015, fib: 0.02, s: { cup: 200 } },
+    { name: "Popcorn", cat: S, cal: 3.80, p: 0.12, c: 0.72, f: 0.04, fib: 0.14, s: { bowl: 50 } },
+    { name: "Fruit Salad", cat: S, cal: 0.55, p: 0.01, c: 0.14, f: 0.003, fib: 0.02, s: { bowl: 250 } },
+    { name: "Peanut Chikki", cat: S, cal: 4.90, p: 0.14, c: 0.55, f: 0.25, fib: 0.04, s: { piece: 30 } },
+    { name: "Protein Bar", cat: S, cal: 4.10, p: 0.30, c: 0.40, f: 0.15, fib: 0.08, s: { piece: 50 } },
+    { name: "Roasted Chana", cat: S, cal: 3.65, p: 0.19, c: 0.58, f: 0.06, fib: 0.12, s: { katori: 100 } },
+    { name: "Makhana", cat: S, cal: 3.50, p: 0.10, c: 0.72, f: 0.02, fib: 0.14, s: { bowl: 50 } },
+    { name: "Cheese Slice", cat: S, cal: 3.20, p: 0.18, c: 0.04, f: 0.26, fib: 0.0, s: { slice: 20 } },
+    { name: "Paneer Cubes", cat: S, cal: 2.65, p: 0.18, c: 0.03, f: 0.21, fib: 0.0, s: { piece: 20 } },
+    { name: "Boiled Eggs (Snack)", cat: S, cal: 1.55, p: 0.13, c: 0.01, f: 0.11, fib: 0.0, s: { piece: 50 } },
+    { name: "Banana (Snack)", cat: S, cal: 0.89, p: 0.011, c: 0.23, f: 0.003, fib: 0.026, s: { piece: 120 } },
+    { name: "Apple (Snack)", cat: S, cal: 0.52, p: 0.003, c: 0.14, f: 0.002, fib: 0.024, s: { piece: 150 } },
+    { name: "Orange", cat: S, cal: 0.47, p: 0.009, c: 0.12, f: 0.001, fib: 0.024, s: { piece: 130 } },
+    { name: "Buttermilk", cat: S, cal: 0.40, p: 0.03, c: 0.05, f: 0.01, fib: 0.0, s: { glass: 250 } },
+    { name: "Coconut Water", cat: S, cal: 0.19, p: 0.007, c: 0.037, f: 0.0, fib: 0.01, s: { glass: 250 } },
+    { name: "Dark Chocolate", cat: S, cal: 5.45, p: 0.08, c: 0.45, f: 0.35, fib: 0.07, s: { piece: 10 } },
+    { name: "Biscuits", cat: S, cal: 4.60, p: 0.07, c: 0.65, f: 0.18, fib: 0.04, s: { piece: 12 } },
+    { name: "Samosa", cat: S, cal: 3.10, p: 0.05, c: 0.35, f: 0.17, fib: 0.02, s: { piece: 100 } },
+    { name: "Pakora", cat: S, cal: 3.40, p: 0.08, c: 0.30, f: 0.22, fib: 0.03, s: { piece: 30 } },
+    { name: "Veg Sandwich", cat: S, cal: 2.10, p: 0.06, c: 0.35, f: 0.05, fib: 0.04, s: { piece: 150 } },
+    { name: "Paneer Sandwich", cat: S, cal: 2.45, p: 0.10, c: 0.30, f: 0.10, fib: 0.03, s: { piece: 180 } },
+    { name: "Peanut Butter Sandwich", cat: S, cal: 3.90, p: 0.13, c: 0.36, f: 0.23, fib: 0.06, s: { piece: 80 } },
+    { name: "Milkshake", cat: S, cal: 1.10, p: 0.03, c: 0.15, f: 0.04, fib: 0.01, s: { glass: 300 } },
+    { name: "Ice Cream", cat: S, cal: 2.10, p: 0.03, c: 0.24, f: 0.11, fib: 0.0, s: { cup: 100 } },
+
+    // JUNK / OCCASIONAL (15 items)
+    { name: "Pizza Slice", cat: O, cal: 2.65, p: 0.11, c: 0.28, f: 0.12, fib: 0.02, s: { piece: 100 } },
+    { name: "Burger", cat: O, cal: 2.50, p: 0.12, c: 0.30, f: 0.10, fib: 0.03, s: { piece: 200 } },
+    { name: "French Fries", cat: O, cal: 3.12, p: 0.03, c: 0.41, f: 0.15, fib: 0.04, s: { bowl: 150 } },
+    { name: "Momos", cat: O, cal: 1.60, p: 0.06, c: 0.22, f: 0.05, fib: 0.01, s: { piece: 30 } },
+    { name: "Chowmein", cat: O, cal: 1.55, p: 0.05, c: 0.26, f: 0.04, fib: 0.02, s: { bowl: 300 } },
+    { name: "Fried Rice", cat: O, cal: 1.65, p: 0.04, c: 0.28, f: 0.04, fib: 0.01, s: { bowl: 300 } },
+    { name: "Biryani", cat: O, cal: 2.10, p: 0.10, c: 0.30, f: 0.06, fib: 0.01, s: { bowl: 350 } },
+    { name: "Pav Bhaji", cat: O, cal: 1.80, p: 0.05, c: 0.28, f: 0.06, fib: 0.02, s: { plate: 400 } },
+    { name: "Vada Pav", cat: O, cal: 2.90, p: 0.06, c: 0.38, f: 0.12, fib: 0.02, s: { piece: 150 } },
+    { name: "Dabeli", cat: O, cal: 2.40, p: 0.05, c: 0.35, f: 0.09, fib: 0.02, s: { piece: 120 } },
+    { name: "Gulab Jamun", cat: O, cal: 3.20, p: 0.04, c: 0.50, f: 0.12, fib: 0.005, s: { piece: 50 } },
+    { name: "Rasgulla", cat: O, cal: 1.85, p: 0.05, c: 0.38, f: 0.02, fib: 0.0, s: { piece: 60 } },
+    { name: "Cake", cat: O, cal: 3.70, p: 0.05, c: 0.50, f: 0.17, fib: 0.02, s: { piece: 80 } },
+    { name: "Pastry", cat: O, cal: 3.30, p: 0.04, c: 0.45, f: 0.15, fib: 0.01, s: { piece: 80 } },
+    { name: "Ladoo", cat: O, cal: 4.50, p: 0.08, c: 0.55, f: 0.22, fib: 0.02, s: { piece: 40 } },
+];
+
+const db = foods.map((f, i) => ({
+    food_id: `librefit_${catCode(f.cat)}_${String(i + 1).padStart(3, '0')}`,
+    food_name: f.name,
+    category: f.cat,
+    base_unit: "grams",
+    nutrition_per_gram: {
+        calories: f.cal,
+        protein: f.p,
+        carbs: f.c,
+        fat: f.f,
+        fiber: f.fib
+    },
+    servings: f.s
+}));
+
+function catCode(c) {
+    if (c === B) return "brk";
+    if (c === L) return "lun";
+    if (c === S) return "snk";
+    return "occ";
+}
+
+fs.writeFileSync('server/data/indian_food_db.json', JSON.stringify(db, null, 2));
+console.log(`Generated ${db.length} food items.`);

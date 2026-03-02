@@ -1,0 +1,49 @@
+/**
+ * Script to test all 5 Gemini API keys
+ */
+require('dotenv').config({ path: './.env' });
+
+async function testAllKeys() {
+    const keys = [
+        process.env.GEMINI_API_KEY,
+        process.env.GEMINI_API_KEY_2,
+        process.env.GEMINI_API_KEY_3,
+        process.env.GEMINI_API_KEY_4,
+        process.env.GEMINI_API_KEY_5
+    ];
+
+    const model = 'gemini-1.5-flash';
+
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        const label = `Key ${i + 1}`;
+
+        if (!key) {
+            console.log(`[${label}] - MISSING`);
+            continue;
+        }
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: "hi" }] }]
+                }),
+            });
+
+            if (response.ok) {
+                console.log(`[${label}] - ✅ VALID`);
+            } else {
+                const err = await response.json();
+                console.log(`[${label}] - ❌ FAILED: ${err.error?.message || response.statusText}`);
+            }
+        } catch (e) {
+            console.log(`[${label}] - ❌ ERROR: ${e.message}`);
+        }
+    }
+}
+
+testAllKeys().catch(console.error);

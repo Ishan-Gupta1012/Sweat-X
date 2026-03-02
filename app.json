@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Myfitness",
-    "slug": "Myfitness",
+    "name": "Sweat-X",
+    "slug": "true-fit",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,20 +10,36 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.truefit.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you log meals from your gallery.",
+          "cameraPermission": "The app accesses your camera to scan and identify food items instantly."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5f7db9fb-6403-4ddc-b1f8-79c3851446ae"
+      }
     }
   }
 }
