@@ -99,6 +99,8 @@ router.post('/login', async (req, res) => {
         // Check if user is Superadmin dynamically (in case of legacy account without flag)
         const isSuperAdmin = (user.email === 'ishangupta1012@gmail.com') || (user.phoneNumber === '9711668300');
 
+        const userResponse = user.toObject();
+
         if (isSuperAdmin && !user.isAdmin) {
             user.isAdmin = true;
             await user.save();

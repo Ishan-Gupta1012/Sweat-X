@@ -2,11 +2,8 @@ import { Platform } from 'react-native';
 // API URL - Switch between local and production
 // For local development on mobile, use your computer's IP address
 // For production APK, use the deployed URL on Render.com
-// export const API_URL = 'https://truefit-api.onrender.com/api';
-export const API_URL = Platform.OS === 'web'
-    ? 'http://localhost:3001/api'
-    : 'http://192.168.1.46:3001/api';
-// export const API_URL = 'http://localhost:3001/api'; // Web only
+// export const API_URL = 'http://localhost:3001/api';
+export const API_URL = 'https://truefit-api.onrender.com/api';
 
 // Generate a unique device ID for this installation
 const getDeviceId = () => {
