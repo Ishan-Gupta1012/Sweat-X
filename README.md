@@ -127,4 +127,4 @@ eas build -p android --profile preview
 This project is private and proprietary. All rights reserved.
 
 ---
-*Built with passion by Ishan Gupta and the Antigravity AI Team.*
+*Built with passion by Ishan Gupta.*
