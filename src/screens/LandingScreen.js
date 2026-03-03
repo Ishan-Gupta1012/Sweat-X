@@ -118,22 +118,6 @@ const LandingScreen = ({ navigation }) => {
                         icon={<Ionicons name="sparkles-outline" size={20} color="#fff" />}
                     />
 
-                    <TouchableOpacity
-                        onPress={() => {
-                            if (userData?.onboardingComplete) {
-                                navigation.reset({
-                                    index: 0,
-                                    routes: [{ name: 'MainApp' }],
-                                });
-                            } else {
-                                navigation.navigate('Login');
-                            }
-                        }}
-                        style={styles.loginBtn}
-                    >
-                        <Text style={styles.loginBtnText}>ALREADY ENLISTED? LOGIN</Text>
-                    </TouchableOpacity>
-
                     <View style={styles.footer}>
                         <Ionicons name="shield-checkmark" size={14} color={theme.textMuted} />
                         <Text style={styles.footerText}>
@@ -251,22 +235,6 @@ const createStyles = (theme) => StyleSheet.create({
         shadowRadius: 24,
         elevation: 20,
         transform: [{ scale: 0.98 }]
-    },
-    loginBtn: {
-        marginTop: spacing.md,
-        height: 54,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: borderRadius.lg,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    },
-    loginBtnText: {
-        color: '#FFFFFF',
-        fontSize: 12,
-        fontWeight: '900',
-        letterSpacing: 2,
     },
     footer: {
         flexDirection: 'row',
