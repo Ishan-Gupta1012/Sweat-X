@@ -363,6 +363,7 @@ export const UserProvider = ({ children }) => {
                         currentStreak: serverData.user.currentStreak || prev.currentStreak,
                         caloriesBurned: serverData.user.caloriesBurned || prev.caloriesBurned,
                         todayExerciseMinutes: serverData.user.todayExerciseMinutes || prev.todayExerciseMinutes,
+                        onboardingComplete: serverData.user.onboardingComplete !== undefined ? serverData.user.onboardingComplete : prev.onboardingComplete,
                     }));
                 }
             }

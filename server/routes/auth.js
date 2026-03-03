@@ -111,8 +111,24 @@ router.post('/login', async (req, res) => {
         delete userResponse.password;
 
         // Ensure onboardingComplete is always present (even if not in DB)
-        if (userResponse.onboardingComplete === undefined) {
-            userResponse.onboardingComplete = false;
+        if (userResponse.onboardingComplete === undefined || userResponse.onboardingComplete === false) {
+            // Retroactively detect if onboarding is complete based on presence of key profile data
+            const hasProfileData =
+                (user.primaryGoal && user.primaryGoal !== '') ||
+                (user.currentWeight && user.currentWeight > 0) ||
+                (user.age && user.age !== '');
+
+            if (hasProfileData) {
+                console.log('[AUTH] Retroactively marking onboardingComplete = true for:', cleanIdentifier);
+                userResponse.onboardingComplete = true;
+                // Also update the database if it was false
+                if (user.onboardingComplete === false) {
+                    user.onboardingComplete = true;
+                    await user.save();
+                }
+            } else {
+                userResponse.onboardingComplete = false;
+            }
         }
 
         // DEBUG: Log what we're returning
