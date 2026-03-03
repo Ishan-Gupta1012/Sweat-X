@@ -164,7 +164,9 @@ const FoodSearchScreen = ({ navigation, route }) => {
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
                 aspect: [4, 3],
-                quality: 0.2,
+                quality: 0.4,
+                maxWidth: 800,
+                maxHeight: 800,
                 base64: true,
             });
 
@@ -192,7 +194,9 @@ const FoodSearchScreen = ({ navigation, route }) => {
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
                 aspect: [4, 3],
-                quality: 0.2,
+                quality: 0.4,
+                maxWidth: 800,
+                maxHeight: 800,
                 base64: true,
             });
 

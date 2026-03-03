@@ -11,6 +11,7 @@ const AdminDashboardScreen = ({ navigation }) => {
     const [stats, setStats] = useState(null);
     const [activeUsers, setActiveUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [usersExpanded, setUsersExpanded] = useState(false);
 
     useEffect(() => {
         fetchStats();
@@ -103,11 +104,22 @@ const AdminDashboardScreen = ({ navigation }) => {
                             ))}
                         </View>
 
-                        <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Active Users Today</Text>
+                        <TouchableOpacity
+                            style={styles.sectionHeader}
+                            onPress={() => setUsersExpanded(!usersExpanded)}
+                            activeOpacity={0.7}
+                        >
+                            <Text style={[styles.sectionTitle, { color: theme.textPrimary, marginBottom: 0, marginTop: 0 }]}>Active Users Today ({activeUsers.length})</Text>
+                            <Ionicons
+                                name={usersExpanded ? 'chevron-up' : 'chevron-down'}
+                                size={18}
+                                color={theme.textSecondary}
+                            />
+                        </TouchableOpacity>
                         <View style={[styles.usersList, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
                             {activeUsers.length > 0 ? (
-                                activeUsers.map((user, i) => (
-                                    <View key={i} style={[styles.userRow, i < activeUsers.length - 1 && { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
+                                (usersExpanded ? activeUsers : activeUsers.slice(0, 3)).map((user, i, arr) => (
+                                    <View key={i} style={[styles.userRow, i < arr.length - 1 && { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
                                         <View style={[styles.userAvatar, { backgroundColor: theme.primary + '15' }]}>
                                             <Text style={{ color: theme.primary, fontWeight: '700' }}>{user.name.charAt(0).toUpperCase()}</Text>
                                         </View>
@@ -120,6 +132,14 @@ const AdminDashboardScreen = ({ navigation }) => {
                                 ))
                             ) : (
                                 <Text style={{ color: theme.textMuted, textAlign: 'center', padding: 20 }}>No user activity tracked yet today.</Text>
+                            )}
+                            {!usersExpanded && activeUsers.length > 3 && (
+                                <TouchableOpacity
+                                    style={styles.showMoreBtn}
+                                    onPress={() => setUsersExpanded(true)}
+                                >
+                                    <Text style={[styles.showMoreText, { color: theme.primary }]}>Show {activeUsers.length - 3} more users</Text>
+                                </TouchableOpacity>
                             )}
                         </View>
 
@@ -181,6 +201,9 @@ const styles = StyleSheet.create({
     shieldIcon: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
 
     sectionTitle: { fontSize: 12, fontWeight: '800', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 16, marginTop: 16 },
+    sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, marginTop: 16 },
+    showMoreBtn: { paddingVertical: 12, alignItems: 'center', borderTopWidth: 1, borderTopColor: '#2A2A2A' },
+    showMoreText: { fontSize: 12, fontWeight: '700', letterSpacing: 0.5 },
 
     statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 },
     statCard: { width: '48%', padding: 16, borderRadius: 16, borderWidth: 1, alignItems: 'flex-start' },

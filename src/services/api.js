@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 // For local development on mobile, use your computer's IP address
 // For production APK, use the deployed URL on Render.com
 // export const API_URL = 'http://localhost:3001/api';
-export const API_URL = 'https://truefit-api.onrender.com/api';
+export const API_URL = 'https://true-fit-server-ten.vercel.app/api';
 
 // Generate a unique device ID for this installation
 const getDeviceId = () => {
@@ -66,7 +66,7 @@ export const userApi = {
     async saveUser(deviceId, userData) {
         try {
             const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), 5000);
+            const id = setTimeout(() => controller.abort(), 15000);
             const response = await fetch(`${API_URL}/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -85,7 +85,7 @@ export const userApi = {
     async getUser(deviceId) {
         try {
             const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), 5000);
+            const id = setTimeout(() => controller.abort(), 15000);
             const response = await fetch(`${API_URL}/users/${deviceId}`, { signal: controller.signal });
             clearTimeout(id);
             return await response.json();
@@ -99,7 +99,7 @@ export const userApi = {
     async updateUser(deviceId, updates) {
         try {
             const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), 5000);
+            const id = setTimeout(() => controller.abort(), 15000);
             const response = await fetch(`${API_URL}/users/${deviceId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },

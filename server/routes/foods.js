@@ -209,22 +209,31 @@ router.post('/analyze-image', express.json({ limit: '100mb' }), async (req, res)
         }
 
         // USE PURE GEMINI ANALYSIS (No RapidAPI/Bon Happetee)
-        const prompt = `Act as a professional nutritionist and AI food analyst. Analyze this image of food. 
-1. Identify the food items present.
-2. Estimate the serving size for each item (e.g., 1 bowl of rice, 2 rotis, 150g chicken).
-3. Provide the total nutritional breakdown for the entire meal shown in the image.
+        const prompt = `You are an expert Indian and international food nutritionist with deep knowledge of all cuisines including Indian dishes like vermicelli (sewaiyan/sevai), poha, upma, khichdi, dal, sabzi, roti, paratha, biryani, pulao, dosa, idli, etc.
 
-Respond ONLY with a JSON object in this exact format, with no extra text or markdown:
+Analyze this food image carefully. You MUST try your best to identify the food. Even if the image is slightly blurry or the food is uncommon, make your best educated guess. Do NOT say you cannot identify — always attempt.
+
+ONLY return this JSON if you are absolutely certain the image contains NO food at all (e.g., a phone, a car, a person without food):
+{"error": "No food detected in this image."}
+
+For ANY image that contains food or drink (even partially visible), respond with this JSON:
 {
-  "name": "Detailed name of the meal",
-  "quantity": "Estimated total quantity",
+  "name": "Detailed name of the meal (use common Indian/English name)",
+  "quantity": "Estimated total quantity (e.g., 1 bowl, 2 rotis, 150g)",
   "calories": 450,
   "protein": 30,
   "carbs": 50,
   "fats": 15,
+  "fiber": 3,
   "isVegetarian": true,
-  "confidence": 0.95
-}`;
+  "confidence": 0.85
+}
+
+Rules:
+- ALWAYS respond with valid JSON only, no markdown, no extra text
+- Use realistic Indian nutritional values
+- If multiple food items are visible, combine them into one total
+- Never refuse to identify food — make your best guess`;
 
         const text = await generateImageAnalysis(prompt, imageBase64);
 
@@ -235,11 +244,15 @@ Respond ONLY with a JSON object in this exact format, with no extra text or mark
 
             if (startIdx === -1 || endIdx === -1) {
                 console.error('❌ AI response missing JSON:', text);
-                return res.status(500).json({ success: false, error: 'AI returned invalid data' });
+                return res.status(200).json({ success: false, error: 'Could not recognize food in this image.' });
             }
 
             const jsonStr = text.substring(startIdx, endIdx + 1);
             const analysis = JSON.parse(jsonStr);
+
+            if (analysis.error) {
+                return res.status(200).json({ success: false, error: analysis.error });
+            }
 
             res.json({
                 success: true,

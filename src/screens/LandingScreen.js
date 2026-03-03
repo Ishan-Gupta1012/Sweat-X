@@ -61,7 +61,7 @@ const LandingScreen = ({ navigation }) => {
                         style={styles.gradientOverlay}
                     />
                     <LinearGradient
-                        colors={['transparent', 'rgba(255,107,0,0.05)', 'transparent']}
+                        colors={['transparent', 'rgba(6,182,212,0.05)', 'transparent']}
                         style={styles.accentGradient}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
@@ -168,7 +168,7 @@ const createStyles = (theme) => StyleSheet.create({
         color: '#FFFFFF',
         letterSpacing: 10,
         textAlign: 'center',
-        textShadowColor: 'rgba(255, 107, 0, 0.3)',
+        textShadowColor: 'rgba(6, 182, 212, 0.3)',
         textShadowOffset: { width: 0, height: 0 },
         textShadowRadius: 20,
     },

@@ -1,71 +1,71 @@
-# Sweat-X (TrueFit) 🚀
+# Sweat-X 🏋️‍♂️
 
 ![Sweat-X Banner](https://img.shields.io/badge/Status-Active-brightgreen)
 ![React Native](https://img.shields.io/badge/React--Native-v0.81.5-blue)
 ![Expo](https://img.shields.io/badge/Expo-v54-black)
 ![Node.js](https://img.shields.io/badge/Node.js-v20-green)
+![Gemini AI](https://img.shields.io/badge/Gemini-2.5--Flash-orange)
 
-**Sweat-X** (internally known as **TrueFit**) is a premium, high-performance fitness and nutrition tracking ecosystem. Designed with a sleek "Tactical" aesthetic, it empowers users to take full control of their physical transformation through data-driven insights, customized training plans, and AI-powered guidance.
+**Sweat-X** is a premium, AI-powered fitness and nutrition tracking app built with React Native and Expo. Designed with a sleek OLED-optimized aesthetic, it empowers users to take full control of their physical transformation through data-driven insights, customized training plans, and AI-powered food recognition.
 
 ---
 
 ## 🌟 Key Features
 
 ### 📊 Tactical Dashboard
-A central command center for your daily progress.
-- **Calorie & Macro Tracking**: Real-time visualization of Protein, Carbs, Fats, and Fiber.
-- **Hydration Monitor**: Track water intake with a tactical progress bar.
-- **Motivational Core**: Rotating daily quotes and status badges to keep you disciplined.
+- **Calorie & Macro Tracking**: Real-time visualization of Protein, Carbs, Fats, and Fiber
+- **Hydration Monitor**: Track water intake with visual progress indicators
+- **Motivational Core**: Rotating daily quotes and status badges
 
 ### 🏋️ Advanced Workout Engine
-Precision tracking for every rep and set.
-- **Custom Training Splits**: Support for various splits (Push/Pull/Legs, Upper/Lower, etc.).
-- **Session Tracking**: Live workout timer, rest intervals, and exercise history.
-- **Exercise Library**: Detailed instructions and tracking for a wide range of movements.
+- **Custom Training Splits**: Push/Pull/Legs, Upper/Lower, and more
+- **Session Tracking**: Live workout timer, rest intervals, and exercise history
+- **Exercise Library**: Detailed instructions for a wide range of movements
 
 ### 🍎 Smart Nutrition Management
-Comprehensive tools for dietary control.
-- **Meal Logging**: Searchable database and history for quick logging.
-- **Custom Recipes**: Create and save your own multi-ingredient meals.
-- **Nutrition Analytics**: Deep dives into your daily and weekly consumption trends.
+- **AI Food Scanner**: Snap a photo of any meal and get instant nutritional breakdown powered by **Gemini 2.5 Flash**
+- **Auto-Grow Database**: Unknown foods are automatically identified by AI and saved to the database
+- **Meal Logging**: Searchable database with Indian cuisine support
+- **Custom Recipes**: Create and save multi-ingredient meals
 
 ### 🤖 CoreCoach AI
-Your personal fitness strategist, powered by industry-leading AI models.
-- **Instant Guidance**: Ask questions about exercise form, nutrition stats, or recovery.
-- **Progress Reviews**: Automated analysis of your logged data to provide actionable feedback.
+- **Instant Guidance**: Ask questions about exercise form, nutrition, or recovery
+- **Progress Reviews**: Automated analysis with actionable feedback
+- Powered by Google Gemini 2.5 Flash with 10-key rotation for high availability
 
 ### 🛡️ Admin Portal
-A secure interface for platform management.
-- Restricted access for authorized administrators.
-- Monitoring of user engagement and system health.
+- Restricted access for authorized administrators
+- Real-time monitoring of user engagement and system health
+- Collapsible active users panel with live status
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend (App)
-- **Framework**: [React Native](https://reactnative.dev/) with [Expo](https://expo.dev/)
-- **Navigation**: [React Navigation v7](https://reactnavigation.org/)
-- **State Management**: React Context API
-- **Theming**: Custom Theme System (High-contrast Dark/Light modes)
-- **UI Components**: Custom-built premium tactical components
+| Technology | Purpose |
+|---|---|
+| React Native + Expo | Cross-platform mobile framework |
+| React Navigation v7 | Navigation & routing |
+| React Context API | State management |
+| Expo Image Picker | Camera & gallery for AI food scanning |
+| Custom Theme System | OLED-optimized Dark/Light modes |
 
-### Backend (Server)
-- **Runtime**: [Node.js](https://nodejs.org/)
-- **Framework**: [Express.js](https://expressjs.com/)
-- **Database**: [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/)
-- **Authentication**: JWT-based secure auth with bcrypt hashing
+### Backend (Server) — [TrueFit-Server Repo](https://github.com/Ishan-Gupta1012/TrueFit-server)
+| Technology | Purpose |
+|---|---|
+| Node.js + Express.js | REST API server |
+| MongoDB + Mongoose | Database & ODM |
+| Google Gemini 2.5 Flash | AI food recognition & text generation |
+| Vercel Serverless | Cloud hosting with cached DB connections |
+| bcryptjs | Secure password hashing |
 
 ---
 
 ## 📂 Project Structure
 
 ```text
-├── server/             # Node.js/Express Backend
-│   ├── models/         # Mongoose Schemas (User, Workout, Meal, etc.)
-│   ├── routes/         # API Routes (Auth, Users, Admin, Workouts)
-│   ├── services/       # External integrations
-│   └── server.js       # Server entry point
+├── assets/             # App icons, splash screens, hero images
 ├── src/                # React Native Frontend
 │   ├── components/     # Reusable UI elements (Buttons, Cards, Modals)
 │   ├── context/        # User and Theme contexts
@@ -73,8 +73,15 @@ A secure interface for platform management.
 │   ├── screens/        # Full-page screen components
 │   ├── services/       # API abstraction layer
 │   └── constants/      # Theme and spacing tokens
+├── server/             # Node.js/Express Backend
+│   ├── models/         # Mongoose Schemas (User, Workout, Food, etc.)
+│   ├── routes/         # API Routes (Auth, Users, Admin, Foods, AI)
+│   ├── services/       # AI service with Gemini integration
+│   ├── utils/          # API key rotation utility
+│   └── server.js       # Server entry point
 ├── App.js              # Root App component
-└── app.json            # Expo configuration
+├── app.json            # Expo configuration
+└── eas.json            # EAS Build configuration
 ```
 
 ---
@@ -82,44 +89,56 @@ A secure interface for platform management.
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v18 or higher)
-- Expo Go app on your mobile device (for local testing)
-- MongoDB instance (Local or Atlas)
+- Node.js (v18+)
+- Expo Go app on your mobile device
+- MongoDB Atlas instance
 
-### 1. Clone the Repositories
+### 1. Clone & Install
 ```bash
 git clone https://github.com/Ishan-Gupta1012/Sweat-X.git
-# Note: Backend code is also mirrored in TrueFit-server
+cd Sweat-X
+npm install
 ```
 
-### 2. Setup Backend
+### 2. Setup Environment
+Create a `.env` file in the project root:
+```env
+EXPO_PUBLIC_GEMINI_API_KEY=your_gemini_api_key
+```
+
+### 3. Run Locally
+```bash
+npm start
+# Scan the QR code with Expo Go
+```
+
+### 4. Backend Setup
+The backend is deployed on **Vercel** at `https://true-fit-server-ten.vercel.app`. For local development:
 ```bash
 cd server
 npm install
-# Create a .env file with:
-# PORT=3001
-# MONGO_URI=your_mongodb_connection_string
-# JWT_SECRET=your_secret
+# Create server/.env with MongoDB URI and Gemini API keys
 npm run dev
-```
-
-### 3. Setup Frontend
-```bash
-cd ..
-npm install
-# Update API URL in src/services/api.js to your local IP
-npm start
 ```
 
 ---
 
-## 🛠️ Deployment & Builds
-The project uses **EAS (Expo Application Services)** for building production-ready APKs and IPAs.
+## 📦 Build APK
 
-**Build Command:**
 ```bash
 eas build -p android --profile preview
 ```
+
+---
+
+## 🔑 Environment Variables (Backend - Vercel)
+
+| Variable | Description |
+|---|---|
+| `MONGODB_URI` | MongoDB Atlas connection string |
+| `GEMINI_API_KEY` | Primary Gemini API key |
+| `GEMINI_API_KEY_2` to `_10` | Additional keys for rate limit rotation |
+| `RAPIDAPI_KEY` | RapidAPI key (optional) |
 
 ---
 
@@ -127,4 +146,5 @@ eas build -p android --profile preview
 This project is private and proprietary. All rights reserved.
 
 ---
+
 *Built with passion by Ishan Gupta.*

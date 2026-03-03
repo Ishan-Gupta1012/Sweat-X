@@ -17,10 +17,30 @@ app.use((req, res, next) => {
     next();
 });
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ MongoDB connected successfully'))
-    .catch(err => console.error('❌ MongoDB connection error:', err));
+// MongoDB Connection (cached for Vercel serverless)
+let isConnected = false;
+
+const connectDB = async () => {
+    if (isConnected) return;
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        isConnected = true;
+        console.log('✅ MongoDB connected successfully');
+    } catch (err) {
+        console.error('❌ MongoDB connection error:', err);
+        throw err;
+    }
+};
+
+// Ensure DB is connected before every request
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        res.status(503).json({ error: 'Database connection failed' });
+    }
+});
 
 // Routes
 const workoutRoutes = require('./routes/workouts');
