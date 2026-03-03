@@ -131,17 +131,6 @@ eas build -p android --profile preview
 
 ---
 
-## 🔑 Environment Variables (Backend - Vercel)
-
-| Variable | Description |
-|---|---|
-| `MONGODB_URI` | MongoDB Atlas connection string |
-| `GEMINI_API_KEY` | Primary Gemini API key |
-| `GEMINI_API_KEY_2` to `_10` | Additional keys for rate limit rotation |
-| `RAPIDAPI_KEY` | RapidAPI key (optional) |
-
----
-
 ## 📜 License
 This project is private and proprietary. All rights reserved.
 
