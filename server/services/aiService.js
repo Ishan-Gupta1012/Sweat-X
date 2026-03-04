@@ -11,7 +11,7 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 /**
  * Call Gemini API with a prompt (using key rotation + retry on 429)
  */
-const generateContent = async (prompt, temperature = 0.7, maxTokens = 400) => {
+const generateContent = async (prompt, temperature = 0.7, maxTokens = 8192) => {
     const maxRetries = getKeyCount();
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -64,7 +64,7 @@ const generateContent = async (prompt, temperature = 0.7, maxTokens = 400) => {
 /**
  * Call Gemini Vision API for image analysis (using key rotation + retry on 429)
  */
-const generateImageAnalysis = async (prompt, imageBase64, mimeType = "image/jpeg", maxTokens = 1000) => {
+const generateImageAnalysis = async (prompt, imageBase64, mimeType = "image/jpeg", maxTokens = 8192) => {
     const maxRetries = getKeyCount();
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {

@@ -171,7 +171,15 @@ const FoodSearchScreen = ({ navigation, route }) => {
             });
 
             if (!result.canceled && result.assets && result.assets[0].base64) {
-                analyzeImage(result.assets[0].base64);
+                const asset = result.assets[0];
+                let mimeType = asset.mimeType || 'image/jpeg';
+                if (!asset.mimeType && asset.uri) {
+                    if (asset.uri.toLowerCase().endsWith('.png')) mimeType = 'image/png';
+                    else if (asset.uri.toLowerCase().endsWith('.heic')) mimeType = 'image/heic';
+                    else if (asset.uri.toLowerCase().endsWith('.heif')) mimeType = 'image/heif';
+                    else if (asset.uri.toLowerCase().endsWith('.webp')) mimeType = 'image/webp';
+                }
+                analyzeImage(asset.base64, mimeType);
             }
         } catch (error) {
             console.error('Camera error:', error);
@@ -201,7 +209,15 @@ const FoodSearchScreen = ({ navigation, route }) => {
             });
 
             if (!result.canceled && result.assets && result.assets[0].base64) {
-                analyzeImage(result.assets[0].base64);
+                const asset = result.assets[0];
+                let mimeType = asset.mimeType || 'image/jpeg';
+                if (!asset.mimeType && asset.uri) {
+                    if (asset.uri.toLowerCase().endsWith('.png')) mimeType = 'image/png';
+                    else if (asset.uri.toLowerCase().endsWith('.heic')) mimeType = 'image/heic';
+                    else if (asset.uri.toLowerCase().endsWith('.heif')) mimeType = 'image/heif';
+                    else if (asset.uri.toLowerCase().endsWith('.webp')) mimeType = 'image/webp';
+                }
+                analyzeImage(asset.base64, mimeType);
             }
         } catch (error) {
             console.error('Gallery error:', error);
@@ -209,13 +225,13 @@ const FoodSearchScreen = ({ navigation, route }) => {
         }
     };
 
-    const analyzeImage = async (base64) => {
+    const analyzeImage = async (base64, mimeType = 'image/jpeg') => {
         setIsAnalyzing(true);
         try {
             const response = await fetch(`${API_URL}/foods/analyze-image`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageBase64: base64 }),
+                body: JSON.stringify({ imageBase64: base64, mimeType }),
             });
 
             if (!response.ok) {

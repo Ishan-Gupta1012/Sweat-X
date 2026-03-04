@@ -22,7 +22,7 @@ const fetchNutritionFromAI = async (query) => {
     }`;
 
     try {
-        const text = await generateContent(prompt, 0.1, 1000);
+        const text = await generateContent(prompt, 0.1, 8192);
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
     } catch (error) {
@@ -202,10 +202,23 @@ router.get('/meta/cuisines', async (req, res) => {
 // AI Food Recognition from Image
 router.post('/analyze-image', express.json({ limit: '100mb' }), async (req, res) => {
     try {
-        const { imageBase64 } = req.body;
+        const { imageBase64, mimeType: clientMimeType } = req.body;
 
         if (!imageBase64) {
             return res.status(400).json({ success: false, error: 'Missing image data' });
+        }
+
+        console.log("Analyzing image, base64 starts with:", imageBase64.substring(0, 50));
+
+        // Strip data:image/...;base64, if present
+        let cleanBase64 = imageBase64;
+        let mimeType = clientMimeType || 'image/jpeg';
+        if (imageBase64.startsWith('data:')) {
+            const matches = imageBase64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+            if (matches && matches.length === 3) {
+                mimeType = matches[1];
+                cleanBase64 = matches[2];
+            }
         }
 
         // USE PURE GEMINI ANALYSIS (No RapidAPI/Bon Happetee)
@@ -235,7 +248,7 @@ Rules:
 - If multiple food items are visible, combine them into one total
 - Never refuse to identify food — make your best guess`;
 
-        const text = await generateImageAnalysis(prompt, imageBase64);
+        const text = await generateImageAnalysis(prompt, cleanBase64, mimeType);
 
         try {
             // Robust JSON extraction

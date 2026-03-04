@@ -24,6 +24,7 @@
 
 ### 🍎 Smart Nutrition Management
 - **AI Food Scanner**: Snap a photo of any meal and get instant nutritional breakdown powered by **Gemini 2.5 Flash**
+- **Robust AI Integration**: Features intelligent token management and dynamic MIME type handling for 100% accurate food image parsing
 - **Auto-Grow Database**: Unknown foods are automatically identified by AI and saved to the database
 - **Meal Logging**: Searchable database with Indian cuisine support
 - **Custom Recipes**: Create and save multi-ingredient meals

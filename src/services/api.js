@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 // API URL - Switch between local and production
 // For local development on mobile, use your computer's IP address
 // For production APK, use the deployed URL on Render.com
-// export const API_URL = 'http://localhost:3001/api';
+// export const API_URL = 'http://192.168.1.15:3001/api';
 export const API_URL = 'https://true-fit-server-ten.vercel.app/api';
 
 // Generate a unique device ID for this installation
