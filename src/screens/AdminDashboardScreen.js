@@ -10,8 +10,10 @@ const AdminDashboardScreen = ({ navigation }) => {
     const { userData } = useUser();
     const [stats, setStats] = useState(null);
     const [activeUsers, setActiveUsers] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [usersExpanded, setUsersExpanded] = useState(false);
+    const [allUsersExpanded, setAllUsersExpanded] = useState(false);
 
     useEffect(() => {
         fetchStats();
@@ -23,7 +25,8 @@ const AdminDashboardScreen = ({ navigation }) => {
             const data = await adminApi.getStats();
             if (data.success) {
                 setStats(data.stats);
-                setActiveUsers(data.activeUsers);
+                setActiveUsers(data.activeUsers || []);
+                setAllUsers(data.allUsers || []);
             }
         } catch (error) {
             console.error('Error fetching admin stats:', error);
@@ -127,7 +130,9 @@ const AdminDashboardScreen = ({ navigation }) => {
                                             <Text style={[styles.userNameList, { color: theme.textPrimary }]}>{user.name}</Text>
                                             <Text style={[styles.userEmailList, { color: theme.textMuted }]}>{user.email}</Text>
                                         </View>
-                                        <Text style={[styles.userTimeText, { color: theme.success }]}>Active</Text>
+                                        <View style={[styles.statusBadge, { backgroundColor: theme.success + '20' }]}>
+                                            <Text style={[styles.userTimeText, { color: theme.success }]}>Online</Text>
+                                        </View>
                                     </View>
                                 ))
                             ) : (
@@ -138,7 +143,53 @@ const AdminDashboardScreen = ({ navigation }) => {
                                     style={styles.showMoreBtn}
                                     onPress={() => setUsersExpanded(true)}
                                 >
-                                    <Text style={[styles.showMoreText, { color: theme.primary }]}>Show {activeUsers.length - 3} more users</Text>
+                                    <Text style={[styles.showMoreText, { color: theme.primary }]}>Show {activeUsers.length - 3} more active</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+
+                        <TouchableOpacity
+                            style={styles.sectionHeader}
+                            onPress={() => setAllUsersExpanded(!allUsersExpanded)}
+                            activeOpacity={0.7}
+                        >
+                            <Text style={[styles.sectionTitle, { color: theme.textPrimary, marginBottom: 0, marginTop: 0 }]}>All Registered Users ({allUsers.length})</Text>
+                            <Ionicons
+                                name={allUsersExpanded ? 'chevron-up' : 'chevron-down'}
+                                size={18}
+                                color={theme.textSecondary}
+                            />
+                        </TouchableOpacity>
+                        <View style={[styles.usersList, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
+                            {allUsers.length > 0 ? (
+                                (allUsersExpanded ? allUsers : allUsers.slice(0, 3)).map((user, i, arr) => {
+                                    const lastActiveDate = new Date(user.lastActive);
+                                    const isRecentlyActive = (new Date() - lastActiveDate) < 24 * 60 * 60 * 1000;
+                                    
+                                    return (
+                                        <View key={i} style={[styles.userRow, i < arr.length - 1 && { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
+                                            <View style={[styles.userAvatar, { backgroundColor: (isRecentlyActive ? theme.primary : theme.textMuted) + '15' }]}>
+                                                <Text style={{ color: isRecentlyActive ? theme.primary : theme.textMuted, fontWeight: '700' }}>{user.name.charAt(0).toUpperCase()}</Text>
+                                            </View>
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={[styles.userNameList, { color: theme.textPrimary }]}>{user.name}</Text>
+                                                <Text style={[styles.userEmailList, { color: theme.textMuted }]}>{user.email}</Text>
+                                            </View>
+                                            <Text style={[styles.userTimeText, { color: isRecentlyActive ? theme.success : theme.textMuted }]}>
+                                                {isRecentlyActive ? 'Recent' : 'Inactive'}
+                                            </Text>
+                                        </View>
+                                    );
+                                })
+                            ) : (
+                                <Text style={{ color: theme.textMuted, textAlign: 'center', padding: 20 }}>No users registered in the database.</Text>
+                            )}
+                            {!allUsersExpanded && allUsers.length > 3 && (
+                                <TouchableOpacity
+                                    style={styles.showMoreBtn}
+                                    onPress={() => setAllUsersExpanded(true)}
+                                >
+                                    <Text style={[styles.showMoreText, { color: theme.primary }]}>Show {allUsers.length - 3} more users</Text>
                                 </TouchableOpacity>
                             )}
                         </View>
@@ -214,9 +265,10 @@ const styles = StyleSheet.create({
     usersList: { borderRadius: 16, borderWidth: 1, padding: 8, marginBottom: 24 },
     userRow: { flexDirection: 'row', alignItems: 'center', padding: 12, gap: 12 },
     userAvatar: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-    userNameList: { fontSize: 14, fontWeight: '600', marginBottom: 2 },
-    userEmailList: { fontSize: 11, fontWeight: '400' },
-    userTimeText: { fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
+    userNameList: { fontSize: 13, fontWeight: '700', marginBottom: 2 },
+    userEmailList: { fontSize: 10, fontWeight: '500', opacity: 0.7 },
+    statusBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
+    userTimeText: { fontSize: 9, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
 
     actionsList: { gap: 8 },
     actionBtn: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 16, borderWidth: 1 },

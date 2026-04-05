@@ -785,6 +785,19 @@ export const UserProvider = ({ children }) => {
         }));
     };
 
+    // Delete training plan
+    const deleteTrainingPlan = async () => {
+        setUserData(prev => ({
+            ...prev,
+            trainingPlan: null
+        }));
+
+        // Sync to server if available
+        if (isApiAvailable && deviceId) {
+            await userApi.saveUser(deviceId, { trainingPlan: null });
+        }
+    };
+
     // Clear all data (local only - don't sync to server)
     const clearAllData = async () => {
         try {
@@ -1149,10 +1162,30 @@ export const UserProvider = ({ children }) => {
                 const oldMeal = prev.meals.find(m => m.id === mealId);
                 const calorieDiff = updatedMeal.calories - (oldMeal?.calories || 0);
 
+                // Calculate macro differences
+                const oldProtein = oldMeal?.protein || (oldMeal?.foods || []).reduce((sum, f) => sum + (f.protein || 0), 0);
+                const oldCarbs = oldMeal?.carbs || (oldMeal?.foods || []).reduce((sum, f) => sum + (f.carbs || 0), 0);
+                const oldFats = oldMeal?.fats || (oldMeal?.foods || []).reduce((sum, f) => sum + (f.fats || 0), 0);
+                const oldFiber = oldMeal?.fiber || (oldMeal?.foods || []).reduce((sum, f) => sum + (f.fiber || 0), 0);
+
+                const newProtein = updatedMeal.protein || (updatedMeal.foods || []).reduce((sum, f) => sum + (f.protein || 0), 0);
+                const newCarbs = updatedMeal.carbs || (updatedMeal.foods || []).reduce((sum, f) => sum + (f.carbs || 0), 0);
+                const newFats = updatedMeal.fats || (updatedMeal.foods || []).reduce((sum, f) => sum + (f.fats || 0), 0);
+                const newFiber = updatedMeal.fiber || (updatedMeal.foods || []).reduce((sum, f) => sum + (f.fiber || 0), 0);
+
+                const proteinDiff = newProtein - oldProtein;
+                const carbsDiff = newCarbs - oldCarbs;
+                const fatsDiff = newFats - oldFats;
+                const fiberDiff = newFiber - oldFiber;
+
                 return {
                     ...prev,
                     meals: prev.meals.map(m => m.id === mealId ? { ...m, ...updatedMeal } : m),
                     dailyCalories: prev.dailyCalories + calorieDiff,
+                    proteinConsumed: Math.max(0, (prev.proteinConsumed || 0) + proteinDiff),
+                    carbsConsumed: Math.max(0, (prev.carbsConsumed || 0) + carbsDiff),
+                    fatsConsumed: Math.max(0, (prev.fatsConsumed || 0) + fatsDiff),
+                    fiberConsumed: Math.max(0, (prev.fiberConsumed || 0) + fiberDiff),
                 };
             });
         } else {
@@ -1281,6 +1314,7 @@ export const UserProvider = ({ children }) => {
                 updateDayExercises,
                 addExerciseToDay,
                 removeExerciseFromDay,
+                deleteTrainingPlan,
             }}
         >
             {children}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { spacing, borderRadius } from '../constants/colors';
@@ -11,7 +11,6 @@ const NutritionLogScreen = ({ navigation }) => {
         getNutritionForDate,
         getDatesWithNutritionData,
         deleteMealForDate,
-        updateMealForDate,
         getTodayDate,
         checkAndResetDaily,
     } = useUser();
@@ -20,9 +19,6 @@ const NutritionLogScreen = ({ navigation }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(getTodayDate());
     const [datesWithData, setDatesWithData] = useState([]);
-    const [editingMeal, setEditingMeal] = useState(null);
-    const [editCalories, setEditCalories] = useState('');
-    const [editName, setEditName] = useState('');
 
     useEffect(() => {
         checkAndResetDaily();
@@ -115,20 +111,29 @@ const NutritionLogScreen = ({ navigation }) => {
     };
 
     const handleEditMeal = (meal) => {
-        setEditingMeal(meal);
-        setEditName(meal.foodName || meal.name || meal.description || '');
-        setEditCalories(String(meal.calories || 0));
-    };
+        // Find the specific food from the meal's foods array if it exists, otherwise use the meal itself
+        const foodItem = (meal.foods && meal.foods[0]) ? meal.foods[0] : meal;
+        
+        // Prioritize stored per-100g metrics to ensure accurate scaling
+        const hasBaseMetrics = foodItem.caloriesPer100g !== undefined;
 
-    const handleSaveEdit = () => {
-        if (editingMeal) {
-            updateMealForDate(selectedDate, editingMeal.id, {
-                foodName: editName,
-                calories: parseInt(editCalories) || 0,
-            });
-            setEditingMeal(null);
-            setDatesWithData(getDatesWithNutritionData());
-        }
+        navigation.navigate('FoodQuantity', {
+            food: {
+                ...foodItem,
+                name: foodItem.name || foodItem.foodName || meal.name || meal.description || 'Unknown Item',
+                // If we have stored base metrics, use them directly
+                caloriesPer100g: hasBaseMetrics ? foodItem.caloriesPer100g : (foodItem.caloriesPer100g || (foodItem.calories / (parseFloat(foodItem.quantity) || 100) * 100)),
+                proteinPer100g: hasBaseMetrics ? foodItem.proteinPer100g : (foodItem.proteinPer100g || (foodItem.protein / (parseFloat(foodItem.quantity) || 100) * 100)),
+                carbsPer100g: hasBaseMetrics ? foodItem.carbsPer100g : (foodItem.carbsPer100g || (foodItem.carbs / (parseFloat(foodItem.quantity) || 100) * 100)),
+                fatsPer100g: hasBaseMetrics ? foodItem.fatsPer100g : (foodItem.fatsPer100g || (foodItem.fats / (parseFloat(foodItem.quantity) || 100) * 100)),
+            },
+            isEditing: true,
+            mealId: meal.id,
+            dateString: selectedDate, // Corrected parameter name to match FoodQuantityScreen
+            initialQuantity: parseFloat(foodItem.quantity) || 1,
+            initialServingType: foodItem.quantity?.toLowerCase().includes('g') ? 'gm' : (foodItem.quantity?.split(' ')[1]?.toLowerCase() || 'bowl'),
+            mealType: meal.type || 'lunch'
+        });
     };
 
     const formatDisplayDate = (dateStr) => {
@@ -165,20 +170,18 @@ const NutritionLogScreen = ({ navigation }) => {
         <SafeAreaView style={styles.container} edges={['top']}>
             <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={theme.background} />
 
-            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={22} color="theme.textPrimary" />
+                    <Ionicons name="arrow-back" size={22} color={theme.textPrimary} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>NUTRITION LOG</Text>
                 <View style={{ width: 44 }} />
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-                {/* Month Navigation */}
                 <View style={styles.monthNav}>
                     <TouchableOpacity style={styles.monthBtn} onPress={prevMonth}>
-                        <Ionicons name="chevron-back" size={24} color="theme.textPrimary" />
+                        <Ionicons name="chevron-back" size={24} color={theme.textPrimary} />
                     </TouchableOpacity>
                     <Text style={styles.monthTitle}>
                         {monthNames[currentMonth.getMonth()].toUpperCase()} {currentMonth.getFullYear()}
@@ -195,16 +198,13 @@ const NutritionLogScreen = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
 
-                {/* Calendar */}
                 <View style={styles.calendar}>
-                    {/* Day headers */}
                     <View style={styles.dayHeaders}>
                         {dayNames.map((day, i) => (
                             <Text key={i} style={styles.dayHeader}>{day}</Text>
                         ))}
                     </View>
 
-                    {/* Days grid */}
                     <View style={styles.daysGrid}>
                         {days.map((day, i) => (
                             <TouchableOpacity
@@ -240,7 +240,6 @@ const NutritionLogScreen = ({ navigation }) => {
                     </View>
                 </View>
 
-                {/* Selected Date Info */}
                 <View style={styles.dateCard}>
                     <View style={styles.dateHeader}>
                         <Ionicons name="calendar-outline" size={20} color={theme.brandNutrition} />
@@ -252,7 +251,6 @@ const NutritionLogScreen = ({ navigation }) => {
                         )}
                     </View>
 
-                    {/* Summary */}
                     <View style={styles.summaryRow}>
                         <View style={styles.summaryItem}>
                             <Ionicons name="flame-outline" size={18} color={'#F59E0B'} />
@@ -274,10 +272,7 @@ const NutritionLogScreen = ({ navigation }) => {
                     </View>
                 </View>
 
-                {/* Meals List */}
-                <Text style={styles.sectionTitle}>
-                    MEALS ({nutritionData.meals.length})
-                </Text>
+                <Text style={styles.sectionTitle}>MEALS ({nutritionData.meals.length})</Text>
 
                 {nutritionData.meals.length === 0 ? (
                     <View style={styles.emptyCard}>
@@ -300,16 +295,10 @@ const NutritionLogScreen = ({ navigation }) => {
                                 <View style={styles.mealRight}>
                                     <Text style={styles.mealCalories}>{meal.calories} KCAL</Text>
                                     <View style={styles.mealActions}>
-                                        <TouchableOpacity
-                                            style={styles.actionBtn}
-                                            onPress={() => handleEditMeal(meal)}
-                                        >
+                                        <TouchableOpacity style={styles.actionBtn} onPress={() => handleEditMeal(meal)}>
                                             <Ionicons name="pencil" size={16} color={theme.brandNutrition} />
                                         </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={styles.actionBtn}
-                                            onPress={() => handleDeleteMeal(meal.id)}
-                                        >
+                                        <TouchableOpacity style={styles.actionBtn} onPress={() => handleDeleteMeal(meal.id)}>
                                             <Ionicons name="trash" size={16} color={theme.error} />
                                         </TouchableOpacity>
                                     </View>
@@ -321,43 +310,6 @@ const NutritionLogScreen = ({ navigation }) => {
 
                 <View style={{ height: 30 }} />
             </ScrollView>
-
-            {/* Edit Meal Modal */}
-            <Modal visible={!!editingMeal} transparent animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Edit Meal</Text>
-                            <TouchableOpacity onPress={() => setEditingMeal(null)}>
-                                <Ionicons name="close" size={24} color={theme.textPrimary} />
-                            </TouchableOpacity>
-                        </View>
-
-                        <Text style={styles.inputLabel}>Meal Name</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={editName}
-                            onChangeText={setEditName}
-                            placeholder="Enter meal name"
-                            placeholderTextColor={theme.textMuted}
-                        />
-
-                        <Text style={styles.inputLabel}>Calories</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={editCalories}
-                            onChangeText={setEditCalories}
-                            keyboardType="numeric"
-                            placeholder="Enter calories"
-                            placeholderTextColor={theme.textMuted}
-                        />
-
-                        <TouchableOpacity style={styles.saveBtn} onPress={handleSaveEdit}>
-                            <Text style={styles.saveBtnText}>Save Changes</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
         </SafeAreaView>
     );
 };
@@ -368,12 +320,10 @@ const createStyles = (theme) => StyleSheet.create({
     backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: theme.cardBackground, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border },
     headerTitle: { fontSize: 16, fontWeight: '600', color: theme.textPrimary, letterSpacing: 2 },
     scroll: { paddingHorizontal: spacing.lg, paddingTop: spacing.md },
-
     monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.md },
     monthBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: theme.cardBackground, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border },
     monthBtnDisabled: { opacity: 0.3 },
     monthTitle: { fontSize: 16, fontWeight: '600', color: theme.textPrimary, letterSpacing: 1 },
-
     calendar: { backgroundColor: theme.cardBackground, borderRadius: 16, padding: spacing.md, marginBottom: spacing.lg, borderWidth: 1, borderColor: theme.border },
     dayHeaders: { flexDirection: 'row', marginBottom: spacing.sm },
     dayHeader: { flex: 1, textAlign: 'center', fontSize: 11, fontWeight: '500', color: theme.textSecondary, letterSpacing: 1 },
@@ -387,7 +337,6 @@ const createStyles = (theme) => StyleSheet.create({
     dayTextDisabled: { color: theme.textSecondary },
     dataDot: { position: 'absolute', bottom: 6, width: 3, height: 3, borderRadius: 1.5, backgroundColor: theme.brandNutrition },
     dataDotSelected: { backgroundColor: '#fff' },
-
     dateCard: { backgroundColor: theme.cardBackground, borderRadius: 16, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: theme.border },
     dateHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
     dateTitle: { flex: 1, fontSize: 12, color: theme.textPrimary, fontWeight: '600', letterSpacing: 1 },
@@ -398,12 +347,9 @@ const createStyles = (theme) => StyleSheet.create({
     summaryDivider: { width: 1, height: 36, backgroundColor: theme.border },
     summaryValue: { fontSize: 22, fontWeight: '700', color: theme.textPrimary, marginTop: 4 },
     summaryLabel: { fontSize: 9, color: theme.textSecondary, fontWeight: '500', textTransform: 'uppercase', letterSpacing: 0.5 },
-
     sectionTitle: { fontSize: 12, fontWeight: '600', color: theme.textSecondary, marginBottom: spacing.sm, letterSpacing: 1.5, textTransform: 'uppercase' },
-
     emptyCard: { backgroundColor: theme.cardBackground, borderRadius: 16, padding: spacing.xl, alignItems: 'center', borderStyle: 'dotted', borderWidth: 1, borderColor: theme.border },
     emptyText: { fontSize: 14, color: theme.textSecondary, marginTop: spacing.sm, fontWeight: '400' },
-
     mealsList: { gap: spacing.sm },
     mealCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: theme.cardBackground, borderRadius: 14, padding: spacing.md, borderWidth: 1, borderColor: theme.border },
     mealLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
@@ -415,15 +361,6 @@ const createStyles = (theme) => StyleSheet.create({
     mealCalories: { fontSize: 16, fontWeight: '700', color: theme.brandNutrition },
     mealActions: { flexDirection: 'row', gap: 10, marginTop: 8 },
     actionBtn: { width: 34, height: 34, borderRadius: 10, backgroundColor: '#222222', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border },
-
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.95)', justifyContent: 'flex-end' },
-    modalContent: { backgroundColor: '#151515', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: spacing.lg, paddingBottom: 40, borderWidth: 1, borderColor: theme.border },
-    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.lg },
-    modalTitle: { fontSize: 18, fontWeight: '600', color: theme.textPrimary, letterSpacing: 1 },
-    inputLabel: { fontSize: 12, fontWeight: '500', color: theme.textSecondary, marginBottom: spacing.xs, textTransform: 'uppercase', letterSpacing: 1 },
-    input: { backgroundColor: theme.cardBackground, borderRadius: 12, padding: spacing.md, color: theme.textPrimary, fontSize: 16, marginBottom: spacing.md, borderWidth: 1, borderColor: theme.border },
-    saveBtn: { backgroundColor: theme.brandNutrition, borderRadius: 12, padding: spacing.md, alignItems: 'center', marginTop: spacing.sm },
-    saveBtnText: { fontSize: 14, fontWeight: '600', color: '#fff', letterSpacing: 2 },
 });
 
 export default NutritionLogScreen;

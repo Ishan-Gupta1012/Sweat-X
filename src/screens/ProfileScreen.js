@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, Alert, Animated, Modal, Platform, Switch, Image, Linking } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, Alert, Animated, Modal, Platform, Switch, Image, Linking, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -13,6 +13,8 @@ const ProfileScreen = ({ navigation }) => {
     const pulseAnim = useRef(new Animated.Value(1)).current;
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showResetModal, setShowResetModal] = useState(false);
+    const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+    const [tempName, setTempName] = useState(userData.name || '');
 
     useEffect(() => {
         Animated.loop(
@@ -103,7 +105,16 @@ const ProfileScreen = ({ navigation }) => {
     const confirmReset = async () => {
         setShowResetModal(false);
         await clearAllData(); // useUser provides this to clear context & storage
-        navigation.reset({ index: 0, routes: [{ name: 'Landing' }] });
+        navigation.reset({ index: 0, routes: [{ name: 'OnboardingStep1' }] });
+    };
+
+    const handleSaveProfile = async () => {
+        if (!tempName.trim()) {
+            Alert.alert('Error', 'Name cannot be empty');
+            return;
+        }
+        await updateProfile({ name: tempName.trim() });
+        setShowEditProfileModal(false);
     };
 
     const styles = useMemo(() => createStyles(theme), [theme]);
@@ -138,7 +149,18 @@ const ProfileScreen = ({ navigation }) => {
                             </View>
                         </Animated.View>
                     </TouchableOpacity>
-                    <Animated.Text style={styles.userName}>{user.name}</Animated.Text>
+                    <View style={styles.nameRow}>
+                        <Animated.Text style={styles.userName}>{user.name}</Animated.Text>
+                        <TouchableOpacity
+                            style={styles.nameEditBtn}
+                            onPress={() => {
+                                setTempName(userData.name || '');
+                                setShowEditProfileModal(true);
+                            }}
+                        >
+                            <Ionicons name="create-outline" size={18} color={theme.textMuted} />
+                        </TouchableOpacity>
+                    </View>
                     <View style={[styles.goalBadge, { backgroundColor: '#8B5CF620', borderColor: '#8B5CF650' }]}>
                         <Ionicons name="flag" size={14} color="#8B5CF6" />
                         <Text style={[styles.goalText, { color: '#8B5CF6' }]}>{user.goal}</Text>
@@ -275,6 +297,41 @@ const ProfileScreen = ({ navigation }) => {
                     </View>
                 </View>
             </Modal>
+
+            {/* Edit Profile Modal */}
+            <Modal visible={showEditProfileModal} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Ionicons name="person-circle-outline" size={48} color={theme.primary} style={{ marginBottom: spacing.md }} />
+                        <Text style={styles.modalTitle}>Edit Profile</Text>
+                        <View style={styles.nameInputContainer}>
+                            <Text style={styles.inputLabel}>Your Name</Text>
+                            <TextInput
+                                style={styles.nameInput}
+                                value={tempName}
+                                onChangeText={setTempName}
+                                placeholder="Enter your name"
+                                placeholderTextColor={theme.textMuted}
+                                autoFocus
+                            />
+                        </View>
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity
+                                style={[styles.modalBtn, styles.modalBtnCancel]}
+                                onPress={() => setShowEditProfileModal(false)}
+                            >
+                                <Text style={styles.modalBtnCancelText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.modalBtn, styles.modalBtnConfirm, { backgroundColor: theme.primary }]}
+                                onPress={handleSaveProfile}
+                            >
+                                <Text style={styles.modalBtnConfirmText}>Save Changes</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 };
@@ -292,7 +349,9 @@ const createStyles = (theme) => StyleSheet.create({
     avatarImage: { width: '100%', height: '100%' },
     avatarText: { fontSize: 42, fontWeight: '600', color: theme.textPrimary },
     editIconBadge: { position: 'absolute', bottom: 4, right: 4, width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: theme.background },
-    userName: { fontSize: 24, fontWeight: '600', color: theme.textPrimary, marginBottom: spacing.xs, letterSpacing: -0.5 },
+    userName: { fontSize: 24, fontWeight: '600', color: theme.textPrimary, letterSpacing: -0.5 },
+    nameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xs },
+    nameEditBtn: { padding: 4 },
     goalBadge: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, backgroundColor: theme.brandProfile + '20', paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: theme.brandProfile + '50' },
     goalText: { fontSize: 12, color: theme.brandProfile, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1 },
 
@@ -346,6 +405,9 @@ const createStyles = (theme) => StyleSheet.create({
     modalBtnConfirm: { backgroundColor: '#EF4444' },
     modalBtnCancelText: { fontSize: 14, fontWeight: '600', color: theme.textPrimary, textTransform: 'uppercase' },
     modalBtnConfirmText: { fontSize: 14, fontWeight: '600', color: '#fff', textTransform: 'uppercase' },
+    nameInputContainer: { width: '100%', marginBottom: spacing.lg },
+    inputLabel: { fontSize: 12, color: theme.textSecondary, fontWeight: '600', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 },
+    nameInput: { backgroundColor: theme.cardBackgroundLight, borderRadius: 12, padding: spacing.md, color: theme.textPrimary, fontSize: 16, borderWidth: 1, borderColor: theme.border },
 });
 
 

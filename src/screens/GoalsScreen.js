@@ -17,6 +17,7 @@ const GoalsScreen = ({ navigation }) => {
 
     // Temporary state for editing goals
     const [tempTargetWeight, setTempTargetWeight] = useState(String(userData.targetWeight || 65));
+    const [tempCurrentWeight, setTempCurrentWeight] = useState(String(userData.currentWeight || 70));
     const [tempGoalDuration, setTempGoalDuration] = useState(String(userData.goalDuration || 12));
 
     const currentWeight = userData.currentWeight || 70;
@@ -65,18 +66,21 @@ const GoalsScreen = ({ navigation }) => {
 
     const handleSaveGoal = async () => {
         const newTarget = parseFloat(tempTargetWeight);
+        const newCurrent = parseFloat(tempCurrentWeight);
         const newDuration = parseInt(tempGoalDuration);
 
-        if (isNaN(newTarget) || isNaN(newDuration)) return;
+        if (isNaN(newTarget) || isNaN(newCurrent) || isNaN(newDuration)) return;
 
         const updatedData = {
             ...userData,
+            currentWeight: newCurrent,
             targetWeight: newTarget,
             goalDuration: newDuration,
         };
 
         // Update profile
         await updateProfile({
+            currentWeight: newCurrent,
             targetWeight: newTarget,
             goalDuration: newDuration,
         });
@@ -125,6 +129,7 @@ const GoalsScreen = ({ navigation }) => {
                             style={[styles.editBtn, { backgroundColor: '#D3540020' }]}
                             onPress={() => {
                                 setTempTargetWeight(String(targetWeight));
+                                setTempCurrentWeight(String(currentWeight));
                                 setTempGoalDuration(String(goalDuration));
                                 setShowEditGoalModal(true);
                             }}
@@ -308,6 +313,18 @@ const GoalsScreen = ({ navigation }) => {
                             </TouchableOpacity>
                         </View>
                         <View style={styles.modalBody}>
+                            <Text style={styles.inputLabel}>Current Weight (kg)</Text>
+                            <View style={styles.modalInput}>
+                                <TextInput
+                                    style={styles.weightInput}
+                                    value={tempCurrentWeight}
+                                    onChangeText={setTempCurrentWeight}
+                                    keyboardType="decimal-pad"
+                                    placeholderTextColor={theme.textMuted}
+                                />
+                                <Text style={styles.inputUnit}>kg</Text>
+                            </View>
+
                             <Text style={styles.inputLabel}>Target Weight (kg)</Text>
                             <View style={styles.modalInput}>
                                 <TextInput

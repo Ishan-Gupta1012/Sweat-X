@@ -23,7 +23,13 @@ router.get('/stats', async (req, res) => {
             lastActive: { $gte: startOfToday }
         }).select('name email phoneNumber lastActive');
 
-        // 3. Total Workouts Logged
+        // 3. All Users (Limit to 100 recent for now)
+        const allUsers = await User.find()
+            .sort({ lastActive: -1 })
+            .limit(100)
+            .select('name email phoneNumber lastActive');
+
+        // 4. Total Workouts Logged
         const totalWorkouts = await Workout.countDocuments();
 
         res.json({
@@ -35,6 +41,11 @@ router.get('/stats', async (req, res) => {
                 systemHealth: '100%' // Placeholder for now
             },
             activeUsers: activeUsers.map(u => ({
+                name: u.name || 'Anonymous User',
+                email: u.email || u.phoneNumber || 'No Contact',
+                lastActive: u.lastActive
+            })),
+            allUsers: allUsers.map(u => ({
                 name: u.name || 'Anonymous User',
                 email: u.email || u.phoneNumber || 'No Contact',
                 lastActive: u.lastActive

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, Dimensions, Animated, Platform, Modal } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, Dimensions, Animated, Platform, Modal, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,7 +12,7 @@ const { width } = Dimensions.get('window');
 
 const WorkoutSelectionScreen = ({ navigation }) => {
     const { theme } = useTheme();
-    const { userData, deleteCustomSplit } = useUser();
+    const { userData, deleteCustomSplit, deleteTrainingPlan } = useUser();
     const plan = userData?.trainingPlan;
 
     const [viewMode, setViewMode] = useState(plan ? 'active' : 'selection'); // 'active' or 'selection'
@@ -50,6 +50,31 @@ const WorkoutSelectionScreen = ({ navigation }) => {
     };
 
     const todaySession = getTodaySession();
+
+    const handleDeletePlan = () => {
+        if (Platform.OS === 'web') {
+            if (confirm("Are you sure you want to remove your current workout schedule? This will reset your progress tracking for this plan.")) {
+                deleteTrainingPlan();
+                setViewMode('selection');
+            }
+        } else {
+            Alert.alert(
+                "Delete Training Plan",
+                "Are you sure you want to remove your current workout schedule? This will reset your progress tracking for this plan.",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                        text: "Delete",
+                        style: "destructive",
+                        onPress: async () => {
+                            await deleteTrainingPlan();
+                            setViewMode('selection');
+                        }
+                    }
+                ]
+            );
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
@@ -119,13 +144,32 @@ const WorkoutSelectionScreen = ({ navigation }) => {
 
                             <View style={styles.menuDivider} />
 
-                            <TouchableOpacity style={styles.menuItem} onPress={() => setViewMode('selection')}>
+                            <TouchableOpacity
+                                style={styles.menuItem}
+                                onPress={() => setViewMode('selection')}
+                            >
                                 <View style={styles.menuIcon}>
                                     <Ionicons name="add-circle-outline" size={20} color={theme.brandWorkout} />
                                 </View>
                                 <View style={styles.menuText}>
                                     <Text style={styles.menuTitle}>Create New Split</Text>
                                     <Text style={styles.menuSubText}>Switch to a different program</Text>
+                                </View>
+                                <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />
+                            </TouchableOpacity>
+
+                            <View style={styles.menuDivider} />
+
+                            <TouchableOpacity
+                                style={styles.menuItem}
+                                onPress={handleDeletePlan}
+                            >
+                                <View style={[styles.menuIcon, { backgroundColor: theme.error + '10' }]}>
+                                    <Ionicons name="trash-outline" size={20} color={theme.error} />
+                                </View>
+                                <View style={styles.menuText}>
+                                    <Text style={[styles.menuTitle, { color: theme.error }]}>Delete Current Plan</Text>
+                                    <Text style={styles.menuSubText}>Remove this schedule from your profile</Text>
                                 </View>
                                 <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />
                             </TouchableOpacity>

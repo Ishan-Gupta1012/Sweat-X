@@ -23,6 +23,7 @@ import GoalsScreen from '../screens/GoalsScreen';
 import NutritionLogScreen from '../screens/NutritionLogScreen';
 import WorkoutHistoryScreen from '../screens/WorkoutHistoryScreen';
 import FoodSearchScreen from '../screens/FoodSearchScreen';
+import FoodQuantityScreen from '../screens/FoodQuantityScreen';
 import CreateMealScreen from '../screens/CreateMealScreen';
 import BeginnerSetupScreen from '../screens/BeginnerSetupScreen';
 import CreateCustomSplitScreen from '../screens/CreateCustomSplitScreen';
@@ -140,6 +141,11 @@ const AppNavigator = () => {
                     name="FoodSearch"
                     component={FoodSearchScreen}
                     options={{ animation: 'slide_from_bottom' }}
+                />
+                <Stack.Screen
+                    name="FoodQuantity"
+                    component={FoodQuantityScreen}
+                    options={{ animation: 'slide_from_right' }}
                 />
 
                 <Stack.Screen
