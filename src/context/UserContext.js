@@ -79,6 +79,10 @@ const defaultUserData = {
     // Format: { 'YYYY-MM-DD': { meals: [], totalCalories: 0, breakfastSnackCalories, lunchSnackCalories, dinnerCalories, caloriesBurned } }
     nutritionLog: {},
     lastResetDate: null, // Track when daily reset last occurred
+
+    // AI Chat History
+    aiChats: [],
+    activeChatId: null,
 };
 
 // Calculate Water Goal (in ml)
@@ -329,6 +333,9 @@ export const UserProvider = ({ children }) => {
                     if (typeof savedData.dailyCalories !== 'number' || isNaN(savedData.dailyCalories)) {
                         savedData.dailyCalories = 0;
                     }
+                    if (!Array.isArray(savedData.aiChats)) {
+                        savedData.aiChats = [];
+                    }
 
                     setUserData({ ...defaultUserData, ...savedData });
 
@@ -410,6 +417,8 @@ export const UserProvider = ({ children }) => {
                     fatsConsumed: userData.fatsConsumed,
                     caloriesBurned: userData.caloriesBurned,
                     todayExerciseMinutes: userData.todayExerciseMinutes,
+                    aiChats: userData.aiChats,
+                    activeChatId: userData.activeChatId,
                 };
                 await userApi.saveUser(deviceId, serverSafeData);
             }
@@ -659,6 +668,39 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    // Delete a workout from history
+    const deleteWorkout = async (workoutId) => {
+        // Find the workout to potentially adjust stats
+        const workoutToDelete = (userData.workoutHistory || []).find(w => w._id === workoutId || w.id === workoutId);
+        
+        setUserData(prev => {
+            const updatedHistory = (prev.workoutHistory || []).filter(w => w._id !== workoutId && w.id !== workoutId);
+            
+            // Adjust basic stats (optional, but good for UX)
+            const caloriesToDeduct = workoutToDelete ? (workoutToDelete.caloriesBurned || 0) : 0;
+            
+            return {
+                ...prev,
+                workoutHistory: updatedHistory,
+                totalWorkouts: Math.max(0, (prev.totalWorkouts || 1) - 1),
+                caloriesBurned: Math.max(0, (parseFloat(prev.caloriesBurned) || 0) - caloriesToDeduct)
+            };
+        });
+
+        // Sync to MongoDB if available
+        if (isApiAvailable && workoutId) {
+            try {
+                // If it's a mongo _id (usually string of 24 hex chars)
+                if (typeof workoutId === 'string' && workoutId.length === 24) {
+                    await workoutApi.deleteWorkout(workoutId);
+                    console.log('✅ Workout deleted from MongoDB:', workoutId);
+                }
+            } catch (error) {
+                console.error('Error deleting workout from MongoDB:', error);
+            }
+        }
+    };
+
     // Fetch workouts from MongoDB
     const fetchWorkouts = async (limit = 20) => {
         if (!isApiAvailable || !deviceId) {
@@ -815,17 +857,25 @@ export const UserProvider = ({ children }) => {
 
     // ============ CUSTOM SPLITS & TRAINING PLANS ============
 
-    const addCustomSplit = async (name, zones) => {
+    const addCustomSplit = async (name, zones, exercises = []) => {
         const newSplit = {
             id: Date.now().toString(),
             name,
             zones,
+            exercises,
             createdAt: new Date().toISOString()
         };
 
         setUserData(prev => ({
             ...prev,
             customSplits: [...(prev.customSplits || []), newSplit]
+        }));
+    };
+
+    const updateCustomSplit = (id, updates) => {
+        setUserData(prev => ({
+            ...prev,
+            customSplits: prev.customSplits.map(s => s.id === id ? { ...s, ...updates } : s)
         }));
     };
 
@@ -1277,6 +1327,90 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    // ============ AI CHAT FUNCTIONS ============
+
+    const createAIChat = (firstMessage) => {
+        const chatId = Date.now().toString();
+        // Use the first user message (up to 30 chars) as the default title
+        const title = firstMessage 
+            ? (firstMessage.length > 30 ? firstMessage.substring(0, 30) + '...' : firstMessage) 
+            : 'New Chat';
+        
+        const newChat = {
+            id: chatId,
+            title,
+            messages: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        };
+
+        setUserData(prev => ({
+            ...prev,
+            aiChats: [newChat, ...(prev.aiChats || [])],
+            activeChatId: chatId,
+        }));
+        
+        return chatId;
+    };
+
+    const updateAIChat = (chatId, messages) => {
+        setUserData(prev => {
+            const chats = prev.aiChats || [];
+            const chatIndex = chats.findIndex(c => c.id === chatId);
+            
+            if (chatIndex === -1) return prev;
+            
+            const updatedChat = {
+                ...chats[chatIndex],
+                messages,
+                updatedAt: new Date().toISOString(),
+            };
+            
+            // Move updated chat to the top
+            const newChats = [...chats];
+            newChats.splice(chatIndex, 1);
+            newChats.unshift(updatedChat);
+            
+            return {
+                ...prev,
+                aiChats: newChats,
+            };
+        });
+    };
+
+    const renameAIChat = (chatId, newTitle) => {
+        setUserData(prev => ({
+            ...prev,
+            aiChats: (prev.aiChats || []).map(chat => 
+                chat.id === chatId 
+                    ? { ...chat, title: newTitle, updatedAt: new Date().toISOString() } 
+                    : chat
+            )
+        }));
+    };
+
+    const deleteAIChat = (chatId) => {
+        setUserData(prev => {
+            const newChats = (prev.aiChats || []).filter(c => c.id !== chatId);
+            let newActiveId = prev.activeChatId;
+            if (prev.activeChatId === chatId) {
+                newActiveId = newChats.length > 0 ? newChats[0].id : null;
+            }
+            return {
+                ...prev,
+                aiChats: newChats,
+                activeChatId: newActiveId,
+            };
+        });
+    };
+
+    const setActiveChatId = (chatId) => {
+        setUserData(prev => ({
+            ...prev,
+            activeChatId: chatId,
+        }));
+    };
+
     return (
         <UserContext.Provider
             value={{
@@ -1290,6 +1424,7 @@ export const UserProvider = ({ children }) => {
                 removeWater,
                 addMeal,
                 saveWorkout,
+                deleteWorkout,
                 fetchWorkouts,
                 saveActiveWorkout,
                 clearActiveWorkout,
@@ -1309,12 +1444,18 @@ export const UserProvider = ({ children }) => {
                 googleLogin,
                 recalculateGoals,
                 addCustomSplit,
+                updateCustomSplit,
                 deleteCustomSplit,
                 generateTrainingPlan,
                 updateDayExercises,
                 addExerciseToDay,
                 removeExerciseFromDay,
                 deleteTrainingPlan,
+                createAIChat,
+                updateAIChat,
+                renameAIChat,
+                deleteAIChat,
+                setActiveChatId,
             }}
         >
             {children}

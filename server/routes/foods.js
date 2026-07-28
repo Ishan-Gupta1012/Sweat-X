@@ -221,7 +221,6 @@ router.post('/analyze-image', express.json({ limit: '100mb' }), async (req, res)
             }
         }
 
-        // USE PURE GEMINI ANALYSIS (No RapidAPI/Bon Happetee)
         const prompt = `You are an expert Indian and international food nutritionist with deep knowledge of all cuisines including Indian dishes like vermicelli (sewaiyan/sevai), poha, upma, khichdi, dal, sabzi, roti, paratha, biryani, pulao, dosa, idli, etc.
 
 Analyze this food image carefully. You MUST try your best to identify the food. Even if the image is slightly blurry or the food is uncommon, make your best educated guess. Do NOT say you cannot identify — always attempt.
@@ -229,42 +228,52 @@ Analyze this food image carefully. You MUST try your best to identify the food. 
 ONLY return this JSON if you are absolutely certain the image contains NO food at all (e.g., a phone, a car, a person without food):
 {"error": "No food detected in this image."}
 
-For ANY image that contains food or drink (even partially visible), respond with this JSON:
-{
-  "name": "Detailed name of the meal (use common Indian/English name)",
-  "quantity": "Estimated total quantity (e.g., 1 bowl, 2 rotis, 150g)",
-  "calories": 450,
-  "protein": 30,
-  "carbs": 50,
-  "fats": 15,
-  "fiber": 3,
-  "isVegetarian": true,
-  "confidence": 0.85
-}
+For ANY image that contains food or drink (even partially visible), respond with a JSON ARRAY of items. If there are multiple distinct foods (e.g., Coffee AND Cake), return them as separate objects in the array.
+[
+  {
+    "name": "Detailed name of the food (use common Indian/English name)",
+    "quantity": "Estimated total quantity (e.g., 1 bowl, 2 rotis, 150g)",
+    "calories": 450,
+    "protein": 30,
+    "carbs": 50,
+    "fats": 15,
+    "fiber": 3,
+    "isVegetarian": true,
+    "confidence": 0.85
+  }
+]
 
 Rules:
 - ALWAYS respond with valid JSON only, no markdown, no extra text
 - Use realistic Indian nutritional values
-- If multiple food items are visible, combine them into one total
+- If multiple food items are visible, separate them into an array of objects
 - Never refuse to identify food — make your best guess`;
 
         const text = await generateImageAnalysis(prompt, cleanBase64, mimeType);
 
         try {
-            // Robust JSON extraction
-            const startIdx = text.indexOf('{');
-            const endIdx = text.lastIndexOf('}');
+            const startIdx = text.indexOf('[');
+            const endIdx = text.lastIndexOf(']');
+            
+            // Fallback for single object responses
+            const objStartIdx = text.indexOf('{');
+            const objEndIdx = text.lastIndexOf('}');
 
-            if (startIdx === -1 || endIdx === -1) {
+            let analysis;
+            if (startIdx !== -1 && endIdx !== -1 && startIdx < objStartIdx) {
+                const jsonStr = text.substring(startIdx, endIdx + 1);
+                analysis = JSON.parse(jsonStr);
+            } else if (objStartIdx !== -1 && objEndIdx !== -1) {
+                const jsonStr = text.substring(objStartIdx, objEndIdx + 1);
+                const parsed = JSON.parse(jsonStr);
+                if (parsed.error) {
+                    return res.status(200).json({ success: false, error: parsed.error });
+                }
+                // Wrap in array if single object returned
+                analysis = [parsed];
+            } else {
                 console.error('❌ AI response missing JSON:', text);
                 return res.status(200).json({ success: false, error: 'Could not recognize food in this image.' });
-            }
-
-            const jsonStr = text.substring(startIdx, endIdx + 1);
-            const analysis = JSON.parse(jsonStr);
-
-            if (analysis.error) {
-                return res.status(200).json({ success: false, error: analysis.error });
             }
 
             res.json({

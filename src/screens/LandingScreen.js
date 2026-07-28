@@ -49,7 +49,7 @@ const LandingScreen = ({ navigation }) => {
         <View style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
-            <View style={styles.bgWrapper}>
+            <View style={styles.bgWrapper} pointerEvents="none">
                 <ImageBackground
                     source={require('../../assets/gym_hero.png')}
                     style={styles.fullScreenBg}
@@ -57,11 +57,11 @@ const LandingScreen = ({ navigation }) => {
                 >
                     {/* Multi-layered Gradient for Depth */}
                     <LinearGradient
-                        colors={['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.6)', theme.background]}
+                        colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)', theme.background]}
                         style={styles.gradientOverlay}
                     />
                     <LinearGradient
-                        colors={['transparent', 'rgba(6,182,212,0.05)', 'transparent']}
+                        colors={['transparent', `rgba(82,183,136,0.1)`, 'transparent']}
                         style={styles.accentGradient}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
@@ -69,7 +69,7 @@ const LandingScreen = ({ navigation }) => {
                 </ImageBackground>
             </View>
 
-            <SafeAreaView style={styles.content}>
+            <SafeAreaView style={styles.content} pointerEvents="box-none">
                 {/* Header Top */}
                 <Animated.View style={[
                     styles.header,
@@ -137,6 +137,7 @@ const createStyles = (theme) => StyleSheet.create({
     },
     bgWrapper: {
         ...StyleSheet.absoluteFillObject,
+        zIndex: 0,
     },
     fullScreenBg: {
         flex: 1,
@@ -152,6 +153,7 @@ const createStyles = (theme) => StyleSheet.create({
         flex: 1,
         justifyContent: 'space-between',
         paddingHorizontal: spacing.md,
+        zIndex: 1,
         paddingTop: Platform.OS === 'web' ? spacing.xxl : spacing.xl,
         paddingBottom: spacing.xl,
     },
@@ -168,12 +170,12 @@ const createStyles = (theme) => StyleSheet.create({
         color: '#FFFFFF',
         letterSpacing: 10,
         textAlign: 'center',
-        textShadowColor: 'rgba(6, 182, 212, 0.3)',
+        textShadowColor: 'rgba(82, 183, 136, 0.4)',
         textShadowOffset: { width: 0, height: 0 },
         textShadowRadius: 20,
     },
     subtitle: {
-        color: theme.primary,
+        color: theme.brandWorkout,
         fontSize: 12,
         fontWeight: '800',
         letterSpacing: 4,
@@ -183,7 +185,7 @@ const createStyles = (theme) => StyleSheet.create({
     accentLine: {
         width: 60,
         height: 4,
-        backgroundColor: theme.primary,
+        backgroundColor: theme.brandWorkout,
         marginTop: spacing.xs,
         borderRadius: borderRadius.full,
     },
@@ -218,12 +220,12 @@ const createStyles = (theme) => StyleSheet.create({
         marginBottom: spacing.xl,
     },
     highlightText: {
-        color: theme.primary,
+        color: theme.brandWorkout,
     },
     ctaButton: {
         height: 64, // Taller for premium feel
         borderRadius: borderRadius.lg,
-        shadowColor: theme.primary,
+        shadowColor: theme.brandWorkout,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

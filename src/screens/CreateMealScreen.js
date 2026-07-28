@@ -17,12 +17,14 @@ const SERVING_TYPES = [
     { key: 'gm', label: 'Grams', emoji: '⚖️' },
 ];
 
-const CreateMealScreen = ({ navigation }) => {
+const CreateMealScreen = ({ navigation, route }) => {
     const { userData, updateProfile } = useUser();
     const { theme, isDarkMode } = useTheme();
 
-    const [mealName, setMealName] = useState('');
-    const [selectedFoods, setSelectedFoods] = useState([]);
+    const editMeal = route.params?.editMeal;
+
+    const [mealName, setMealName] = useState(editMeal?.name || '');
+    const [selectedFoods, setSelectedFoods] = useState(editMeal?.foods || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -122,18 +124,26 @@ const CreateMealScreen = ({ navigation }) => {
 
         const totals = getTotals();
         const savedMeal = {
-            id: Date.now().toString(),
+            id: editMeal ? editMeal.id : Date.now().toString(),
             name: mealName.trim(),
             foods: selectedFoods,
             totalCalories: totals.calories,
             totalProtein: totals.protein,
             totalCarbs: totals.carbs,
             totalFats: totals.fats,
-            createdAt: new Date().toISOString(),
+            createdAt: editMeal ? editMeal.createdAt : new Date().toISOString(),
         };
 
         const savedMeals = userData.savedMeals || [];
-        await updateProfile({ savedMeals: [...savedMeals, savedMeal] });
+        
+        let newMeals;
+        if (editMeal) {
+            newMeals = savedMeals.map(m => m.id === editMeal.id ? savedMeal : m);
+        } else {
+            newMeals = [...savedMeals, savedMeal];
+        }
+
+        await updateProfile({ savedMeals: newMeals });
 
         navigation.goBack();
     };
@@ -151,7 +161,7 @@ const CreateMealScreen = ({ navigation }) => {
                 <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={22} color={theme.textPrimary} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Create Meal</Text>
+                <Text style={styles.headerTitle}>{editMeal ? 'Edit Meal' : 'Create Meal'}</Text>
                 <TouchableOpacity
                     style={[styles.saveBtn, { backgroundColor: theme.brandNutrition }, (!mealName.trim() || selectedFoods.length === 0) && styles.saveBtnDisabled]}
                     onPress={handleSaveMeal}

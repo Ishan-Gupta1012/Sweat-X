@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { spacing, borderRadius } from '../constants/colors';
@@ -7,7 +7,7 @@ import { useUser } from '../context/UserContext';
 import { useTheme } from '../context/ThemeContext';
 
 const WorkoutHistoryScreen = ({ navigation }) => {
-    const { userData, getTodayDate } = useUser();
+    const { userData, getTodayDate, deleteWorkout } = useUser();
     const { theme, isDarkMode } = useTheme();
 
     const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -108,6 +108,31 @@ const WorkoutHistoryScreen = ({ navigation }) => {
     const handleDayPress = (day) => {
         if (day && !isFutureDate(day)) {
             setSelectedDate(formatDateString(day));
+        }
+    };
+
+    const handleDeleteWorkout = (workout) => {
+        const workoutId = workout._id || workout.id;
+        if (!workoutId) return;
+
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm('Are you sure you want to delete this workout? This cannot be undone.');
+            if (confirmed) {
+                deleteWorkout(workoutId);
+            }
+        } else {
+            showAlert(
+                'Delete Workout',
+                'Are you sure you want to delete this workout? This cannot be undone.',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { 
+                        text: 'Delete', 
+                        style: 'destructive',
+                        onPress: () => deleteWorkout(workoutId)
+                    }
+                ]
+            );
         }
     };
 
@@ -268,7 +293,7 @@ const WorkoutHistoryScreen = ({ navigation }) => {
                 ) : (
                     <View style={styles.workoutsList}>
                         {workoutsForSelectedDate.map((workout, index) => (
-                            <View key={workout.id || index} style={styles.workoutCard}>
+                            <View key={workout._id || workout.id || index} style={styles.workoutCard}>
                                 <View style={styles.workoutHeader}>
                                     <Text style={styles.workoutIcon}>{getWorkoutIcon(workout.zones?.[0] || workout.split)}</Text>
                                     <View style={styles.workoutInfo}>
@@ -279,6 +304,13 @@ const WorkoutHistoryScreen = ({ navigation }) => {
                                             {formatDuration(workout.duration || 0)} • {workout.caloriesBurned || 0} kcal
                                         </Text>
                                     </View>
+                                    <TouchableOpacity 
+                                        onPress={() => handleDeleteWorkout(workout)}
+                                        style={styles.deleteWorkoutBtn}
+                                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                    >
+                                        <Ionicons name="trash-outline" size={20} color={theme.error} />
+                                    </TouchableOpacity>
                                 </View>
 
                                 {/* Exercises */}
@@ -379,6 +411,7 @@ const createStyles = (theme) => StyleSheet.create({
     workoutInfo: { flex: 1 },
     workoutType: { fontSize: 16, fontWeight: '700', color: theme.textPrimary, textTransform: 'capitalize' },
     workoutTime: { fontSize: 13, color: theme.textMuted },
+    deleteWorkoutBtn: { padding: spacing.xs },
 
     exercisesList: { marginTop: spacing.md, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: theme.border },
     exerciseItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.xs },

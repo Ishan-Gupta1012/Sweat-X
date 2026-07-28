@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, Dimensions, Animated, Platform, Modal, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +17,26 @@ const WorkoutSelectionScreen = ({ navigation }) => {
 
     const [viewMode, setViewMode] = useState(plan ? 'active' : 'selection'); // 'active' or 'selection'
     const [showPlanModal, setShowPlanModal] = useState(false);
+    
+    // AI Banner Breathing Animation
+    const glowAnim = useRef(new Animated.Value(0)).current;
+    
+    useEffect(() => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(glowAnim, {
+                    toValue: 1,
+                    duration: 2000,
+                    useNativeDriver: true
+                }),
+                Animated.timing(glowAnim, {
+                    toValue: 0,
+                    duration: 2000,
+                    useNativeDriver: true
+                })
+            ])
+        ).start();
+    }, []);
 
     const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -32,12 +52,13 @@ const WorkoutSelectionScreen = ({ navigation }) => {
         { id: 'cardio', label: 'Cardio', icon: 'fitness-outline' },
     ];
 
-    const handleStartWorkout = (title, zones, exerciseLimit, preloadedExercises = []) => {
+    const handleStartWorkout = (title, zones, exerciseLimit, preloadedExercises = [], customSplitId = null) => {
         navigation.navigate('WorkoutSession', {
             title: title || 'Quick Session',
             zones: zones || [],
             exerciseLimit,
             preloadedExercises,
+            customSplitId,
             skipTimeModal: true
         });
     };
@@ -92,6 +113,34 @@ const WorkoutSelectionScreen = ({ navigation }) => {
             </View>
 
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+
+                {userData.activeWorkoutSession && (
+                    <>
+                        <Text style={styles.sectionLabel}>RESUME ACTIVE WORKOUT</Text>
+                        <TouchableOpacity
+                            style={[styles.todayCard, { borderColor: theme.brandWorkout + '50', backgroundColor: theme.brandWorkout + '10', borderWidth: 1 }]}
+                            onPress={() => navigation.navigate('WorkoutSession', {
+                                resumeSession: true,
+                                skipTimeModal: true,
+                            })}
+                        >
+                            <View style={styles.todayContent}>
+                                <View style={styles.todayInfo}>
+                                    <Text style={[styles.todayTag, { color: theme.brandWorkout }]}>IN PROGRESS</Text>
+                                    <Text style={[styles.todayTitle, { color: theme.brandWorkout }]}>{userData.activeWorkoutSession.title}</Text>
+                                    <Text style={[styles.todayZones, { color: theme.brandWorkout }]}>
+                                        RESUME • {Math.floor(userData.activeWorkoutSession.timer / 60)}m {userData.activeWorkoutSession.timer % 60}s elapsed
+                                    </Text>
+                                </View>
+                                <View style={styles.startButton}>
+                                    <View style={[styles.startGradient, { backgroundColor: theme.brandWorkout }]}>
+                                        <Ionicons name="play" size={20} color="#FFF" />
+                                    </View>
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                    </>
+                )}
 
                 {viewMode === 'active' && plan ? (
                     <>
@@ -175,82 +224,99 @@ const WorkoutSelectionScreen = ({ navigation }) => {
                             </TouchableOpacity>
                         </View>
 
-                        {/* 4. Body Part Sessions (Always accessible) */}
-                        <Text style={styles.sectionLabel}>BODY PART SESSIONS</Text>
+                        {/* 4. Quick Sessions (Grid) */}
+                        <Text style={styles.sectionLabel}>QUICK SESSIONS</Text>
                         <View style={styles.zonesGrid}>
                             {bodyParts.map((part) => (
                                 <TouchableOpacity
                                     key={part.id}
-                                    style={styles.zoneCard}
+                                    style={styles.zoneCardRich}
                                     onPress={() => handleStartWorkout(part.label, [part.id])}
                                 >
-                                    <View style={styles.zoneIcon}>
-                                        <Ionicons name={part.icon} size={18} color={theme.brandWorkout} />
+                                    <View style={styles.zoneIconRich}>
+                                        <Ionicons name={part.icon} size={20} color={theme.brandWorkout} />
                                     </View>
-                                    <Text style={styles.zoneLabel}>{part.label}</Text>
+                                    <Text style={styles.zoneLabelRich}>{part.label}</Text>
                                 </TouchableOpacity>
                             ))}
                         </View>
                     </>
                 ) : (
                     <>
-                        {/* 2. Normal Workouts (Body Parts) */}
-                        <Text style={styles.sectionLabel}>BODY PART SESSIONS</Text>
+                        {/* 1. Quick Sessions (Grid) */}
+                        <Text style={styles.sectionLabel}>QUICK SESSIONS</Text>
                         <View style={styles.zonesGrid}>
                             {bodyParts.map((part) => (
                                 <TouchableOpacity
                                     key={part.id}
-                                    style={styles.zoneCard}
+                                    style={styles.zoneCardRich}
                                     onPress={() => handleStartWorkout(part.label, [part.id])}
                                 >
-                                    <View style={styles.zoneIcon}>
-                                        <Ionicons name={part.icon} size={18} color={theme.brandWorkout} />
+                                    <View style={styles.zoneIconRich}>
+                                        <Ionicons name={part.icon} size={20} color={theme.brandWorkout} />
                                     </View>
-                                    <Text style={styles.zoneLabel}>{part.label}</Text>
+                                    <Text style={styles.zoneLabelRich}>{part.label}</Text>
                                 </TouchableOpacity>
                             ))}
                         </View>
 
-                        {/* 3. AI Split Generation */}
-                        <Text style={styles.sectionLabel}>AI INTELLIGENCE</Text>
-                        <TouchableOpacity
-                            style={styles.aiButton}
-                            onPress={() => navigation.navigate('BeginnerSetup')}
-                        >
-                            <View style={[styles.aiGradient, { backgroundColor: theme.brandWorkout }]}>
-                                <Ionicons name="flash" size={20} color="#FFF" />
-                                <Text style={styles.aiButtonText}>BUILD SMART SPLIT</Text>
-                            </View>
-                        </TouchableOpacity>
-
-                        {/* 4. Custom Split */}
+                        {/* 2. Custom Split Ribbon */}
                         <Text style={styles.sectionLabel}>CUSTOMIZATION</Text>
-                        <TouchableOpacity
-                            style={styles.customButton}
-                            onPress={() => navigation.navigate('CreateCustomSplit')}
+                        <ScrollView 
+                            horizontal 
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.customRibbonContainer}
                         >
-                            <Ionicons name="add-circle-outline" size={20} color={theme.brandWorkout} />
-                            <Text style={styles.customButtonText}>CREATE CUSTOM SPLIT</Text>
-                        </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.customAddCard}
+                                onPress={() => navigation.navigate('CreateCustomSplit')}
+                            >
+                                <View style={styles.customAddIconWrapper}>
+                                    <Ionicons name="add" size={24} color={theme.brandWorkout} />
+                                </View>
+                                <Text style={styles.customAddText}>Create Split</Text>
+                            </TouchableOpacity>
 
-                        {userData?.customSplits?.length > 0 && (
-                            <View style={styles.customSplitsList}>
-                                {userData.customSplits.map((split) => (
-                                    <View key={split.id} style={styles.customSplitItem}>
-                                        <TouchableOpacity
-                                            style={styles.customSplitMain}
-                                            onPress={() => handleStartWorkout(split.name, split.zones)}
-                                        >
-                                            <Text style={styles.customSplitName}>{split.name}</Text>
-                                            <Text style={styles.customSplitZones}>{split.zones.join(', ')}</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => deleteCustomSplit(split.id)}>
-                                            <Ionicons name="trash-outline" size={18} color={theme.error} />
-                                        </TouchableOpacity>
+                            {userData?.customSplits?.map((split) => (
+                                <View key={split.id} style={styles.customRibbonItemWrapper}>
+                                    <TouchableOpacity
+                                        style={styles.customRibbonItem}
+                                        onPress={() => handleStartWorkout(split.name, split.zones, undefined, split.exercises, split.id)}
+                                    >
+                                        <Text style={styles.customRibbonName}>{split.name}</Text>
+                                        <Text style={styles.customRibbonZones}>{split.zones.join(', ')}</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity 
+                                        style={styles.customRibbonDelete}
+                                        onPress={() => deleteCustomSplit(split.id)}
+                                    >
+                                        <Ionicons name="trash-outline" size={14} color="#FF5252" />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </ScrollView>
+
+                        {/* 3. Hero Banner for AI (Small) */}
+                        <Animated.View style={[styles.heroRichWrapper, { opacity: glowAnim.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }]}>
+                            <TouchableOpacity
+                                style={styles.heroBannerRich}
+                                onPress={() => navigation.navigate('BeginnerSetup')}
+                            >
+                                <View style={styles.heroGradientRich}>
+                                    <View style={styles.heroContentRich}>
+                                        <View style={styles.heroBadgeRich}>
+                                            <Ionicons name="hardware-chip-outline" size={12} color={theme.brandWorkout} />
+                                            <Text style={styles.heroBadgeTextRich}>AI ENGINE</Text>
+                                        </View>
+                                        <Text style={styles.heroTitleRich}>Build a Smart Split</Text>
+                                        <Text style={styles.heroSubtitleRich}>Let AI craft the perfect workout plan tailored specifically for you.</Text>
                                     </View>
-                                ))}
-                            </View>
-                        )}
+                                    <View style={styles.heroIconContainerRich}>
+                                        <Ionicons name="flash" size={16} color={theme.brandWorkout} style={styles.heroIconRich} />
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        </Animated.View>
                     </>
                 )}
             </ScrollView>
@@ -363,43 +429,35 @@ const createStyles = (theme) => StyleSheet.create({
     menuSubText: { fontSize: 12, color: theme.textSecondary, marginTop: 2 },
     menuDivider: { height: 1, backgroundColor: theme.border, marginHorizontal: spacing.lg },
 
-    // Selection View
-    zonesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-    zoneCard: { width: '23%', height: 75, backgroundColor: theme.cardBackground, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border, gap: 6 },
-    zoneIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#222222', alignItems: 'center', justifyContent: 'center' },
-    zoneLabel: { fontSize: 10, fontWeight: '500', color: theme.textPrimary, textTransform: 'uppercase' },
+    // Rich 2-Column Vertical Grid
+    zonesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'space-between' },
+    zoneCardRich: { width: '48%', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: 16, padding: spacing.md, flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.05)' },
+    zoneIconRich: { width: 36, height: 36, borderRadius: 18, backgroundColor: theme.brandWorkout + '20', alignItems: 'center', justifyContent: 'center' },
+    zoneLabelRich: { fontSize: 13, fontWeight: '600', color: '#FFF', flex: 1 },
 
-    aiButton: { borderRadius: 14, overflow: 'hidden', marginTop: 4 },
-    aiGradient: { paddingVertical: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
-    aiButtonText: { fontSize: 14, fontWeight: '600', color: '#FFFFFF', letterSpacing: 2 },
+    // Classy Small AI Hero Banner
+    heroRichWrapper: { borderRadius: 18, padding: 1, backgroundColor: 'rgba(82, 183, 136, 0.3)', marginTop: spacing.md, marginBottom: spacing.xl },
+    heroBannerRich: { borderRadius: 17, overflow: 'hidden', backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+    heroGradientRich: { flexDirection: 'row', alignItems: 'center', padding: spacing.lg },
+    heroContentRich: { flex: 1 },
+    heroBadgeRich: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(82, 183, 136, 0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start', marginBottom: 6, gap: 4, borderWidth: 1, borderColor: 'rgba(82, 183, 136, 0.2)' },
+    heroBadgeTextRich: { color: theme.brandWorkout, fontSize: 9, fontWeight: '800', letterSpacing: 2 },
+    heroTitleRich: { fontSize: 16, fontWeight: '700', color: '#FFF', marginBottom: 4 },
+    heroSubtitleRich: { fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 16, paddingRight: 10 },
+    heroIconContainerRich: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(82, 183, 136, 0.15)', alignItems: 'center', justifyContent: 'center' },
+    heroIconRich: { opacity: 1 },
 
-    customButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 16,
-        backgroundColor: theme.cardBackground,
-        borderRadius: 14,
-        borderWidth: 1,
-        borderColor: theme.brandWorkout,
-        gap: 8
-    },
-    customButtonText: { fontSize: 12, fontWeight: '600', color: theme.brandWorkout, letterSpacing: 1 },
-
-    customSplitsList: { marginTop: spacing.md, gap: spacing.sm },
-    customSplitItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: spacing.md,
-        backgroundColor: theme.cardBackground,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: theme.border,
-        gap: 12
-    },
-    customSplitMain: { flex: 1 },
-    customSplitName: { fontSize: 14, fontWeight: '600', color: theme.textPrimary },
-    customSplitZones: { fontSize: 10, color: theme.textSecondary, marginTop: 2 },
+    // Custom Ribbon
+    customRibbonContainer: { paddingRight: spacing.lg, gap: spacing.md, paddingBottom: spacing.sm },
+    customAddCard: { width: 130, height: 110, backgroundColor: 'transparent', borderRadius: 16, padding: spacing.md, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: theme.brandWorkout, borderStyle: 'dashed' },
+    customAddIconWrapper: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(45, 106, 79, 0.2)', alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+    customAddText: { fontSize: 12, fontWeight: '700', color: theme.brandWorkout, textTransform: 'uppercase', letterSpacing: 0.5 },
+    
+    customRibbonItemWrapper: { position: 'relative' },
+    customRibbonItem: { width: 140, height: 110, backgroundColor: theme.cardBackground, borderRadius: 16, padding: spacing.md, justifyContent: 'center', borderWidth: 1, borderColor: theme.border },
+    customRibbonName: { fontSize: 15, fontWeight: '700', color: theme.textPrimary, marginBottom: 4 },
+    customRibbonZones: { fontSize: 11, color: theme.textSecondary, lineHeight: 16 },
+    customRibbonDelete: { position: 'absolute', top: 8, right: 8, width: 26, height: 26, borderRadius: 13, backgroundColor: 'rgba(255, 82, 82, 0.15)', alignItems: 'center', justifyContent: 'center' },
 
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.95)', justifyContent: 'center', padding: spacing.xl },
     modalContent: { backgroundColor: '#151515', borderRadius: 20, padding: spacing.xl, borderWidth: 1, borderColor: theme.border },

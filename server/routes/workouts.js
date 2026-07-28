@@ -132,4 +132,27 @@ router.get('/:userId/stats', async (req, res) => {
     }
 });
 
+// Delete a workout
+router.delete('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedWorkout = await Workout.findByIdAndDelete(id);
+        
+        if (!deletedWorkout) {
+            return res.status(404).json({ success: false, error: 'Workout not found' });
+        }
+        
+        // Note: we could also optionally decrement user stats here if we wanted to be perfectly accurate,
+        // but often apps just delete the record without recalculating all historical streaks.
+        
+        res.json({
+            success: true,
+            message: 'Workout deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting workout:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 module.exports = router;

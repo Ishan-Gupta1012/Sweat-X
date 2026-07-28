@@ -39,12 +39,52 @@ const SplitExerciseEditorScreen = ({ route, navigation }) => {
         }
     }, [session]);
 
-    const handleSearch = async (query) => {
-        setSearchQuery(query);
-        if (query.length < 2) {
-            setSearchResults([]);
-            return;
+    useEffect(() => {
+        if (showAddModal) {
+            fetchInitialSuggestions();
         }
+    }, [showAddModal]);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery.trim().length >= 2) {
+                performSearch(searchQuery);
+            } else if (searchQuery.trim().length === 0 && showAddModal) {
+                fetchInitialSuggestions();
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery]);
+
+    const fetchInitialSuggestions = async () => {
+        setLoading(true);
+        try {
+            const categoryMap = { 'push': 'chest', 'pull': 'back', 'legs': 'legs', 'core': 'core' };
+            const dayName = session?.name?.toLowerCase() || '';
+            let targetCategory = null; // fallback to all exercises
+            for (const [key, val] of Object.entries(categoryMap)) {
+                if (dayName.includes(key)) {
+                    targetCategory = val;
+                    break;
+                }
+            }
+            const result = await exerciseApi.getExercises(targetCategory);
+            if (result.success) {
+                const formatted = result.exercises.map(ex => ({
+                    ...ex,
+                    displayName: ex.name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+                }));
+                setSearchResults(formatted);
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const performSearch = async (query) => {
 
         setLoading(true);
         try {
@@ -58,11 +98,10 @@ const SplitExerciseEditorScreen = ({ route, navigation }) => {
                 setSearchResults(formatted);
             }
         } catch (error) {
-            console.error('Search error:', error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
-
     const handleAddExercise = (exercise) => {
         const newExercise = {
             name: exercise.displayName || exercise.name,
@@ -78,7 +117,6 @@ const SplitExerciseEditorScreen = ({ route, navigation }) => {
 
         setShowAddModal(false);
         setSearchQuery('');
-        setSearchResults([]);
     };
 
     const handleRemoveExercise = (exerciseIndex) => {
@@ -243,13 +281,29 @@ const SplitExerciseEditorScreen = ({ route, navigation }) => {
                             <Ionicons name="search" size={20} color={theme.textSecondary} />
                             <TextInput
                                 style={[styles.searchInput, { color: theme.text }]}
-                                placeholder="Search exercises..."
+                                placeholder="Search or type custom exercise..."
                                 placeholderTextColor={theme.textSecondary}
                                 value={searchQuery}
-                                onChangeText={handleSearch}
+                                onChangeText={setSearchQuery}
                                 autoFocus
                             />
+                            {!!searchQuery.trim() && (
+                                <TouchableOpacity
+                                    style={{
+                                        backgroundColor: theme.primary,
+                                        padding: 8,
+                                        borderRadius: 8,
+                                    }}
+                                    onPress={() => handleAddExercise({ name: searchQuery.trim(), category: 'strength', type: 'strength' })}
+                                >
+                                    <Ionicons name="arrow-forward" size={18} color="#fff" />
+                                </TouchableOpacity>
+                            )}
                         </View>
+                        
+                        {(!searchQuery.trim() && !loading && searchResults.length > 0) && (
+                            <Text style={{ color: theme.textSecondary, marginBottom: 8, fontSize: 14, fontWeight: '600', marginLeft: 4 }}>Suggestions for {session?.name || 'this day'}</Text>
+                        )}
 
                         {loading ? (
                             <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />

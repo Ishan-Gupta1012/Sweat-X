@@ -10,13 +10,16 @@ import { API_URL } from '../services/api';
 
 const FoodSearchScreen = ({ navigation, route }) => {
     const { theme, isDarkMode } = useTheme();
+    const { userData, updateProfile } = useUser();
+    const savedMeals = userData?.savedMeals || [];
     const initialMealType = route.params?.mealType || 'lunch';
 
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState(route.params?.initialQuery || '');
     const [searchResults, setSearchResults] = useState([]);
     const [popularFoods, setPopularFoods] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [showCameraModal, setShowCameraModal] = useState(false);
 
     useEffect(() => {
         fetchPopularFoods();
@@ -72,27 +75,63 @@ const FoodSearchScreen = ({ navigation, route }) => {
         navigation.navigate('FoodQuantity', {
             food,
             mealType: initialMealType,
-            isEditing: false
+            isEditing: false,
+            replaceAIFoodIndex: route.params?.replaceAIFoodIndex
         });
     };
 
-    const handleCameraPress = async () => {
-        Alert.alert(
-            'Scan Food',
-            'Choose a source to identify your meal',
+    const handleMealSelect = (meal) => {
+        const mealAsFood = {
+            _id: meal.id,
+            name: meal.name,
+            cuisine: 'Saved Meal',
+            caloriesPer100g: meal.totalCalories,
+            proteinPer100g: meal.totalProtein,
+            carbsPer100g: meal.totalCarbs,
+            fatsPer100g: meal.totalFats,
+            defaultServing: 'plate',
+            isVegetarian: true, // Show green leaf for meals by default
+        };
+        handleFoodSelect(mealAsFood);
+    };
+
+    const handleDeleteMeal = (mealId) => {
+        showAlert(
+            "Delete Meal",
+            "Are you sure you want to delete this custom meal?",
             [
-                { text: 'Take Photo', onPress: () => openCamera() },
-                { text: 'Choose from Gallery', onPress: () => openGallery() },
-                { text: 'Cancel', style: 'cancel' },
+                { text: "Cancel", style: "cancel" },
+                { 
+                    text: "Delete", 
+                    style: "destructive", 
+                    onPress: async () => {
+                        const newSavedMeals = savedMeals.filter(m => m.id !== mealId);
+                        await updateProfile({ savedMeals: newSavedMeals });
+                    }
+                }
             ]
         );
+    };
+
+    const handleCameraPress = async () => {
+        setShowCameraModal(true);
+    };
+
+    const handleTakePhoto = () => {
+        setShowCameraModal(false);
+        openCamera();
+    };
+
+    const handleChooseGallery = () => {
+        setShowCameraModal(false);
+        openGallery();
     };
 
     const openCamera = async () => {
         try {
             const { status } = await ImagePicker.requestCameraPermissionsAsync();
             if (status !== 'granted') {
-                Alert.alert('Camera Permission Required', 'TrueFit needs camera access to scan food.');
+                showAlert('Camera Permission Required', 'TrueFit needs camera access to scan food.');
                 return;
             }
 
@@ -112,7 +151,7 @@ const FoodSearchScreen = ({ navigation, route }) => {
             }
         } catch (error) {
             console.error('Camera error:', error);
-            Alert.alert('Error', 'Could not access camera.');
+            showAlert('Error', 'Could not access camera.');
         }
     };
 
@@ -120,7 +159,7 @@ const FoodSearchScreen = ({ navigation, route }) => {
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== 'granted') {
-                Alert.alert('Gallery Permission Required', 'TrueFit needs gallery access.');
+                showAlert('Gallery Permission Required', 'TrueFit needs gallery access.');
                 return;
             }
 
@@ -140,7 +179,7 @@ const FoodSearchScreen = ({ navigation, route }) => {
             }
         } catch (error) {
             console.error('Gallery error:', error);
-            Alert.alert('Error', 'Could not access photo library.');
+            showAlert('Error', 'Could not access photo library.');
         }
     };
 
@@ -157,29 +196,19 @@ const FoodSearchScreen = ({ navigation, route }) => {
 
             const data = await response.json();
             if (data.success && data.analysis) {
-                const aiFood = {
-                    _id: 'ai_' + Date.now(),
-                    name: data.analysis.name,
-                    isAI: true,
-                    calories: data.analysis.calories,
-                    protein: data.analysis.protein,
-                    carbs: data.analysis.carbs,
-                    fats: data.analysis.fats,
-                    fiber: data.analysis.fiber || 0,
-                    quantity: data.analysis.quantity,
-                    isVegetarian: data.analysis.isVegetarian
-                };
-                navigation.navigate('FoodQuantity', {
-                    food: aiFood,
-                    mealType: initialMealType,
-                    isEditing: false
+                // Determine if it's an array (new format) or object (old format)
+                const analysisItems = Array.isArray(data.analysis) ? data.analysis : [data.analysis];
+                
+                navigation.navigate('AIFoodReview', {
+                    aiFoods: analysisItems,
+                    mealType: initialMealType
                 });
             } else {
-                Alert.alert('Recognition Failed', 'Could not identify food. Try again.');
+                showAlert('Recognition Failed', 'Could not identify food. Try again.');
             }
         } catch (error) {
             console.error('AI analysis error:', error);
-            Alert.alert('Analysis Error', 'Failed to analyze image.');
+            showAlert('Analysis Error', 'Failed to analyze image.');
         } finally {
             setIsAnalyzing(false);
         }
@@ -258,6 +287,44 @@ const FoodSearchScreen = ({ navigation, route }) => {
                     <Ionicons name="chevron-forward" size={20} color={theme.textMuted} />
                 </TouchableOpacity>
 
+                {/* My Meals Section */}
+                {!isLoading && searchQuery.length < 2 && savedMeals.length > 0 && (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>My Meals</Text>
+                        {savedMeals.map((meal) => (
+                            <TouchableOpacity key={meal.id} style={styles.foodItem} onPress={() => handleMealSelect(meal)}>
+                                <View style={styles.foodIcon}>
+                                    <Text style={styles.foodEmoji}>🍱</Text>
+                                </View>
+                                <View style={styles.foodInfo}>
+                                    <Text style={styles.foodName}>{meal.name}</Text>
+                                    <Text style={styles.foodMeta}>{meal.foods.length} items • {meal.totalCalories} kcal/meal</Text>
+                                </View>
+                                <View style={styles.mealRightSide}>
+                                    <View style={styles.foodCalories}>
+                                        <Text style={styles.calorieNumber}>{meal.totalCalories}</Text>
+                                        <Text style={styles.calorieUnit}>kcal</Text>
+                                    </View>
+                                    <View style={styles.mealActions}>
+                                        <TouchableOpacity onPress={(e) => {
+                                            e.stopPropagation();
+                                            navigation.navigate('CreateMeal', { editMeal: meal });
+                                        }} style={styles.mealActionBtn}>
+                                            <Ionicons name="pencil" size={16} color={theme.textSecondary} />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteMeal(meal.id);
+                                        }} style={styles.mealActionBtn}>
+                                            <Ionicons name="trash-outline" size={16} color={theme.error || '#FF3B30'} />
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                )}
+
                 {/* Search Results or Popular Foods */}
                 {isLoading ? (
                     <View style={styles.loadingContainer}>
@@ -289,6 +356,29 @@ const FoodSearchScreen = ({ navigation, route }) => {
                         <ActivityIndicator size="large" color={theme.primary} />
                         <Text style={[styles.analysisText, { color: theme.textPrimary }]}>Recognizing Food...</Text>
                         <Text style={styles.analysisSub}>Sweat-X AI is analyzing your meal</Text>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Camera Options Modal */}
+            <Modal visible={showCameraModal} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Ionicons name="camera-outline" size={48} color={theme.brandNutrition} style={{ marginBottom: spacing.md }} />
+                        <Text style={styles.modalTitle}>Scan Food</Text>
+                        <Text style={styles.modalMessage}>Choose a source to identify your meal</Text>
+                        
+                        <TouchableOpacity style={[styles.modalBtn, { backgroundColor: theme.brandNutrition, width: '100%', marginBottom: spacing.sm }]} onPress={handleTakePhoto}>
+                            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Take Photo</Text>
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity style={[styles.modalBtn, { backgroundColor: theme.surface, width: '100%', marginBottom: spacing.lg, borderWidth: 1, borderColor: theme.border }]} onPress={handleChooseGallery}>
+                            <Text style={{ color: theme.textPrimary, fontSize: 16, fontWeight: '600' }}>Choose from Gallery</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={{ padding: spacing.sm }} onPress={() => setShowCameraModal(false)}>
+                            <Text style={{ color: theme.textMuted, fontSize: 16 }}>Cancel</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
@@ -336,6 +426,16 @@ const createStyles = (theme) => StyleSheet.create({
     analysisBox: { backgroundColor: theme.cardBackground, padding: 30, borderRadius: 20, alignItems: 'center', gap: 10 },
     analysisText: { fontSize: 18, fontWeight: '700', marginTop: 10 },
     analysisSub: { fontSize: 14, color: theme.textMuted },
+    
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.95)', justifyContent: 'center', alignItems: 'center' },
+    modalContent: { backgroundColor: theme.cardBackground, borderRadius: 24, padding: spacing.xl, width: '85%', maxWidth: 400, alignItems: 'center', borderWidth: 1, borderColor: theme.border },
+    modalTitle: { fontSize: 20, fontWeight: '600', color: theme.textPrimary, marginBottom: spacing.xs, textTransform: 'uppercase', letterSpacing: 1 },
+    modalMessage: { fontSize: 14, color: theme.textSecondary, textAlign: 'center', marginBottom: spacing.xl, fontWeight: '400' },
+    modalBtn: { paddingVertical: spacing.lg, borderRadius: 12, alignItems: 'center' },
+
+    mealRightSide: { alignItems: 'flex-end', justifyContent: 'center' },
+    mealActions: { flexDirection: 'row', gap: 8, marginTop: 4 },
+    mealActionBtn: { padding: 4, backgroundColor: theme.background, borderRadius: 4 },
 });
 
 export default FoodSearchScreen;

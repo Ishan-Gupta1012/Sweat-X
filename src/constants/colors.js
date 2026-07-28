@@ -2,53 +2,55 @@
 // Clean, high-contrast, modern fitness aesthetic
 
 export const colors = {
-  // Background colors - Pure OLED Blacks
-  background: '#000000',              // Absolute Black
-  secondaryBackground: '#09090B',      // Slightly elevated black (Zinc 950)
-  cardBackground: '#121212',          // Standard dark surface
-  cardBackgroundLight: '#18181b',     // Elevated Surface 
-  surfaceSelected: '#27272a',         // Focus/Selected surface
+  // Background colors - Pitch Black & Sleek Dark
+  background: '#000000',              // Absolute black
+  secondaryBackground: '#0A0F0C',     // Very dark grey/green hint
+  cardBackground: 'rgba(255, 255, 255, 0.05)',  // Sleek translucent surface
+  cardBackgroundLight: 'rgba(255, 255, 255, 0.1)', // Slightly lighter
+  surfaceSelected: 'rgba(82, 183, 136, 0.15)',    // Subtle green highlight
 
-  // Primary accent - Electric Cyan (Default/Dashboard)
-  primary: '#06B6D4',                 // Vibrant Cyan (Primary Accent)
-  primaryDark: '#0891B2',             // Dark Cyan (hover/pressed)
-  primaryLight: '#22D3EE',            // Secondary Accent
-  primaryLighter: '#67E8F9',          // Light Accent
+  // Primary accent - Neon Green Theme
+  primary: '#2D6A4F',
+  primaryDark: '#1B4332',
+  primaryLight: '#40916C',
+  primaryLighter: '#52B788',
+  accent: '#52B788',
+  highlight: '#95D5B2',
 
-  // Screen-Specific Brand Colors (Multi-color Premium UI)
-  brandWorkout: '#8B5CF6',            // Vibrant Violet for Workouts
-  brandNutrition: '#10B981',          // Emerald Green for Food/Nutrition
-  brandProfile: '#F43F5E',            // Rose Red for Profile/Settings
-  brandDashboard: '#06B6D4',          // Electric Cyan for Home/Dashboard
-  brandAI: '#6366F1',                 // Indigo for CoreCoach AI Assistant
+  // Screen-Specific Brand Colors
+  brandWorkout: '#52B788',
+  brandNutrition: '#40916C',
+  brandProfile: '#95D5B2',
+  brandDashboard: '#2D6A4F',
+  brandAI: '#40916C',
 
-  // Text colors - High-contrast whites
-  textPrimary: '#FAFAFA',             // Bright White
-  textSecondary: '#E4E4E7',           // Soft White
-  textMuted: '#A1A1AA',               // Muted Grey
-  textDisabled: '#71717A',            // Disabled Text
+  // Text
+  textPrimary: '#FFFFFF',
+  textSecondary: '#A1A1AA', // Neutral gray
+  textMuted: '#71717A',     // Darker neutral gray
+  textDisabled: '#52525B',
 
-  // Borders and dividers - Subtle lines
-  border: '#27272a',                  // Zinc 800
-  divider: '#27272a',
+  // UI elements
+  border: 'rgba(255, 255, 255, 0.1)',
+  divider: 'rgba(255, 255, 255, 0.05)',
 
-  // Status colors - Standardized
-  success: '#10B981',                 // Emerald Green
-  warning: '#F59E0B',                 // Amber
-  error: '#EF4444',                   // Rose Red
-  info: '#3B82F6',                    // Blue
+  // Semantic
+  success: '#52B788',
+  warning: '#F4A261',
+  error: '#EF4444',
+  info: '#2D6A4F',
 
-  // Macro colors - Distinct & Vibrant
-  protein: '#3B82F6',                 // Blue
-  carbs: '#10B981',                   // Green
-  fats: '#8B5CF6',                    // Violet
-  fiber: '#F59E0B',                   // Amber
-  water: '#0EA5E9',                   // Sky Blue
+  // Macro colors
+  protein: '#52B788',
+  carbs: '#40916C',
+  fats: '#95D5B2',
+  fiber: '#F4A261',
+  water: '#3B82F6',
 
   // Gradients
-  gradientPrimary: ['#06B6D4', '#3B82F6'], // Cyan to Blue
-  gradientDark: ['#121212', '#000000'],
-  gradientAccent: ['#10B981', '#06B6D4'],  // Green to Cyan
+  gradientPrimary: ['#0A0F0C', '#000000'],
+  gradientDark: ['#1B4332', '#081C15'],
+  gradientAccent: ['#52B788', '#95D5B2'],
 };
 
 export const spacing = {

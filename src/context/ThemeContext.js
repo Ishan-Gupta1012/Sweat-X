@@ -6,41 +6,41 @@ const THEME_STORAGE_KEY = '@truefit_theme';
 // Dark Theme (OLED Black + Neon Cyan)
 export const darkTheme = {
     isDark: true,
-    background: '#000000',           // Absolute Black
-    secondaryBackground: '#09090B',  // Elevated Black
-    cardBackground: '#121212',       // Card Background
-    cardBackgroundLight: '#18181b',  // Modals
-    surfaceSelected: '#27272a',      // Focus/Selected
-    primary: '#06B6D4',              // Electric Cyan
-    primaryDark: '#0891B2',          // Hover Cyan
-    primaryLight: '#22D3EE',         // Light Cyan
-    primaryLighter: '#67E8F9',       // Lighter Cyan
+    background: '#000000',
+    secondaryBackground: '#0A0F0C',
+    cardBackground: 'rgba(255, 255, 255, 0.05)',
+    cardBackgroundLight: 'rgba(255, 255, 255, 0.1)',
+    surfaceSelected: 'rgba(82, 183, 136, 0.15)',
+    primary: '#2D6A4F',
+    primaryDark: '#1B4332',
+    primaryLight: '#40916C',
+    primaryLighter: '#52B788',
 
-    // Screen-Specific Brand Colors (Multi-color Premium UI)
-    brandWorkout: '#8B5CF6',         // Vibrant Violet
-    brandNutrition: '#10B981',       // Emerald Green
-    brandProfile: '#F43F5E',         // Rose Red
-    brandDashboard: '#06B6D4',       // Electric Cyan
-    brandAI: '#6366F1',              // Indigo
+    // Screen-Specific Brand Colors
+    brandWorkout: '#52B788',
+    brandNutrition: '#40916C',
+    brandProfile: '#95D5B2',
+    brandDashboard: '#2D6A4F',
+    brandAI: '#40916C',
 
-    textPrimary: '#FAFAFA',          // Bright White
-    textSecondary: '#E4E4E7',        // Soft White
-    textMuted: '#A1A1AA',            // Muted Grey
-    textDisabled: '#71717A',         // Disabled
-    border: '#27272a',               // Subtle border
-    divider: '#27272a',
-    success: '#10B981',              // Green
-    warning: '#F59E0B',              // Amber
-    error: '#EF4444',                // Red
-    info: '#3B82F6',                 // Blue
-    protein: '#3B82F6',              // Blue
-    carbs: '#10B981',                // Green
-    fats: '#8B5CF6',                 // Violet
-    fiber: '#F59E0B',                // Amber
-    water: '#0EA5E9',                // Sky Blue
-    gradientPrimary: ['#06B6D4', '#3B82F6'],
-    gradientDark: ['#121212', '#000000'],
-    gradientAccent: ['#10B981', '#06B6D4'],
+    textPrimary: '#FFFFFF',
+    textSecondary: '#A1A1AA',
+    textMuted: '#71717A',
+    textDisabled: '#52525B',
+    border: 'rgba(255, 255, 255, 0.1)',
+    divider: 'rgba(255, 255, 255, 0.05)',
+    success: '#52B788',
+    warning: '#F4A261',
+    error: '#EF4444',
+    info: '#2D6A4F',
+    protein: '#52B788',
+    carbs: '#40916C',
+    fats: '#95D5B2',
+    fiber: '#F4A261',
+    water: '#3B82F6',
+    gradientPrimary: ['#0A0F0C', '#000000'],
+    gradientDark: ['#1B4332', '#081C15'],
+    gradientAccent: ['#52B788', '#95D5B2'],
 };
 
 // Light Theme (Black + Orange - kept for compatibility but not used)

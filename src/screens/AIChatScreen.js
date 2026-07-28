@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { spacing, typography, borderRadius, colors } from '../constants/colors';
@@ -10,19 +10,28 @@ import geminiService from '../services/gemini';
 
 const AIChatScreen = ({ navigation }) => {
     const { theme, isDarkMode } = useTheme();
-    const { userData } = useUser();
+    const { userData, createAIChat, updateAIChat, renameAIChat, deleteAIChat, setActiveChatId } = useUser();
+    
+    // UI states
     const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState([
-        {
-            id: 1,
-            type: 'ai',
-            text: "Hey! I'm your fitness assistant. Ask me anything about workouts, nutrition, or exercise form. I'm here to help you reach your goals! 💪",
-            timestamp: new Date(),
-        },
-    ]);
     const [isLoading, setIsLoading] = useState(false);
+    const [showHistory, setShowHistory] = useState(false);
+    const [editingChatId, setEditingChatId] = useState(null);
+    const [editingTitle, setEditingTitle] = useState('');
+
     const scrollViewRef = useRef(null);
     const styles = useMemo(() => createStyles(theme), [theme]);
+
+    const activeChat = userData.aiChats?.find(c => c.id === userData.activeChatId);
+    
+    const defaultMessage = {
+        id: 1,
+        type: 'ai',
+        text: "Hey! I'm your fitness assistant. Ask me anything about workouts, nutrition, or exercise form. I'm here to help you reach your goals! 💪",
+        timestamp: new Date().toISOString(),
+    };
+
+    const messages = activeChat?.messages?.length > 0 ? activeChat.messages : [defaultMessage];
 
     const sendMessage = async () => {
         if (!message.trim() || isLoading) return;
@@ -32,57 +41,77 @@ const AIChatScreen = ({ navigation }) => {
             id: Date.now(),
             type: 'user',
             text: userText,
-            timestamp: new Date(),
+            timestamp: new Date().toISOString(),
         };
 
-        setMessages((prev) => [...prev, userMessage]);
+        let currentChatId = userData.activeChatId;
+        let newMessages = [...messages, userMessage];
+
+        if (!currentChatId) {
+            currentChatId = createAIChat(userText);
+            // Default message should be included in history when creating a new chat
+            newMessages = [defaultMessage, userMessage];
+        }
+
+        updateAIChat(currentChatId, newMessages);
         setMessage('');
         setIsLoading(true);
 
-        // Scroll to bottom immediately
         setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
 
         try {
-            const aiResponseText = await geminiService.chatWithCoach(userText, userData);
+            const historyContext = messages.map(msg => ({ type: msg.type, text: msg.text }));
+            const aiResponseText = await geminiService.chatWithCoach(userText, userData, historyContext);
 
             const aiMessage = {
                 id: Date.now() + 1,
                 type: 'ai',
                 text: aiResponseText,
-                timestamp: new Date(),
+                timestamp: new Date().toISOString(),
             };
-            setMessages((prev) => [...prev, aiMessage]);
+            
+            updateAIChat(currentChatId, [...newMessages, aiMessage]);
         } catch (error) {
             console.error('Chat error:', error);
-
-            // More specific error message based on the error
             let errorText = "I'm having a bit of trouble connecting to the gym wifi! 🏋️‍♂️ Please try asking again.";
-
-            // If it's a configuration error (API key not set), show clearer message
             if (error.message && error.message.includes('not configured')) {
                 errorText = "🔧 CoreCoach is currently under maintenance. Please try again later.";
             } else if (error.message && error.message.includes('authentication')) {
                 errorText = "🔐 Authentication issue detected. Please contact support if this persists.";
             }
-
             const errorMessage = {
                 id: Date.now() + 1,
                 type: 'ai',
                 text: errorText,
-                timestamp: new Date(),
+                timestamp: new Date().toISOString(),
             };
-            setMessages((prev) => [...prev, errorMessage]);
+            updateAIChat(currentChatId, [...newMessages, errorMessage]);
         } finally {
             setIsLoading(false);
             setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
         }
     };
 
+    const handleNewChat = () => {
+        setActiveChatId(null);
+        setShowHistory(false);
+    };
+
+    const handleRenameSubmit = (chatId) => {
+        if (editingTitle.trim()) {
+            renameAIChat(chatId, editingTitle.trim());
+        }
+        setEditingChatId(null);
+        setEditingTitle('');
+    };
+
     useEffect(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
     }, [messages, isLoading]);
 
-    const formatTime = (date) => {
+    const formatTime = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
@@ -100,10 +129,11 @@ const AIChatScreen = ({ navigation }) => {
             <View style={styles.header}>
                 <TouchableOpacity
                     style={styles.backButton}
-                    onPress={() => navigation.goBack()}
+                    onPress={() => setShowHistory(true)}
                 >
-                    <Ionicons name="chevron-back" size={24} color={theme.textPrimary} />
+                    <Ionicons name="menu" size={24} color={theme.textPrimary} />
                 </TouchableOpacity>
+                
                 <View style={styles.headerTitleContainer}>
                     <Text style={styles.headerTitle}>CORECOACH</Text>
                     <View style={styles.onlineBadge}>
@@ -111,8 +141,12 @@ const AIChatScreen = ({ navigation }) => {
                         <Text style={styles.onlineText}>STATION ONLINE</Text>
                     </View>
                 </View>
-                <TouchableOpacity style={styles.infoButton}>
-                    <Ionicons name="information-circle-outline" size={24} color={theme.textMuted} />
+
+                <TouchableOpacity 
+                    style={styles.backButton} 
+                    onPress={handleNewChat}
+                >
+                    <Ionicons name="create-outline" size={22} color={theme.textPrimary} />
                 </TouchableOpacity>
             </View>
 
@@ -244,6 +278,93 @@ const AIChatScreen = ({ navigation }) => {
                     </View>
                 </View>
             </KeyboardAvoidingView>
+
+            {/* History Modal Drawer */}
+            <Modal
+                visible={showHistory}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setShowHistory(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.historyDrawer, { backgroundColor: theme.background }]}>
+                        <View style={styles.historyHeader}>
+                            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeDrawerButton}>
+                                <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
+                            </TouchableOpacity>
+                            <Text style={styles.historyTitle}>Past Chats</Text>
+                            <TouchableOpacity onPress={() => setShowHistory(false)} style={styles.closeDrawerButton}>
+                                <Ionicons name="close" size={24} color={theme.textPrimary} />
+                            </TouchableOpacity>
+                        </View>
+                        
+                        <ScrollView style={styles.historyList}>
+                            {userData.aiChats && userData.aiChats.length === 0 ? (
+                                <Text style={styles.emptyHistoryText}>No past chats found.</Text>
+                            ) : (
+                                userData.aiChats?.map(chat => (
+                                    <View 
+                                        key={chat.id} 
+                                        style={[
+                                            styles.historyItem,
+                                            chat.id === userData.activeChatId && styles.historyItemActive
+                                        ]}
+                                    >
+                                        <TouchableOpacity 
+                                            style={styles.historyItemContent}
+                                            onPress={() => {
+                                                setActiveChatId(chat.id);
+                                                setShowHistory(false);
+                                            }}
+                                        >
+                                            {editingChatId === chat.id ? (
+                                                <TextInput
+                                                    style={styles.renameInput}
+                                                    value={editingTitle}
+                                                    onChangeText={setEditingTitle}
+                                                    onBlur={() => handleRenameSubmit(chat.id)}
+                                                    onSubmitEditing={() => handleRenameSubmit(chat.id)}
+                                                    autoFocus
+                                                />
+                                            ) : (
+                                                <Text 
+                                                    style={[styles.historyItemTitle, { color: theme.textPrimary }]}
+                                                    numberOfLines={1}
+                                                >
+                                                    {chat.title}
+                                                </Text>
+                                            )}
+                                        </TouchableOpacity>
+                                        
+                                        <View style={styles.historyActions}>
+                                            <TouchableOpacity 
+                                                style={styles.historyActionBtn}
+                                                onPress={() => {
+                                                    setEditingChatId(chat.id);
+                                                    setEditingTitle(chat.title);
+                                                }}
+                                            >
+                                                <Ionicons name="pencil" size={16} color={theme.textSecondary} />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity 
+                                                style={styles.historyActionBtn}
+                                                onPress={() => deleteAIChat(chat.id)}
+                                            >
+                                                <Ionicons name="trash-outline" size={16} color={theme.error || '#FF453A'} />
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                ))
+                            )}
+                        </ScrollView>
+                        
+                        <TouchableOpacity style={[styles.newChatDrawerBtn, { backgroundColor: theme.brandAI }]} onPress={handleNewChat}>
+                            <Ionicons name="add" size={20} color="#fff" />
+                            <Text style={styles.newChatDrawerText}>Start New Chat</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView >
     );
 };
@@ -318,6 +439,24 @@ const createStyles = (theme) => StyleSheet.create({
     sendGradient: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     typingContainer: { flexDirection: 'row', gap: 4, paddingVertical: 10 },
     typingDot: { width: 6, height: 6, borderRadius: 3 },
+
+    // History Modal Styles
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', flexDirection: 'row' },
+    historyDrawer: { width: '85%', height: '100%', padding: spacing.lg, borderRightWidth: 1, borderColor: theme.border },
+    historyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg, marginTop: Platform.OS === 'ios' ? 40 : 20 },
+    historyTitle: { fontSize: 18, fontWeight: 'bold', color: theme.textPrimary },
+    closeDrawerButton: { padding: spacing.sm },
+    historyList: { flex: 1 },
+    emptyHistoryText: { textAlign: 'center', color: theme.textSecondary, marginTop: spacing.xl },
+    historyItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md, paddingHorizontal: spacing.sm, borderBottomWidth: 1, borderBottomColor: theme.isDark ? 'rgba(255,255,255,0.05)' : theme.border },
+    historyItemActive: { backgroundColor: theme.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)', borderRadius: 8 },
+    historyItemContent: { flex: 1 },
+    historyItemTitle: { fontSize: 16, fontWeight: '500' },
+    renameInput: { fontSize: 16, color: theme.textPrimary, borderBottomWidth: 1, borderBottomColor: theme.brandAI, paddingVertical: 0 },
+    historyActions: { flexDirection: 'row', gap: 8 },
+    historyActionBtn: { padding: 4 },
+    newChatDrawerBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: spacing.md, borderRadius: 12, marginTop: spacing.lg, gap: 8 },
+    newChatDrawerText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
 });
 
 export default AIChatScreen;

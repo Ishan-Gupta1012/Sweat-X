@@ -75,7 +75,7 @@ Respond with ONLY a number (integer total calories burned). No explanation.`;
 /**
  * Chat with the AI Coach
  */
-export const chatWithCoach = async (userMessage, userProfile = {}) => {
+export const chatWithCoach = async (userMessage, userProfile = {}, history = []) => {
     // Format user profile for context
     const profileContext = userProfile ? `
     User Context:
@@ -89,18 +89,23 @@ export const chatWithCoach = async (userMessage, userProfile = {}) => {
     - Calorie Goal: ${userProfile.calorieGoal || 'N/A'} kcal/day
     ` : '';
 
+    const historyContext = history.length > 0 
+        ? `\nConversation History:\n${history.map(msg => `${msg.type === 'user' ? 'User' : 'Coach'}: ${msg.text}`).join('\n')}\n`
+        : '';
+
     const systemPrompt = `You are a Master Gym Trainer and World Class Fitness Coach. You serve users of the 'Sweat-X' app. 
     
     Your Role:
     - Answer fitness, nutrition, and workout questions with expertise.
-    - CRITICAL: Be EXTREMELY CONCISE (max 2-3 sentences) by default. Users are training and have no time to read.
+    - CRITICAL: Provide short, concise, but COMPLETE answers. 
+    - Maintain context from the conversation history provided below.
     - Use bullet points if listing items.
     - ONLY provide detailed explanations if explicitly asked (e.g., "explain why").
     - If asked about medical issues, advise consulting a doctor.
     - Use emojis occasionally to keep the tone friendly.
 
     ${profileContext}
-    
+    ${historyContext}
     User Query: ${userMessage}`;
 
     const result = await aiApi.chat(systemPrompt);

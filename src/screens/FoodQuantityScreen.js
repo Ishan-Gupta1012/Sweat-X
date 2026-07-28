@@ -39,8 +39,26 @@ const FoodQuantityScreen = ({ navigation, route }) => {
         dateString = getTodayDate()
     } = route.params || {};
 
-    const [servingType, setServingType] = useState(initialServingType || food?.defaultServing || 'bowl');
-    const [quantity, setQuantity] = useState(initialQuantity || 1);
+    // Parse AI quantity string if needed
+    const parsedAI = useMemo(() => {
+        if (!food?.isAI || !food?.quantity) return null;
+        const str = food.quantity.toLowerCase();
+        const num = parseFloat(str) || 1;
+        
+        let type = 'bowl';
+        if (str.includes('g') || str.includes('gm')) type = 'gm';
+        else if (str.includes('piece') || str.includes('pc')) type = 'piece';
+        else if (str.includes('spoon')) type = 'spoon';
+        else if (str.includes('katori')) type = 'katori';
+        else if (str.includes('plate')) type = 'plate';
+        else if (str.includes('cup')) type = 'cup';
+        else if (str.includes('glass')) type = 'glass';
+        
+        return { quantity: num, servingType: type };
+    }, [food]);
+
+    const [servingType, setServingType] = useState(initialServingType || parsedAI?.servingType || food?.defaultServing || 'bowl');
+    const [quantity, setQuantity] = useState(initialQuantity || parsedAI?.quantity || 1);
     const [selectedMealType, setSelectedMealType] = useState(initialMealType);
 
     // AI Editing Support
@@ -160,6 +178,14 @@ const FoodQuantityScreen = ({ navigation, route }) => {
             fats: nutrition.fats,
             fiber: nutrition.fiber,
         };
+
+        if (route.params?.replaceAIFoodIndex !== undefined) {
+            navigation.navigate('AIFoodReview', {
+                updatedFood: mealData,
+                replaceAIFoodIndex: route.params.replaceAIFoodIndex
+            });
+            return;
+        }
 
         if (isEditing && mealId) {
             updateMealForDate(dateString, mealId, mealData);

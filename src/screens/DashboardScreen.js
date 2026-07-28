@@ -36,6 +36,7 @@ const DashboardScreen = ({ navigation }) => {
     // Background Orbs
     const orb1Anim = useRef(new Animated.Value(0)).current;
     const orb2Anim = useRef(new Animated.Value(0)).current;
+    const orb3Anim = useRef(new Animated.Value(0)).current;
 
     // Scroll position for bottom button
     const [showBottomButton, setShowBottomButton] = React.useState(false);
@@ -59,6 +60,7 @@ const DashboardScreen = ({ navigation }) => {
 
         createLoop(orb1Anim, 12000);
         createLoop(orb2Anim, 18000);
+        createLoop(orb3Anim, 15000);
     }, []);
 
     const formatName = (name) => {
@@ -140,59 +142,78 @@ const DashboardScreen = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
             <StatusBar barStyle={theme.isDark ? "light-content" : "dark-content"} backgroundColor={theme.background} />
-
-            {/* Enhanced Core Background with Mesh Gradient Effect */}
-            <View style={styles.backgroundContainer}>
-                {/* Base Dark Gradient */}
+            {/* Background Base */}
+            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: theme.background }]}>
+                {/* Deep Emerald to Black Gradient Background */}
                 <LinearGradient
-                    colors={[theme.background, '#1A1A1A', theme.background]}
+                    colors={['#000000', '#051A10', '#000000']}
                     style={StyleSheet.absoluteFill}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                 />
 
-                {/* Ambient Grid Overlay (Sleek/Glassy) - Replacing Tactical Grid */}
-                <View style={[styles.gridOverlay, { opacity: theme.isDark ? 0.02 : 0.01 }]}>
-                    {/* Clean solid color background handles the majority of the weight in modern designs */}
-                </View>
-
-                {/* Orb 1 - Primary Glow (Subtle Ambient) */}
+                {/* Gym Element 1 - Barbell */}
                 <Animated.View
                     style={[
                         styles.backgroundOrb,
                         {
-                            top: '-5%',
-                            right: '-10%',
-                            width: 400,
-                            height: 400,
-                            backgroundColor: theme.primary,
+                            top: '15%',
+                            right: '10%',
                             opacity: orb1Anim.interpolate({
                                 inputRange: [0, 1],
-                                outputRange: [0.03, 0.08] // Much softer glow
+                                outputRange: [0.03, 0.08] // Very subtle
                             }),
-                            transform: [{ scale: orb1Anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.1] }) }]
+                            transform: [
+                                { translateY: orb1Anim.interpolate({ inputRange: [0, 1], outputRange: [0, -20] }) },
+                                { rotate: orb1Anim.interpolate({ inputRange: [0, 1], outputRange: ['-15deg', '15deg'] }) }
+                            ]
                         }
                     ]}
-                />
+                >
+                    <Ionicons name="barbell-outline" size={140} color={theme.primary} />
+                </Animated.View>
 
-                {/* Orb 2 - Middle Accent */}
+                {/* Gym Element 2 - Fitness/Heart */}
                 <Animated.View
                     style={[
                         styles.backgroundOrb,
                         {
-                            top: '40%',
-                            left: '-20%',
-                            width: 300,
-                            height: 300,
-                            backgroundColor: theme.primary,
+                            top: '50%',
+                            left: '5%',
                             opacity: orb2Anim.interpolate({
                                 inputRange: [0, 1],
-                                outputRange: [0.05, 0.12]
+                                outputRange: [0.02, 0.06]
                             }),
-                            transform: [{ scale: orb2Anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.1] }) }]
+                            transform: [
+                                { translateY: orb2Anim.interpolate({ inputRange: [0, 1], outputRange: [0, 30] }) },
+                                { rotate: orb2Anim.interpolate({ inputRange: [0, 1], outputRange: ['10deg', '-10deg'] }) }
+                            ]
                         }
                     ]}
-                />
+                >
+                    <Ionicons name="fitness-outline" size={180} color={theme.primary} />
+                </Animated.View>
+
+                {/* Gym Element 3 - Speed/Pulse */}
+                <Animated.View
+                    style={[
+                        styles.backgroundOrb,
+                        {
+                            bottom: '10%',
+                            right: '20%',
+                            opacity: orb3Anim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0.02, 0.07]
+                            }),
+                            transform: [
+                                { translateY: orb3Anim.interpolate({ inputRange: [0, 1], outputRange: [0, -25] }) },
+                                { scale: orb3Anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.1] }) }
+                            ]
+                        }
+                    ]}
+                >
+                    <Ionicons name="pulse-outline" size={160} color={theme.primaryDark} />
+                </Animated.View>
             </View>
 
             <ScrollView
@@ -515,27 +536,10 @@ const PROGRESS_SIZE = (width - spacing.lg * 2 - CARD_GAP) / 2;
 
 const createStyles = (theme) => StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.background },
-    backgroundContainer: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        overflow: 'hidden',
-        zIndex: 0,
-    },
-    gridOverlay: {
-        ...StyleSheet.absoluteFillObject,
-        opacity: theme.isDark ? 0.03 : 0.02,
-    },
     backgroundOrb: {
         position: 'absolute',
-        borderRadius: 1000,
-        shadowColor: theme.primary,
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.8,
-        shadowRadius: 100,
-        elevation: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     scroll: { padding: spacing.lg, paddingBottom: 100 },
     orb: {

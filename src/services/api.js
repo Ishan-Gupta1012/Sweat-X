@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 // API URL - Switch between local and production
-export const API_URL = 'http://192.168.1.46:3001/api';
-// export const API_URL = 'https://true-fit-server-ten.vercel.app/api';
+// export const API_URL = 'https://uiogh-103-214-60-58.run.pinggy-free.link/api';
+export const API_URL = 'https://true-fit-server-ten.vercel.app/api';
 
 // Generate a unique device ID for this installation
 const getDeviceId = () => {
@@ -139,6 +139,19 @@ export const workoutApi = {
             return await response.json();
         } catch (error) {
             console.error('Error fetching workouts:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    // Delete a workout
+    async deleteWorkout(workoutId) {
+        try {
+            const response = await fetch(`${API_URL}/workouts/${workoutId}`, {
+                method: 'DELETE',
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error deleting workout:', error);
             return { success: false, error: error.message };
         }
     },

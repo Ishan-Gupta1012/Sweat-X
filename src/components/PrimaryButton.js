@@ -117,8 +117,8 @@ const PrimaryButton = ({
                         web: {
                             cursor: 'pointer',
                             boxShadow: isInteractionActive
-                                ? '0 12px 24px rgba(6, 182, 212, 0.4)'
-                                : '0 4px 8px rgba(6, 182, 212, 0.2)',
+                                ? '0 8px 16px rgba(82, 183, 136, 0.25)'
+                                : '0 4px 8px rgba(82, 183, 136, 0.1)',
                         }
                     }),
                 },

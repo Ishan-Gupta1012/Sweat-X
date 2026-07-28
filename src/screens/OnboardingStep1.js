@@ -25,7 +25,7 @@ const OnboardingStep1 = ({ navigation }) => {
 
     const handleNext = () => {
         if (!name.trim()) {
-            Alert.alert('Welcome!', 'Please tell us your name so we can personalize your experience.');
+            showAlert('Welcome!', 'Please tell us your name so we can personalize your experience.');
             return;
         }
         updateProfile({

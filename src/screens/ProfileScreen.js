@@ -59,22 +59,7 @@ const ProfileScreen = ({ navigation }) => {
     };
 
     const handleLogout = () => {
-        if (Platform.OS === 'web') {
-            setShowLogoutModal(true);
-        } else {
-            Alert.alert(
-                'Log Out',
-                'Are you sure you want to log out? Your data will be cleared.',
-                [
-                    { text: 'Cancel', style: 'cancel' },
-                    {
-                        text: 'Yes, Log Out',
-                        style: 'destructive',
-                        onPress: confirmLogout
-                    },
-                ]
-            );
-        }
+        setShowLogoutModal(true);
     };
 
     const confirmLogout = async () => {
@@ -84,22 +69,7 @@ const ProfileScreen = ({ navigation }) => {
     };
 
     const handleResetData = () => {
-        if (Platform.OS === 'web') {
-            setShowResetModal(true);
-        } else {
-            Alert.alert(
-                'Reset All Data',
-                'This will PERMANENTLY delete all your workout history, weight logs, and profile settings. This action cannot be undone.',
-                [
-                    { text: 'Cancel', style: 'cancel' },
-                    {
-                        text: 'Reset Everything',
-                        style: 'destructive',
-                        onPress: confirmReset
-                    },
-                ]
-            );
-        }
+        setShowResetModal(true);
     };
 
     const confirmReset = async () => {

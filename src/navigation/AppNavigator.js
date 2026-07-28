@@ -25,6 +25,7 @@ import WorkoutHistoryScreen from '../screens/WorkoutHistoryScreen';
 import FoodSearchScreen from '../screens/FoodSearchScreen';
 import FoodQuantityScreen from '../screens/FoodQuantityScreen';
 import CreateMealScreen from '../screens/CreateMealScreen';
+import AIFoodReviewScreen from '../screens/AIFoodReviewScreen';
 import BeginnerSetupScreen from '../screens/BeginnerSetupScreen';
 import CreateCustomSplitScreen from '../screens/CreateCustomSplitScreen';
 import SplitExerciseEditorScreen from '../screens/SplitExerciseEditorScreen';
@@ -151,6 +152,11 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="CreateMeal"
                     component={CreateMealScreen}
+                />
+                <Stack.Screen
+                    name="AIFoodReview"
+                    component={AIFoodReviewScreen}
+                    options={{ animation: 'slide_from_bottom' }}
                 />
                 <Stack.Screen
                     name="BeginnerSetup"

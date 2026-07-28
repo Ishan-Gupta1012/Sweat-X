@@ -67,11 +67,17 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
             category: isCardio ? 'cardio' : (route.params.category || 'strength'),
             sets: sets.map(s => ({ ...s, completed: false }))
         };
-        navigation.navigate({
-            name: 'WorkoutSession',
-            params: { newExercise: exercise },
-            merge: true,
-        });
+
+        if (route.params?.onAddExercise) {
+            route.params.onAddExercise(exercise);
+            navigation.goBack();
+        } else {
+            navigation.navigate({
+                name: 'WorkoutSession',
+                params: { newExercise: exercise },
+                merge: true,
+            });
+        }
     };
 
     return (
@@ -194,34 +200,7 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
                             </View>
                         ) : null}
 
-                        {/* Secondary Inputs: Rest Time & Form (Hidden for Cardio) */}
-                        {!isCardio && (
-                            <View style={styles.secondaryInputRow}>
-                                <View style={styles.smallInputGroup}>
-                                    <Text style={styles.smallInputLabel}>Rest (s)</Text>
-                                    <TextInput
-                                        style={styles.smallInput}
-                                        placeholder="90"
-                                        placeholderTextColor={theme.textMuted}
-                                        keyboardType="numeric"
-                                        value={set.restTime}
-                                        onChangeText={(v) => updateSet(set.id, 'restTime', v)}
-                                    />
-                                </View>
-                                <View style={styles.smallInputGroup}>
-                                    <Text style={styles.smallInputLabel}>Form (1-5)</Text>
-                                    <TextInput
-                                        style={styles.smallInput}
-                                        placeholder="-"
-                                        placeholderTextColor={theme.textMuted}
-                                        keyboardType="numeric"
-                                        maxLength={1}
-                                        value={set.formRating}
-                                        onChangeText={(v) => updateSet(set.id, 'formRating', v)}
-                                    />
-                                </View>
-                            </View>
-                        )}
+
                     </View>
                 ))}
 
@@ -280,7 +259,7 @@ const createStyles = (theme) => StyleSheet.create({
         borderRadius: borderRadius.md,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
+        borderWidth: 1,
         borderColor: theme.border
     },
     setNumBtnActive: {
@@ -301,7 +280,7 @@ const createStyles = (theme) => StyleSheet.create({
         borderRadius: borderRadius.md,
         padding: spacing.lg,
         marginBottom: spacing.md,
-        borderWidth: 1.5,
+        borderWidth: 1,
         borderColor: theme.border
     },
     setHeader: {
@@ -331,13 +310,13 @@ const createStyles = (theme) => StyleSheet.create({
     },
     mainInput: {
         height: 56,
-        backgroundColor: theme.isDark ? '#0D0D0D' : theme.cardBackgroundLight,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         borderRadius: borderRadius.md,
         paddingHorizontal: spacing.md,
         fontSize: 18,
         fontWeight: '800',
         color: theme.textPrimary,
-        borderWidth: 1.5,
+        borderWidth: 1,
         borderColor: theme.border,
         textAlign: 'center'
     },
@@ -348,11 +327,11 @@ const createStyles = (theme) => StyleSheet.create({
     },
     intensityBtn: {
         flex: 1,
-        backgroundColor: theme.isDark ? '#0D0D0D' : theme.cardBackgroundLight,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         borderRadius: borderRadius.md,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
+        borderWidth: 1,
         borderColor: theme.border,
     },
     intensityBtnText: {

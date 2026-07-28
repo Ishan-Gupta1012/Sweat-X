@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, TextInput, Alert, Modal, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, TextInput, Alert, Modal, ActivityIndicator, Platform, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { spacing, typography, borderRadius } from '../constants/colors';
@@ -13,9 +13,9 @@ import { API_URL } from '../services/api';
 
 
 const WorkoutSessionScreen = ({ navigation, route }) => {
-    const { saveWorkout, userData, saveActiveWorkout, clearActiveWorkout, deleteActiveWorkout } = useUser();
+    const { saveWorkout, userData, saveActiveWorkout, clearActiveWorkout, deleteActiveWorkout, updateCustomSplit } = useUser();
     const { theme, isDarkMode } = useTheme();
-    const { title = 'Workout Session', zones = [], split = null, exerciseLimit = 10, recommendedRest = 60, preloadedExercises = [], skipTimeModal = true, resumeSession = false } = route?.params || {};
+    const { title = 'Workout Session', zones = [], split = null, exerciseLimit = 10, recommendedRest = 60, preloadedExercises = [], skipTimeModal = true, resumeSession = false, customSplitId = null } = route?.params || {};
 
     const [timer, setTimer] = useState(0);
     const [isResting, setIsResting] = useState(false);
@@ -65,6 +65,24 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
     const [availableExercises, setAvailableExercises] = useState([]);
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
     const [expandedExercises, setExpandedExercises] = useState({});
+    
+    // Streak Celebration State
+    const [showStreakPopup, setShowStreakPopup] = useState(false);
+    const [newStreakValue, setNewStreakValue] = useState(0);
+    const streakScale = useRef(new Animated.Value(0)).current;
+
+    // Active Exercise
+    const [activeExerciseId, setActiveExerciseId] = useState(null);
+
+    const toggleExerciseStart = (exerciseId) => {
+        if (activeExerciseId === exerciseId) {
+            setActiveExerciseId(null);
+            setExpandedExercises(prev => ({ ...prev, [exerciseId]: false }));
+        } else {
+            setActiveExerciseId(exerciseId);
+            setExpandedExercises(prev => ({ ...prev, [exerciseId]: true }));
+        }
+    };
 
     // Fetch exercises from DB
     const fetchExercises = async (query = '', category = '') => {
@@ -516,10 +534,40 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                 workoutData.caloriesBurned = Math.round(timer / 60 * 5);
             }
             saveWorkout(workoutData);
+
+            if (customSplitId) {
+                console.log('🔄 Updating Custom Split Template', customSplitId);
+                updateCustomSplit(customSplitId, { exercises });
+            }
         }
+        
+        // Compute new streak for the popup display
+        const today = new Date().toISOString().split('T')[0];
+        const lastWorkoutDate = userData.lastWorkoutDate || null;
+        let streak = userData.currentStreak || 0;
+        if (lastWorkoutDate !== today) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            if (lastWorkoutDate === yesterdayStr) streak += 1;
+            else if (lastWorkoutDate === null || lastWorkoutDate !== today) streak = 1;
+        }
+        setNewStreakValue(streak);
+
         // Clear the active workout session after finishing
         console.log('🏁 [WorkoutSession] Finishing workout, clearing session');
         clearActiveWorkout();
+        
+        setShowStreakPopup(true);
+        Animated.spring(streakScale, {
+            toValue: 1,
+            friction: 5,
+            useNativeDriver: true
+        }).start();
+    };
+
+    const handleCloseStreakPopup = () => {
+        setShowStreakPopup(false);
         console.log('🚀 [WorkoutSession] Navigating to MainApp');
         navigation.navigate('MainApp');
     };
@@ -608,7 +656,7 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
             {/* Add Exercise Modal */}
             <Modal visible={showAddModal} animationType="fade" transparent={true} onRequestClose={closeModal}>
                 <View style={styles.modalOverlay}>
-                    <View style={[styles.modalContent, { backgroundColor: theme.cardBackground }]}>
+                    <View style={[styles.modalContent, { backgroundColor: '#0A0F0C' }]}>
                         <View style={[styles.modalHeader, { borderBottomColor: theme.border }]}>
                             <Text style={styles.modalTitle}>Add Exercise</Text>
                             <TouchableOpacity onPress={closeModal}>
@@ -619,7 +667,7 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                         <View style={styles.exerciseListContainer}>
                             <View style={styles.customInputRow}>
                                 <TextInput
-                                    style={[styles.customInput, { backgroundColor: theme.cardBackgroundLight, color: theme.textPrimary }]}
+                                    style={[styles.customInput, { backgroundColor: 'rgba(255, 255, 255, 0.05)', color: theme.textPrimary }]}
                                     placeholder="Or type your own exercise..."
                                     placeholderTextColor={theme.textMuted}
                                     value={customExercise}
@@ -632,7 +680,10 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                                             closeModal();
                                             navigation.navigate('AddExerciseDetails', {
                                                 exerciseName: customExercise.trim(),
-                                                category: 'strength' // Default for custom, unless matches
+                                                category: 'strength', // Default for custom, unless matches
+                                                onAddExercise: (newExercise) => {
+                                                    setExercises(prev => [...prev, newExercise]);
+                                                }
                                             });
                                         }}
                                     >
@@ -650,7 +701,10 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                                             closeModal();
                                             navigation.navigate('AddExerciseDetails', {
                                                 exerciseName: ex.name,
-                                                category: ex.category
+                                                category: ex.category,
+                                                onAddExercise: (newExercise) => {
+                                                    setExercises(prev => [...prev, newExercise]);
+                                                }
                                             });
                                         }}
                                     >
@@ -709,7 +763,7 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
             {/* Form Guide Modal */}
             <Modal visible={showFormGuide} animationType="slide" transparent={true} onRequestClose={() => setShowFormGuide(false)}>
                 <View style={styles.modalOverlay}>
-                    <View style={[styles.modalContent, { backgroundColor: theme.cardBackground }]}>
+                    <View style={[styles.modalContent, { backgroundColor: '#0A0F0C' }]}>
                         <View style={[styles.modalHeader, { borderBottomColor: theme.border }]}>
                             <Text style={styles.modalTitle}>Form Guide</Text>
                             <TouchableOpacity onPress={() => setShowFormGuide(false)}>
@@ -763,11 +817,13 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                                     activeOpacity={0.7}
                                 >
                                     <View style={styles.exerciseHeaderLeft}>
-                                        <Ionicons
-                                            name={isExpanded ? "chevron-down" : "chevron-forward"}
-                                            size={20}
-                                            color={theme.textMuted}
-                                        />
+                                        <TouchableOpacity style={{ marginRight: 12 }} onPress={() => toggleExerciseStart(exercise.id)}>
+                                            <Ionicons 
+                                                name={activeExerciseId === exercise.id ? "pause-circle" : "play-circle"} 
+                                                size={32} 
+                                                color={activeExerciseId === exercise.id ? theme.brandWorkout : theme.textMuted} 
+                                            />
+                                        </TouchableOpacity>
                                         <View style={styles.exerciseInfo}>
                                             <Text style={[styles.exerciseName, { color: theme.textPrimary }]} numberOfLines={1}>{exercise.name}</Text>
                                             <Text style={styles.exerciseProgress}>{completedSets}/{totalSets} sets</Text>
@@ -775,7 +831,7 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                                     </View>
                                     <View style={styles.exerciseHeaderRight}>
                                         <TouchableOpacity onPress={() => openFormGuide(exercise.name)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                                            <Ionicons name="play-circle" size={20} color={theme.brandWorkout} />
+                                            <Ionicons name="videocam-outline" size={20} color={theme.brandWorkout} />
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => startSubstitution(exercise.name, exercise.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                                             <Ionicons name="swap-horizontal" size={22} color={theme.brandWorkout} />
@@ -877,23 +933,7 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                                                     )}
                                                 </View>
 
-                                                {/* Row 3: Quality Inputs (Smaller) - Hidden for Cardio */}
-                                                {exercise.category !== 'cardio' && (
-                                                    <View style={[styles.qualityRow, { borderTopColor: theme.border }]}>
-                                                        <View style={styles.qualityInputWrapper}>
-                                                            <Text style={[styles.qualityLabel, { color: theme.textMuted }]}>Rest (s):</Text>
-                                                            <TextInput
-                                                                style={[styles.smallInput, { color: theme.textPrimary }]}
-                                                                placeholder="90"
-                                                                placeholderTextColor={theme.textMuted}
-                                                                keyboardType="numeric"
-                                                                value={set.restTime}
-                                                                onChangeText={(v) => updateSet(exercise.id, set.id, 'restTime', v)}
-                                                                editable={!set.completed}
-                                                            />
-                                                        </View>
-                                                    </View>
-                                                )}
+
 
                                                 {/* Drop Sets Section */}
                                                 {(set.dropSets || []).map((dropSet) => (
@@ -966,7 +1006,8 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                 >
                     <Ionicons name="sparkles" size={14} color={theme.brandWorkout} />
                     <Text style={[styles.aiPromptText, { color: theme.textSecondary }]}>
-                        Not sure what to lift today? <Text style={{ color: theme.brandWorkout, fontWeight: '700' }}>Ask TrueGuide</Text>
+                        {"Not sure what to lift today? "}
+                        <Text style={{ color: theme.brandWorkout, fontWeight: '700' }}>Ask TrueGuide</Text>
                     </Text>
                 </TouchableOpacity>
 
@@ -984,12 +1025,32 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                     <Ionicons name="trash-outline" size={18} color={theme.error} />
                 </TouchableOpacity>
             </View>
+
+            {/* Streak Celebration Popup */}
+            <Modal visible={showStreakPopup} transparent animationType="fade">
+                <View style={styles.streakModalOverlay}>
+                    <Animated.View style={[styles.streakModalContent, { transform: [{ scale: streakScale }] }]}>
+                        <View style={styles.streakIconContainer}>
+                            <Ionicons name="flame" size={80} color={theme.warning} />
+                            <View style={styles.tickBadge}>
+                                <Ionicons name="checkmark" size={24} color="#FFF" />
+                            </View>
+                        </View>
+                        <Text style={styles.streakTitle}>Workout Complete!</Text>
+                        <Text style={styles.streakSubtitle}>You're on a {newStreakValue} day streak!</Text>
+                        
+                        <TouchableOpacity style={[styles.streakBtn, { backgroundColor: theme.brandWorkout }]} onPress={handleCloseStreakPopup}>
+                            <Text style={styles.streakBtnText}>Keep It Up</Text>
+                        </TouchableOpacity>
+                    </Animated.View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 };
 
 const createStyles = (theme) => StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.background },
+    container: { flex: 1, backgroundColor: '#000000' },
     header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 12, gap: 12 },
     backButton: { width: 44, height: 44, borderRadius: borderRadius.md, backgroundColor: theme.cardBackgroundLight, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: theme.border },
     headerInfo: { flex: 1 },
@@ -1016,7 +1077,7 @@ const createStyles = (theme) => StyleSheet.create({
     exerciseProgress: { fontSize: 11, color: theme.textMuted, fontWeight: '600', marginTop: 2 },
     exerciseName: { fontSize: 16, fontWeight: '900', color: theme.textPrimary, letterSpacing: 0.5, textTransform: 'uppercase' },
     setsContainer: { gap: 12, marginBottom: 12 },
-    setCard: { borderRadius: borderRadius.md, padding: 12 },
+    setCard: { padding: 16, marginBottom: 12, borderRadius: borderRadius.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.03)', backgroundColor: '#0A0F0C' },
     setCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
     setTag: { backgroundColor: theme.brandWorkout + '15', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
     setTagText: { fontSize: 10, fontWeight: '900', color: theme.brandWorkout, letterSpacing: 1 },
@@ -1030,21 +1091,31 @@ const createStyles = (theme) => StyleSheet.create({
     qualityInputWrapper: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
     qualityLabel: { fontSize: 12, fontWeight: '700' },
     smallInput: { width: 44, height: 28, padding: 0, fontSize: 14, fontWeight: '900', textAlign: 'center' },
-    intensityDisplay: { width: '100%', height: 56, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.cardBackground, borderWidth: 1.5, borderColor: theme.border },
+    intensityDisplay: { width: '100%', height: 56, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
     intensityValue: { fontSize: 18, fontWeight: '900', textTransform: 'uppercase' },
     verticalDivider: { width: 1.5, height: 16 },
-    addExerciseBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 16, backgroundColor: theme.cardBackground, borderRadius: borderRadius.md, borderWidth: 2, borderStyle: 'dashed', marginBottom: 12 },
-    addExerciseBtnText: { fontSize: 14, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },
-    aiPrompt: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 24, paddingVertical: 12, backgroundColor: theme.cardBackgroundLight, borderRadius: borderRadius.md },
-    aiPromptText: { fontSize: 13, fontWeight: '600' },
-    footer: { flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 16, borderTopWidth: 1.5, gap: 12, backgroundColor: theme.background },
-    restBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 20, height: 56, backgroundColor: theme.cardBackground, borderRadius: borderRadius.md, borderWidth: 1.5, borderColor: theme.border },
-    restBtnText: { fontSize: 14, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },
-    addBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 20, height: 56, backgroundColor: theme.cardBackground, borderRadius: borderRadius.md, borderWidth: 1.5, borderColor: theme.border },
-    addBtnText: { fontSize: 14, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },
-    deleteBtn: { width: 56, height: 56, borderRadius: borderRadius.md, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5 },
-    finishBtn: { flex: 1, height: 56, borderRadius: borderRadius.md, alignItems: 'center', justifyContent: 'center', shadowColor: theme.brandWorkout, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
-    finishBtnText: { fontSize: 16, fontWeight: '900', letterSpacing: 2, textTransform: 'uppercase' },
+    addExerciseBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 16, backgroundColor: 'rgba(255, 255, 255, 0.02)', borderRadius: borderRadius.md, borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(82, 183, 136, 0.4)', marginBottom: 12 },
+    addExerciseBtnText: { fontSize: 13, fontWeight: '900', letterSpacing: 1.5, textTransform: 'uppercase', color: theme.brandWorkout },
+    aiPrompt: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 24, paddingVertical: 12, backgroundColor: 'rgba(82, 183, 136, 0.08)', borderRadius: borderRadius.md, borderWidth: 1, borderColor: 'rgba(82, 183, 136, 0.2)' },
+    aiPromptText: { fontSize: 13, fontWeight: '700', color: theme.brandWorkout },
+    footer: { flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 16, borderTopWidth: 1.5, gap: 12, backgroundColor: theme.background, borderColor: 'rgba(255,255,255,0.05)' },
+    restBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 20, height: 56, backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: borderRadius.md, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.1)' },
+    restBtnText: { fontSize: 14, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase', color: theme.textPrimary },
+    addBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 20, height: 56, backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: borderRadius.md, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.1)' },
+    addBtnText: { fontSize: 14, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase', color: theme.textPrimary },
+    deleteBtn: { width: 56, height: 56, borderRadius: borderRadius.md, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255, 59, 48, 0.3)', backgroundColor: 'rgba(255, 59, 48, 0.05)' },
+    finishBtn: { flex: 1, height: 56, borderRadius: borderRadius.md, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.brandWorkout, shadowColor: theme.brandWorkout, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
+    finishBtnText: { fontSize: 16, fontWeight: '900', letterSpacing: 2, textTransform: 'uppercase', color: '#000' },
+
+    // Streak Popup Styles
+    streakModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center' },
+    streakModalContent: { width: '85%', backgroundColor: theme.cardBackground, padding: 30, borderRadius: 24, alignItems: 'center', borderWidth: 1, borderColor: theme.border },
+    streakIconContainer: { position: 'relative', marginBottom: 20 },
+    tickBadge: { position: 'absolute', bottom: -5, right: -10, backgroundColor: theme.success, borderRadius: 20, width: 36, height: 36, justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: theme.cardBackground },
+    streakTitle: { fontSize: 24, fontWeight: '800', color: theme.textPrimary, marginBottom: 10, textAlign: 'center' },
+    streakSubtitle: { fontSize: 16, color: theme.textSecondary, marginBottom: 30, textAlign: 'center' },
+    streakBtn: { width: '100%', height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center' },
+    streakBtnText: { fontSize: 16, fontWeight: 'bold', color: '#FFF' },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center', padding: 20 },
     modalContent: { borderRadius: borderRadius.md, width: '100%', maxHeight: '85%', borderWidth: 1.5, borderColor: theme.border, overflow: 'hidden' },
     modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1.5 },
