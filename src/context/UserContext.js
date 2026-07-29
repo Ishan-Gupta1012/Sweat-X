@@ -616,7 +616,8 @@ export const UserProvider = ({ children }) => {
 
         // Update local state immediately with calories burned
         setUserData(prev => {
-            const today = new Date().toISOString().split('T')[0];
+            const d = new Date();
+            const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             const lastWorkoutDate = prev.lastWorkoutDate || null;
 
             // Calculate streak
@@ -626,7 +627,7 @@ export const UserProvider = ({ children }) => {
                 // This is the first workout of the day
                 const yesterday = new Date();
                 yesterday.setDate(yesterday.getDate() - 1);
-                const yesterdayStr = yesterday.toISOString().split('T')[0];
+                const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
 
                 if (lastWorkoutDate === yesterdayStr) {
                     // Worked out yesterday, continue streak
@@ -1066,7 +1067,8 @@ export const UserProvider = ({ children }) => {
 
     // Get today's date in YYYY-MM-DD format
     const getTodayDate = () => {
-        return new Date().toISOString().split('T')[0];
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     };
 
     // Check and reset daily values at midnight

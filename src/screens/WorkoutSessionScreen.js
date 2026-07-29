@@ -8,6 +8,7 @@ import { useUser } from '../context/UserContext';
 import { useTheme } from '../context/ThemeContext';
 import geminiService from '../services/gemini';
 import { API_URL } from '../services/api';
+import ExerciseAnalyticsGraph from '../components/ExerciseAnalyticsGraph';
 // Workout library removed in favor of DB search
 
 
@@ -16,6 +17,8 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
     const { saveWorkout, userData, saveActiveWorkout, clearActiveWorkout, deleteActiveWorkout, updateCustomSplit } = useUser();
     const { theme, isDarkMode } = useTheme();
     const { title = 'Workout Session', zones = [], split = null, exerciseLimit = 10, recommendedRest = 60, preloadedExercises = [], skipTimeModal = true, resumeSession = false, customSplitId = null } = route?.params || {};
+
+    const [globalRestTime, setGlobalRestTime] = useState(recommendedRest || 60);
 
     const [timer, setTimer] = useState(0);
     const [isResting, setIsResting] = useState(false);
@@ -326,9 +329,9 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const startRest = (duration = recommendedRest) => {
+    const startRest = () => {
         setIsResting(true);
-        setRestTimer(duration);
+        setRestTimer(globalRestTime);
         if (restTimerRef.current) clearInterval(restTimerRef.current);
         restTimerRef.current = setInterval(() => {
             setRestTimer((prev) => {
@@ -542,28 +545,33 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
         }
         
         // Compute new streak for the popup display
-        const today = new Date().toISOString().split('T')[0];
+        const d = new Date();
+        const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         const lastWorkoutDate = userData.lastWorkoutDate || null;
         let streak = userData.currentStreak || 0;
-        if (lastWorkoutDate !== today) {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
-            if (lastWorkoutDate === yesterdayStr) streak += 1;
-            else if (lastWorkoutDate === null || lastWorkoutDate !== today) streak = 1;
-        }
-        setNewStreakValue(streak);
-
+        
         // Clear the active workout session after finishing
         console.log('🏁 [WorkoutSession] Finishing workout, clearing session');
         clearActiveWorkout();
         
-        setShowStreakPopup(true);
-        Animated.spring(streakScale, {
-            toValue: 1,
-            friction: 5,
-            useNativeDriver: true
-        }).start();
+        if (lastWorkoutDate !== today) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+            if (lastWorkoutDate === yesterdayStr) streak += 1;
+            else if (lastWorkoutDate === null) streak = 1;
+            
+            setNewStreakValue(streak);
+            setShowStreakPopup(true);
+            Animated.spring(streakScale, {
+                toValue: 1,
+                friction: 5,
+                useNativeDriver: true
+            }).start();
+        } else {
+            // Already worked out today, skip popup
+            navigation.navigate('MainApp');
+        }
     };
 
     const handleCloseStreakPopup = () => {
@@ -640,15 +648,48 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                 </View>
             </View>
 
-            {/* Rest Timer Overlay */}
-            {isResting && (
-                <View style={styles.restOverlay}>
-                    <View style={styles.restCard}>
-                        <Text style={styles.restTitle}>Rest Time</Text>
-                        <Text style={styles.restTimer}>{formatTime(restTimer)}</Text>
-                        <TouchableOpacity style={styles.skipButton} onPress={skipRest}>
-                            <Text style={[styles.skipButtonText, { color: theme.textSecondary }]}>Skip</Text>
+            {/* Global Rest Time Setting */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: theme.background }}>
+                <Text style={{ fontSize: 11, fontWeight: '800', color: theme.textMuted, letterSpacing: 1 }}>REST TIMER</Text>
+                <View style={{ flexDirection: 'row', gap: 6 }}>
+                    {[60, 120, 180, 240, 300].map(time => (
+                        <TouchableOpacity
+                            key={time}
+                            onPress={() => setGlobalRestTime(time)}
+                            style={{
+                                paddingHorizontal: 12,
+                                paddingVertical: 6,
+                                borderRadius: 12,
+                                backgroundColor: globalRestTime === time ? theme.brandWorkout : theme.cardBackground,
+                                borderWidth: 1,
+                                borderColor: globalRestTime === time ? theme.brandWorkout : theme.border
+                            }}
+                        >
+                            <Text style={{ fontSize: 12, fontWeight: '700', color: globalRestTime === time ? '#FFF' : theme.textPrimary }}>{time / 60}m</Text>
                         </TouchableOpacity>
+                    ))}
+                </View>
+            </View>
+
+            {/* Sticky Floating Rest Timer */}
+            {isResting && (
+                <View style={[styles.stickyRestTimer, { backgroundColor: theme.cardBackground, borderColor: theme.brandWorkout, borderWidth: 1 }]}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                            <Ionicons name="timer-outline" size={28} color={theme.brandWorkout} />
+                            <Text style={[styles.stickyRestTimeText, { color: theme.brandWorkout }]}>{formatTime(restTimer)}</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+                            <TouchableOpacity onPress={() => setRestTimer(prev => Math.max(0, prev - 15))} style={styles.smallAdjustBtn}>
+                                <Text style={[styles.adjustTimeText, { color: theme.textPrimary }]}>-15s</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setRestTimer(prev => prev + 15)} style={styles.smallAdjustBtn}>
+                                <Text style={[styles.adjustTimeText, { color: theme.textPrimary }]}>+15s</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={skipRest} style={{ marginLeft: 8 }}>
+                                <Ionicons name="close-circle" size={32} color={theme.textMuted} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             )}
@@ -680,10 +721,7 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                                             closeModal();
                                             navigation.navigate('AddExerciseDetails', {
                                                 exerciseName: customExercise.trim(),
-                                                category: 'strength', // Default for custom, unless matches
-                                                onAddExercise: (newExercise) => {
-                                                    setExercises(prev => [...prev, newExercise]);
-                                                }
+                                                category: 'strength' // Default for custom, unless matches
                                             });
                                         }}
                                     >
@@ -701,10 +739,7 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                                             closeModal();
                                             navigation.navigate('AddExerciseDetails', {
                                                 exerciseName: ex.name,
-                                                category: ex.category,
-                                                onAddExercise: (newExercise) => {
-                                                    setExercises(prev => [...prev, newExercise]);
-                                                }
+                                                category: ex.category
                                             });
                                         }}
                                     >
@@ -830,9 +865,6 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                                         </View>
                                     </View>
                                     <View style={styles.exerciseHeaderRight}>
-                                        <TouchableOpacity onPress={() => openFormGuide(exercise.name)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                                            <Ionicons name="videocam-outline" size={20} color={theme.brandWorkout} />
-                                        </TouchableOpacity>
                                         <TouchableOpacity onPress={() => startSubstitution(exercise.name, exercise.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                                             <Ionicons name="swap-horizontal" size={22} color={theme.brandWorkout} />
                                         </TouchableOpacity>
@@ -844,20 +876,26 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
 
                                 {isExpanded && (
                                     <View style={styles.setsContainer}>
+                                        <ExerciseAnalyticsGraph 
+                                            exerciseName={exercise.name} 
+                                            workoutHistory={userData.workoutHistory} 
+                                        />
                                         {Array.isArray(exercise.sets) && exercise.sets.map((set) => (
                                             <View key={set.id} style={[styles.setCard, { backgroundColor: isDarkMode ? theme.background : theme.cardBackgroundLight }]}>
                                                 {/* Row 1: Set Info & Checkbox */}
                                                 <View style={styles.setCardHeader}>
-                                                    <View style={styles.setTag}>
-                                                        <Text style={[styles.setTagText, { color: theme.textSecondary }]}>SET {set.id}</Text>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                                                        <TouchableOpacity
+                                                            style={[styles.setCheckBtn, set.completed && { backgroundColor: theme.brandWorkout, borderColor: theme.brandWorkout }]}
+                                                            onPress={() => toggleSetComplete(exercise.id, set.id)}
+                                                        >
+                                                            {set.completed && <Ionicons name="checkmark" size={16} color="#fff" />}
+                                                            {!set.completed && <View style={[styles.checkCircle, { borderColor: theme.textMuted }]} />}
+                                                        </TouchableOpacity>
+                                                        <View style={styles.setTag}>
+                                                            <Text style={[styles.setTagText, { color: theme.textSecondary }]}>SET {set.id}</Text>
+                                                        </View>
                                                     </View>
-                                                    <TouchableOpacity
-                                                        style={[styles.setCheckBtn, set.completed && { backgroundColor: theme.brandWorkout, borderColor: theme.brandWorkout }]}
-                                                        onPress={() => toggleSetComplete(exercise.id, set.id)}
-                                                    >
-                                                        {set.completed && <Ionicons name="checkmark" size={16} color="#fff" />}
-                                                        {!set.completed && <View style={[styles.checkCircle, { borderColor: theme.textMuted }]} />}
-                                                    </TouchableOpacity>
                                                 </View>
 
                                                 <View style={styles.performanceRow}>
@@ -1179,26 +1217,16 @@ const createStyles = (theme) => StyleSheet.create({
     },
     timerText: { fontSize: 14, fontWeight: '700', fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' },
 
-    restOverlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.9)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
-    },
-    restCard: {
-        backgroundColor: theme.cardBackground,
-        padding: 40,
-        borderRadius: 24,
-        alignItems: 'center',
-        width: '80%',
-        borderWidth: 1,
-        borderColor: theme.brandWorkout,
-    },
+    stickyRestTimer: { position: 'absolute', bottom: 100, left: 16, right: 16, padding: 16, borderRadius: 16, zIndex: 1000, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 10, shadowOffset: { height: 5, width: 0 }, elevation: 5 },
+    stickyRestTimeText: { fontSize: 28, fontWeight: '900', letterSpacing: 1 },
+    smallAdjustBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
     restTitle: { fontSize: 14, fontWeight: '600', color: theme.brandWorkout, letterSpacing: 2, marginBottom: 16 },
     restTimer: { fontSize: 64, fontWeight: '700', color: theme.textPrimary, marginBottom: 24 },
     skipButton: { paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, backgroundColor: '#222222' },
     skipButtonText: { fontSize: 14, fontWeight: '600' },
+    adjustTimeRow: { flexDirection: 'row', gap: 16, marginBottom: 24 },
+    adjustTimeBtn: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12, backgroundColor: theme.cardBackgroundLight, borderWidth: 1, borderColor: theme.border },
+    adjustTimeText: { fontSize: 14, fontWeight: '700', color: theme.textPrimary },
 
     scrollView: { flex: 1 },
     scrollContent: { padding: spacing.lg, paddingBottom: 100 },

@@ -1,13 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { spacing, borderRadius } from '../constants/colors';
 import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext';
 import PrimaryButton from '../components/PrimaryButton';
+import ExerciseAnalyticsGraph from '../components/ExerciseAnalyticsGraph';
 
 const AddExerciseDetailsScreen = ({ navigation, route }) => {
     const { theme } = useTheme();
+    const { userData } = useUser();
     const { exerciseName, onSave } = route.params;
     const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -30,6 +33,39 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
             formRating: ''
         }))
     );
+
+    const [globalRestTime, setGlobalRestTime] = useState(60);
+    const [isResting, setIsResting] = useState(false);
+    const [restTimer, setRestTimer] = useState(0);
+    const restTimerRef = useRef(null);
+
+    useEffect(() => {
+        return () => {
+            if (restTimerRef.current) clearInterval(restTimerRef.current);
+        };
+    }, []);
+
+    const startRest = () => {
+        setIsResting(true);
+        setRestTimer(globalRestTime);
+        if (restTimerRef.current) clearInterval(restTimerRef.current);
+        restTimerRef.current = setInterval(() => {
+            setRestTimer((prev) => {
+                if (prev <= 1) {
+                    clearInterval(restTimerRef.current);
+                    setIsResting(false);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
 
     const updateNumSets = (newNum) => {
         setNumSets(newNum);
@@ -60,6 +96,17 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
         ));
     };
 
+    const toggleSetComplete = (setId) => {
+        setSets(sets.map(set => {
+            if (set.id === setId) {
+                const newCompleted = !set.completed;
+                if (newCompleted && !isCardio) startRest();
+                return { ...set, completed: newCompleted };
+            }
+            return set;
+        }));
+    };
+
     const handleSave = () => {
         const exercise = {
             id: Date.now(),
@@ -68,9 +115,12 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
             sets: sets.map(s => ({ ...s, completed: false }))
         };
 
-        if (route.params?.onAddExercise) {
-            route.params.onAddExercise(exercise);
-            navigation.goBack();
+        if (route.params?.origin === 'CreateCustomSplit') {
+            navigation.navigate({
+                name: 'CreateCustomSplit',
+                params: { newExercise: exercise },
+                merge: true,
+            });
         } else {
             navigation.navigate({
                 name: 'WorkoutSession',
@@ -96,7 +146,43 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
                 <View style={{ width: 40 }} />
             </View>
 
+            {/* Global Rest Time Setting */}
+            {!isCardio && (
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: theme.background }}>
+                    <Text style={{ fontSize: 11, fontWeight: '800', color: theme.textMuted, letterSpacing: 1 }}>REST TIMER</Text>
+                    <View style={{ flexDirection: 'row', gap: 6 }}>
+                        {[60, 120, 180, 240, 300].map(time => (
+                            <TouchableOpacity
+                                key={time}
+                                onPress={() => setGlobalRestTime(time)}
+                                style={{
+                                    paddingHorizontal: 12,
+                                    paddingVertical: 6,
+                                    borderRadius: 12,
+                                    backgroundColor: globalRestTime === time ? theme.brandWorkout : theme.cardBackground,
+                                    borderWidth: 1,
+                                    borderColor: globalRestTime === time ? theme.brandWorkout : theme.border
+                                }}
+                            >
+                                <Text style={{ fontSize: 12, fontWeight: '700', color: globalRestTime === time ? '#FFF' : theme.textPrimary }}>{time / 60}m</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
+            )}
+
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                
+                {/* Analytics Graph */}
+                {!isCardio && (
+                    <View style={{ marginHorizontal: -spacing.lg }}>
+                        <ExerciseAnalyticsGraph 
+                            exerciseName={exerciseName} 
+                            workoutHistory={userData?.workoutHistory || []} 
+                        />
+                    </View>
+                )}
+
                 {/* Number of Sets Selector */}
                 <Text style={styles.sectionLabel}>NUMBER OF SETS</Text>
                 <View style={styles.setsRow}>
@@ -114,8 +200,14 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
                 {/* Sets Configuration */}
                 <Text style={styles.sectionLabel}>SET DETAILS</Text>
                 {sets.map((set, index) => (
-                    <View key={set.id} style={styles.setCard}>
+                    <View key={set.id} style={[styles.setCard, set.completed && { opacity: 0.6 }]}>
                         <View style={styles.setHeader}>
+                            <TouchableOpacity 
+                                style={[styles.setCheckBtn, set.completed && { backgroundColor: theme.brandWorkout, borderColor: theme.brandWorkout }]} 
+                                onPress={() => toggleSetComplete(set.id)}
+                            >
+                                {set.completed && <Ionicons name="checkmark" size={20} color="#000" />}
+                            </TouchableOpacity>
                             <Text style={styles.setLabel}>SET {set.id}</Text>
                         </View>
 
@@ -207,6 +299,32 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
                 <View style={{ height: 100 }} />
             </ScrollView>
 
+            {/* Sticky Floating Rest Timer */}
+            {isResting && (
+                <View style={[styles.stickyRestTimer, { backgroundColor: theme.cardBackground, borderColor: theme.brandWorkout, borderWidth: 1 }]}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                            <Ionicons name="timer-outline" size={28} color={theme.brandWorkout} />
+                            <Text style={[styles.stickyRestTimeText, { color: theme.brandWorkout }]}>{formatTime(restTimer)}</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+                            <TouchableOpacity onPress={() => setRestTimer(prev => Math.max(0, prev - 15))} style={styles.smallAdjustBtn}>
+                                <Text style={{ color: theme.textSecondary, fontWeight: '700' }}>-15s</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setRestTimer(prev => prev + 15)} style={styles.smallAdjustBtn}>
+                                <Text style={{ color: theme.textSecondary, fontWeight: '700' }}>+15s</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => {
+                                setIsResting(false);
+                                if (restTimerRef.current) clearInterval(restTimerRef.current);
+                            }}>
+                                <Ionicons name="close-circle" size={32} color={theme.textMuted} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            )}
+
             {/* Footer */}
             <View style={styles.footer}>
                 <PrimaryButton
@@ -284,7 +402,19 @@ const createStyles = (theme) => StyleSheet.create({
         borderColor: theme.border
     },
     setHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
         marginBottom: spacing.md
+    },
+    setCheckBtn: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        borderWidth: 2,
+        borderColor: theme.border,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     setLabel: {
         fontSize: 11,
@@ -376,6 +506,30 @@ const createStyles = (theme) => StyleSheet.create({
     },
     saveButton: {
         paddingVertical: 16
+    },
+    stickyRestTimer: {
+        position: 'absolute',
+        bottom: 90,
+        left: 20,
+        right: 20,
+        padding: 16,
+        borderRadius: 16,
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+        zIndex: 100
+    },
+    stickyRestTimeText: {
+        fontSize: 28,
+        fontWeight: '900',
+        fontVariant: ['tabular-nums']
+    },
+    smallAdjustBtn: {
+        padding: 8,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 8
     }
 });
 

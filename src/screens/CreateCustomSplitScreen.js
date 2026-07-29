@@ -8,7 +8,7 @@ import { useUser } from '../context/UserContext';
 import PrimaryButton from '../components/PrimaryButton';
 import { exerciseApi } from '../services/api';
 
-const CreateCustomSplitScreen = ({ navigation }) => {
+const CreateCustomSplitScreen = ({ navigation, route }) => {
     const { theme, isDarkMode } = useTheme();
     const { addCustomSplit } = useUser();
     const [name, setName] = useState('');
@@ -17,6 +17,14 @@ const CreateCustomSplitScreen = ({ navigation }) => {
     const [customExercise, setCustomExercise] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+
+    useEffect(() => {
+        if (route.params?.newExercise) {
+            setExercises(prev => [...prev, route.params.newExercise]);
+            setCustomExercise('');
+            navigation.setParams({ newExercise: undefined });
+        }
+    }, [route.params?.newExercise]);
 
     const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -141,10 +149,7 @@ const CreateCustomSplitScreen = ({ navigation }) => {
                                 navigation.navigate('AddExerciseDetails', {
                                     exerciseName: customExercise.trim(),
                                     category: 'strength',
-                                    onAddExercise: (newExercise) => {
-                                        setExercises(prev => [...prev, newExercise]);
-                                        setCustomExercise('');
-                                    }
+                                    origin: 'CreateCustomSplit'
                                 });
                             }}
                         >
@@ -172,10 +177,7 @@ const CreateCustomSplitScreen = ({ navigation }) => {
                                     navigation.navigate('AddExerciseDetails', {
                                         exerciseName: item.displayName || item.name,
                                         category: item.category,
-                                        onAddExercise: (newExercise) => {
-                                            setExercises(prev => [...prev, newExercise]);
-                                            setCustomExercise('');
-                                        }
+                                        origin: 'CreateCustomSplit'
                                     });
                                 }}
                             >
