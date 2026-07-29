@@ -51,7 +51,7 @@ const LandingScreen = ({ navigation }) => {
 
             <View style={styles.bgWrapper} pointerEvents="none">
                 <ImageBackground
-                    source={require('../../assets/gym_hero.png')}
+                    source={require('../../assets/gym_hero.jpg')}
                     style={styles.fullScreenBg}
                     resizeMode="cover"
                 >
