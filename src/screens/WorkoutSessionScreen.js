@@ -78,12 +78,15 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
     const [activeExerciseId, setActiveExerciseId] = useState(null);
 
     const toggleExerciseStart = (exerciseId) => {
-        if (activeExerciseId === exerciseId) {
-            setActiveExerciseId(null);
-            setExpandedExercises(prev => ({ ...prev, [exerciseId]: false }));
-        } else {
-            setActiveExerciseId(exerciseId);
-            setExpandedExercises(prev => ({ ...prev, [exerciseId]: true }));
+        const exercise = exercises.find(e => e.id === exerciseId);
+        if (exercise) {
+            navigation.navigate('AddExerciseDetails', {
+                exerciseName: exercise.name,
+                category: exercise.category,
+                origin: 'WorkoutSession',
+                existingExerciseId: exercise.id,
+                existingSets: exercise.sets,
+            });
         }
     };
 
@@ -148,13 +151,19 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
     // Auto-save workout state whenever it changes
     // Handle exercise returning from details screen
     useEffect(() => {
-        if (route.params?.newExercise) {
-            const exerciseToAdd = route.params.newExercise;
+        const { DeviceEventEmitter } = require('react-native');
+        const addSub = DeviceEventEmitter.addListener('onAddExerciseToSession', (exerciseToAdd) => {
             setExercises(prev => [...prev, exerciseToAdd]);
-            // Clear the param immediately using setParams on the current route
-            navigation.setParams({ newExercise: undefined });
-        }
-    }, [route.params?.newExercise]);
+        });
+        const updateSub = DeviceEventEmitter.addListener('onUpdateExerciseInSession', (updatedExercise) => {
+            setExercises(prev => prev.map(ex => ex.id === updatedExercise.id ? updatedExercise : ex));
+        });
+        
+        return () => {
+            addSub.remove();
+            updateSub.remove();
+        };
+    }, []);
 
     useEffect(() => {
         if (workoutStarted && exercises.length > 0 && !isFinishing) {
@@ -379,10 +388,7 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
     };
 
     const toggleExerciseExpand = (exerciseId) => {
-        setExpandedExercises(prev => ({
-            ...prev,
-            [exerciseId]: !prev[exerciseId]
-        }));
+        toggleExerciseStart(exerciseId);
     };
 
     const deleteExercise = (exerciseId) => { setExercises(exercises.filter(e => e.id !== exerciseId)); };
@@ -430,6 +436,33 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
         setExercises(exercises.map(exercise => {
             if (exercise.id === exerciseId && Array.isArray(exercise.sets) && exercise.sets.length > 1) {
                 return { ...exercise, sets: exercise.sets.slice(0, -1) };
+            }
+            return exercise;
+        }));
+    };
+
+    const updateNumSets = (exerciseId, newNum) => {
+        setExercises(exercises.map(exercise => {
+            if (exercise.id === exerciseId) {
+                const setsArray = Array.isArray(exercise.sets) ? exercise.sets : [];
+                if (newNum > setsArray.length) {
+                    const newSets = [...setsArray];
+                    for (let i = setsArray.length; i < newNum; i++) {
+                        newSets.push({
+                            id: i + 1,
+                            weight: '',
+                            reps: '',
+                            time: '',
+                            intensity: 'Medium',
+                            restTime: exercise.category === 'cardio' ? '0' : '90',
+                            formRating: '',
+                            completed: false
+                        });
+                    }
+                    return { ...exercise, sets: newSets };
+                } else if (newNum > 0) {
+                    return { ...exercise, sets: setsArray.slice(0, newNum) };
+                }
             }
             return exercise;
         }));
@@ -554,30 +587,9 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
         console.log('🏁 [WorkoutSession] Finishing workout, clearing session');
         clearActiveWorkout();
         
-        if (lastWorkoutDate !== today) {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-            if (lastWorkoutDate === yesterdayStr) streak += 1;
-            else if (lastWorkoutDate === null) streak = 1;
-            
-            setNewStreakValue(streak);
-            setShowStreakPopup(true);
-            Animated.spring(streakScale, {
-                toValue: 1,
-                friction: 5,
-                useNativeDriver: true
-            }).start();
-        } else {
-            // Already worked out today, skip popup
-            navigation.navigate('MainApp');
-        }
-    };
-
-    const handleCloseStreakPopup = () => {
-        setShowStreakPopup(false);
-        console.log('🚀 [WorkoutSession] Navigating to MainApp');
-        navigation.navigate('MainApp');
+        setExercises([]);
+        setTimer(0);
+        navigation.reset({ index: 0, routes: [{ name: 'MainApp' }] });
     };
 
     const handleDeleteWorkout = () => {
@@ -591,7 +603,9 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                 console.log('🗑️ Deleting active workout session (web)');
                 deleteActiveWorkout();
                 console.log('✅ Active workout deleted, navigating to Dashboard');
-                navigation.navigate('MainApp');
+                setExercises([]);
+                setTimer(0);
+                navigation.reset({ index: 0, routes: [{ name: 'MainApp' }] });
             } else {
                 console.log('Delete cancelled (web)');
             }
@@ -613,7 +627,9 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                             setIsFinishing(true);
                             console.log('🗑️ Deleting active workout session (mobile)');
                             deleteActiveWorkout();
-                            navigation.navigate('MainApp');
+                            setExercises([]);
+                            setTimer(0);
+                            navigation.reset({ index: 0, routes: [{ name: 'MainApp' }] });
                         }
                     }
                 ],
@@ -624,7 +640,8 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
 
 
 
-    const completedSets = exercises.reduce((acc, ex) => acc + (Array.isArray(ex.sets) ? ex.sets.filter(s => s.completed).length : 0), 0);
+    const isSetCompleted = (s) => s.completed || parseInt(s.reps) > 0 || parseInt(s.time) > 0;
+    const completedSets = exercises.reduce((acc, ex) => acc + (Array.isArray(ex.sets) ? ex.sets.filter(s => isSetCompleted(s)).length : 0), 0);
     const totalSets = exercises.reduce((acc, ex) => acc + (Array.isArray(ex.sets) ? ex.sets.length : 0), 0);
 
     return (
@@ -841,7 +858,7 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                 ) : (
                     exercises.map((exercise) => {
                         const isExpanded = expandedExercises[exercise.id];
-                        const completedSets = Array.isArray(exercise.sets) ? exercise.sets.filter(s => s.completed).length : 0;
+                        const completedSets = Array.isArray(exercise.sets) ? exercise.sets.filter(s => isSetCompleted(s)).length : 0;
                         const totalSets = Array.isArray(exercise.sets) ? exercise.sets.length : 0;
 
                         return (
@@ -876,6 +893,37 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
 
                                 {isExpanded && (
                                     <View style={styles.setsContainer}>
+                                        {/* Number of Sets Selector */}
+                                        <Text style={{ fontSize: 11, fontWeight: '800', color: theme.textMuted, letterSpacing: 1, marginTop: 10, marginBottom: 8, alignSelf: 'center' }}>NUMBER OF SETS</Text>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: 20 }}>
+                                            {[1, 2, 3, 4, 5, 6].map(num => {
+                                                const currentSets = Array.isArray(exercise.sets) ? exercise.sets.length : 0;
+                                                const isActive = currentSets === num;
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={num}
+                                                        style={{
+                                                            width: 40,
+                                                            height: 40,
+                                                            borderRadius: 20,
+                                                            justifyContent: 'center',
+                                                            alignItems: 'center',
+                                                            backgroundColor: isActive ? theme.brandWorkout : theme.cardBackground,
+                                                            borderWidth: 1,
+                                                            borderColor: isActive ? theme.brandWorkout : theme.border
+                                                        }}
+                                                        onPress={() => updateNumSets(exercise.id, num)}
+                                                    >
+                                                        <Text style={{
+                                                            fontSize: 16,
+                                                            fontWeight: 'bold',
+                                                            color: isActive ? '#000' : theme.textPrimary
+                                                        }}>{num}</Text>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
+                                        </View>
+
                                         <ExerciseAnalyticsGraph 
                                             exerciseName={exercise.name} 
                                             workoutHistory={userData.workoutHistory} 
@@ -1023,6 +1071,15 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                                                 )}
                                             </View>
                                         ))}
+
+                                        {/* Add Set Button */}
+                                        <TouchableOpacity
+                                            style={[styles.addDropSetBtn, { borderColor: theme.brandWorkout + '50', alignSelf: 'center', marginTop: 10, width: '100%' }]}
+                                            onPress={() => addSet(exercise.id)}
+                                        >
+                                            <Ionicons name="add" size={16} color={theme.brandWorkout} />
+                                            <Text style={[styles.addDropSetText, { color: theme.brandWorkout, fontSize: 16 }]}>Add Set</Text>
+                                        </TouchableOpacity>
                                     </View>
                                 )}
                             </View>
@@ -1063,26 +1120,6 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                     <Ionicons name="trash-outline" size={18} color={theme.error} />
                 </TouchableOpacity>
             </View>
-
-            {/* Streak Celebration Popup */}
-            <Modal visible={showStreakPopup} transparent animationType="fade">
-                <View style={styles.streakModalOverlay}>
-                    <Animated.View style={[styles.streakModalContent, { transform: [{ scale: streakScale }] }]}>
-                        <View style={styles.streakIconContainer}>
-                            <Ionicons name="flame" size={80} color={theme.warning} />
-                            <View style={styles.tickBadge}>
-                                <Ionicons name="checkmark" size={24} color="#FFF" />
-                            </View>
-                        </View>
-                        <Text style={styles.streakTitle}>Workout Complete!</Text>
-                        <Text style={styles.streakSubtitle}>You're on a {newStreakValue} day streak!</Text>
-                        
-                        <TouchableOpacity style={[styles.streakBtn, { backgroundColor: theme.brandWorkout }]} onPress={handleCloseStreakPopup}>
-                            <Text style={styles.streakBtnText}>Keep It Up</Text>
-                        </TouchableOpacity>
-                    </Animated.View>
-                </View>
-            </Modal>
         </SafeAreaView>
     );
 };

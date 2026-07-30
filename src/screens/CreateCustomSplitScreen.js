@@ -19,12 +19,14 @@ const CreateCustomSplitScreen = ({ navigation, route }) => {
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
     useEffect(() => {
-        if (route.params?.newExercise) {
-            setExercises(prev => [...prev, route.params.newExercise]);
+        const { DeviceEventEmitter } = require('react-native');
+        const subscription = DeviceEventEmitter.addListener('onAddExerciseToSplit', (exerciseToAdd) => {
+            setExercises(prev => [...prev, exerciseToAdd]);
             setCustomExercise('');
-            navigation.setParams({ newExercise: undefined });
-        }
-    }, [route.params?.newExercise]);
+        });
+        
+        return () => subscription.remove();
+    }, []);
 
     const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -146,11 +148,17 @@ const CreateCustomSplitScreen = ({ navigation, route }) => {
                         <TouchableOpacity
                             style={[styles.customAddBtn, { backgroundColor: theme.brandWorkout }]}
                             onPress={() => {
-                                navigation.navigate('AddExerciseDetails', {
-                                    exerciseName: customExercise.trim(),
+                                const newExercise = {
+                                    id: Date.now() + Math.random(),
+                                    name: customExercise.trim(),
                                     category: 'strength',
-                                    origin: 'CreateCustomSplit'
-                                });
+                                    type: 'strength',
+                                    sets: [
+                                        { id: 1, weight: '', reps: '', time: '', completed: false, intensity: 'Medium', formRating: '', restTime: '60' }
+                                    ]
+                                };
+                                setExercises(prev => [...prev, newExercise]);
+                                setCustomExercise('');
                             }}
                         >
                             <Ionicons name="arrow-forward" size={18} color="#fff" />
@@ -174,11 +182,17 @@ const CreateCustomSplitScreen = ({ navigation, route }) => {
                                     borderBottomColor: theme.border,
                                 }}
                                 onPress={() => {
-                                    navigation.navigate('AddExerciseDetails', {
-                                        exerciseName: item.displayName || item.name,
+                                    const newExercise = {
+                                        id: Date.now() + Math.random(),
+                                        name: item.displayName || item.name,
                                         category: item.category,
-                                        origin: 'CreateCustomSplit'
-                                    });
+                                        type: item.type,
+                                        sets: [
+                                            { id: 1, weight: '', reps: '', time: '', completed: false, intensity: 'Medium', formRating: '', restTime: '60' }
+                                        ]
+                                    };
+                                    setExercises(prev => [...prev, newExercise]);
+                                    setCustomExercise('');
                                 }}
                             >
                                 <View>

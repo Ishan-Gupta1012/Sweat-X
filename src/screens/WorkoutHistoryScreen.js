@@ -121,7 +121,7 @@ const WorkoutHistoryScreen = ({ navigation }) => {
                 deleteWorkout(workoutId);
             }
         } else {
-            showAlert(
+            Alert.alert(
                 'Delete Workout',
                 'Are you sure you want to delete this workout? This cannot be undone.',
                 [

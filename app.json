@@ -34,7 +34,8 @@
           "photosPermission": "The app accesses your photos to let you log meals from your gallery.",
           "cameraPermission": "The app accesses your camera to scan and identify food items instantly."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "eas": {

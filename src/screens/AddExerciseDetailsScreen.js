@@ -21,16 +21,17 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
         exerciseName?.toLowerCase().includes('elliptical') ||
         route.params.category === 'cardio');
 
-    const [numSets, setNumSets] = useState(isCardio ? 1 : 3);
+    const [numSets, setNumSets] = useState(route.params.existingSets ? route.params.existingSets.length : (isCardio ? 1 : 3));
     const [sets, setSets] = useState(
-        Array.from({ length: isCardio ? 1 : 3 }, (_, i) => ({
+        route.params.existingSets ? route.params.existingSets : Array.from({ length: isCardio ? 1 : 3 }, (_, i) => ({
             id: i + 1,
             weight: '',
             reps: '',
             time: '',
             intensity: 'Medium',
             restTime: isCardio ? '0' : '90',
-            formRating: ''
+            formRating: '',
+            completed: false
         }))
     );
 
@@ -109,23 +110,26 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
 
     const handleSave = () => {
         const exercise = {
-            id: Date.now(),
+            id: route.params?.existingExerciseId || Date.now(),
             name: exerciseName,
             category: isCardio ? 'cardio' : (route.params.category || 'strength'),
-            sets: sets.map(s => ({ ...s, completed: false }))
+            sets: route.params?.origin === 'WorkoutSession' ? sets : sets.map(s => ({ ...s, completed: false }))
         };
 
         if (route.params?.origin === 'CreateCustomSplit') {
-            navigation.navigate({
-                name: 'CreateCustomSplit',
-                params: { newExercise: exercise },
-                merge: true,
+            import('react-native').then(({ DeviceEventEmitter }) => {
+                DeviceEventEmitter.emit('onAddExerciseToSplit', exercise);
+                navigation.goBack();
+            });
+        } else if (route.params?.origin === 'WorkoutSession') {
+            import('react-native').then(({ DeviceEventEmitter }) => {
+                DeviceEventEmitter.emit('onUpdateExerciseInSession', exercise);
+                navigation.goBack();
             });
         } else {
-            navigation.navigate({
-                name: 'WorkoutSession',
-                params: { newExercise: exercise },
-                merge: true,
+            import('react-native').then(({ DeviceEventEmitter }) => {
+                DeviceEventEmitter.emit('onAddExerciseToSession', exercise);
+                navigation.goBack();
             });
         }
     };
@@ -328,7 +332,7 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
             {/* Footer */}
             <View style={styles.footer}>
                 <PrimaryButton
-                    title="ADD TO WORKOUT"
+                    title={route.params?.origin === 'WorkoutSession' ? "SAVE SETS" : "ADD TO WORKOUT"}
                     onPress={handleSave}
                     style={styles.saveButton}
                 />
