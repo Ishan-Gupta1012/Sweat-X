@@ -1,0 +1,11 @@
+--- src/screens/WorkoutSelectionScreen.js
++++ src/screens/WorkoutSelectionScreen.js
+@@ -448,7 +448,7 @@
+                                                 <View key={exIdx} style={styles.exercisePreviewItem}>
+                                                     <Ionicons name="barbell-outline" size={12} color={theme.textMuted} />
+                                                     <Text style={styles.exercisePreviewText}>{ex.name}</Text>
+-                                                    <Text style={styles.exercisePreviewReps}>{ex.sets}×{ex.reps}</Text>
++                                                    <Text style={styles.exercisePreviewReps}>{Array.isArray(ex.sets) ? ex.sets.length : (ex.sets || 0)}×{ex.reps || 0}</Text>
+                                                 </View>
+                                             ))}
+                                             {session.exercises.length > 4 && (

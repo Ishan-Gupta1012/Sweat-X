@@ -136,5 +136,5 @@ eas build -p android --profile preview
 This project is private and proprietary. All rights reserved.
 
 ---
-
+i 
 *Built with passion by Ishan Gupta.*

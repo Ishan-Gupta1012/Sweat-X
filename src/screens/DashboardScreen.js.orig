@@ -114,10 +114,6 @@ const DashboardScreen = ({ navigation }) => {
         }).start(() => setShowWeightLogger(false));
     };
 
-    const d = new Date();
-    const todayString = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    const hasTrainedToday = userData.lastWorkoutDate === todayString && !userData.activeWorkoutSession;
-
     const styles = useMemo(() => createStyles(theme), [theme]);
 
     return (
@@ -221,7 +217,7 @@ const DashboardScreen = ({ navigation }) => {
                     {hasTrainedToday ? (
                         <TouchableOpacity
                             style={[styles.trainingCard, { backgroundColor: theme.primary + '15', borderColor: theme.primary + '40' }]}
-                            onPress={() => navigation.navigate('AddMeal')}
+                            onPress={() => navigation.navigate('CreateMeal')}
                         >
                             <View style={styles.trainingInfo}>
                                 <Text style={[styles.trainingBadge, { color: theme.primary }]}>LOG FOOD</Text>

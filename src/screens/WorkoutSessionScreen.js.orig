@@ -40,8 +40,6 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
 
     const timerRef = useRef(null);
     const restTimerRef = useRef(null);
-    const workoutStartTimeRef = useRef(null);
-    const restEndTimeRef = useRef(null);
     const styles = useMemo(() => createStyles(theme), [theme]);
 
     // Initialize exercises from preloaded data if available
@@ -137,12 +135,7 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
     // Only start timer after time is selected
     useEffect(() => {
         if (!workoutStarted) return;
-        if (!workoutStartTimeRef.current) {
-            workoutStartTimeRef.current = Date.now() - (timer * 1000);
-        }
-        timerRef.current = setInterval(() => { 
-            setTimer(Math.floor((Date.now() - workoutStartTimeRef.current) / 1000)); 
-        }, 1000);
+        timerRef.current = setInterval(() => { setTimer((prev) => prev + 1); }, 1000);
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
             if (restTimerRef.current) clearInterval(restTimerRef.current);
@@ -224,17 +217,16 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
     const startRest = () => {
         setIsResting(true);
         setRestTimer(globalRestTime);
-        restEndTimeRef.current = Date.now() + (globalRestTime * 1000);
         if (restTimerRef.current) clearInterval(restTimerRef.current);
         restTimerRef.current = setInterval(() => {
-            const remaining = Math.max(0, Math.ceil((restEndTimeRef.current - Date.now()) / 1000));
-            if (remaining <= 0) {
-                clearInterval(restTimerRef.current);
-                setIsResting(false);
-                setRestTimer(0);
-            } else {
-                setRestTimer(remaining);
-            }
+            setRestTimer((prev) => {
+                if (prev <= 1) {
+                    clearInterval(restTimerRef.current);
+                    setIsResting(false);
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
     };
 
@@ -565,21 +557,10 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                             <Text style={[styles.stickyRestTimeText, { color: theme.brandWorkout }]}>{formatTime(restTimer)}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-                            <TouchableOpacity onPress={() => {
-                                const currentRemaining = Math.max(0, Math.ceil((restEndTimeRef.current - Date.now()) / 1000));
-                                const newTime = Math.max(0, currentRemaining - 15);
-                                restEndTimeRef.current = Date.now() + (newTime * 1000);
-                                setRestTimer(newTime);
-                                if (newTime === 0) { setIsResting(false); if (restTimerRef.current) clearInterval(restTimerRef.current); }
-                            }} style={styles.smallAdjustBtn}>
+                            <TouchableOpacity onPress={() => setRestTimer(prev => Math.max(0, prev - 15))} style={styles.smallAdjustBtn}>
                                 <Text style={[styles.adjustTimeText, { color: theme.textPrimary }]}>-15s</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => {
-                                const currentRemaining = Math.max(0, Math.ceil((restEndTimeRef.current - Date.now()) / 1000));
-                                const newTime = currentRemaining + 15;
-                                restEndTimeRef.current = Date.now() + (newTime * 1000);
-                                setRestTimer(newTime);
-                            }} style={styles.smallAdjustBtn}>
+                            <TouchableOpacity onPress={() => setRestTimer(prev => prev + 15)} style={styles.smallAdjustBtn}>
                                 <Text style={[styles.adjustTimeText, { color: theme.textPrimary }]}>+15s</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={skipRest} style={{ marginLeft: 8 }}>
@@ -838,7 +819,7 @@ const WorkoutSessionScreen = ({ navigation, route }) => {
                                                 ))}
 
                                                 {/* Add Drop Set Button - Only for non-cardio */}
-                                                {exercise.category !== 'cardio' && (
+                                                {!set.completed && exercise.category !== 'cardio' && (
                                                     <TouchableOpacity
                                                         style={[styles.addDropSetBtn, { borderColor: theme.warning + '50' }]}
                                                         onPress={() => addDropSet(exercise.id, set.id)}

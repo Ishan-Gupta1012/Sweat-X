@@ -1,0 +1,76 @@
+--- src/screens/AddExerciseDetailsScreen.js
++++ src/screens/AddExerciseDetailsScreen.js
+@@ -329,6 +329,42 @@
+                         ) : null}
+ 
+ 
++                        {/* Drop Sets Section */}
++                        {(set.dropSets || []).map((dropSet) => (
++                            <View key={`drop-${dropSet.id}`} style={[styles.dropSetCard, { backgroundColor: theme.warning + '12' }]}>
++                                <View style={styles.dropSetHeader}>
++                                    <View style={[styles.dropSetTag, { backgroundColor: theme.warning + '25' }]}>
++                                        <Text style={[styles.dropSetTagText, { color: theme.warning }]}>DROP {dropSet.id}</Text>
++                                    </View>
++                                    <TouchableOpacity onPress={() => removeDropSet(set.id, dropSet.id)} style={styles.dropSetRemoveBtn}>
++                                        <Ionicons name="close-circle" size={20} color={theme.error} />
++                                    </TouchableOpacity>
++                                </View>
++                                <View style={styles.dropSetInputRow}>
++                                    <View style={styles.dropSetInputGroup}>
++                                        <TextInput
++                                            style={[styles.dropSetInput, { backgroundColor: theme.cardBackground, color: theme.textPrimary, borderColor: theme.warning + '40' }]}
++                                            placeholder="0"
++                                            placeholderTextColor={theme.textMuted}
++                                            keyboardType="numeric"
++                                            value={dropSet.weight}
++                                            onChangeText={(v) => updateDropSet(set.id, dropSet.id, 'weight', v)}
++                                        />
++                                        <Text style={[styles.dropSetInputLabel, { color: theme.warning }]}>KG</Text>
++                                    </View>
++                                    <View style={styles.dropSetInputGroup}>
++                                        <TextInput
++                                            style={[styles.dropSetInput, { backgroundColor: theme.cardBackground, color: theme.textPrimary, borderColor: theme.warning + '40' }]}
++                                            placeholder="0"
++                                            placeholderTextColor={theme.textMuted}
++                                            keyboardType="numeric"
++                                            value={dropSet.reps}
++                                            onChangeText={(v) => updateDropSet(set.id, dropSet.id, 'reps', v)}
++                                        />
++                                        <Text style={[styles.dropSetInputLabel, { color: theme.warning }]}>REPS</Text>
++                                    </View>
++                                </View>
++                            </View>
++                        ))}
++
++                        {/* Add Drop Set Button - Only for non-cardio */}
++                        {!isCardio && (
++                            <TouchableOpacity
++                                style={[styles.addDropSetBtn, { borderColor: theme.warning + '50' }]}
++                                onPress={() => addDropSet(set.id)}
++                            >
++                                <Ionicons name="add" size={14} color={theme.warning} />
++                                <Text style={[styles.addDropSetText, { color: theme.warning }]}>Add Drop Set</Text>
++                            </TouchableOpacity>
++                        )}
+                     </View>
+                 ))}
+ 
+@@ -536,7 +572,17 @@
+     footer: { padding: spacing.lg, paddingBottom: Platform.OS === 'ios' ? 32 : spacing.lg, backgroundColor: theme.background, borderTopWidth: 1, borderTopColor: theme.border },
+     saveButton: { borderRadius: borderRadius.pill },
+     stickyRestTimer: { position: 'absolute', bottom: 100, left: 20, right: 20, borderRadius: 16, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 8, zIndex: 100 },
+-    stickyRestTimeText: { fontSize: 24, fontWeight: '800', fontVariant: ['tabular-nums'] }
++    stickyRestTimeText: { fontSize: 24, fontWeight: '800', fontVariant: ['tabular-nums'] },
++    dropSetCard: { marginTop: 12, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#FFB70320' },
++    dropSetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
++    dropSetTag: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
++    dropSetTagText: { fontSize: 10, fontWeight: '800', letterSpacing: 1 },
++    dropSetInputRow: { flexDirection: 'row', gap: 12 },
++    dropSetInputGroup: { flex: 1, flexDirection: 'row', alignItems: 'center', borderRadius: 8, borderWidth: 1, paddingRight: 12 },
++    dropSetInput: { flex: 1, height: 40, paddingHorizontal: 12, fontSize: 14, fontWeight: '600', borderWidth: 0, borderRightWidth: 1 },
++    dropSetInputLabel: { fontSize: 10, fontWeight: '700', marginLeft: 12 },
++    addDropSetBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, marginTop: 12, borderWidth: 1, borderStyle: 'dashed', borderRadius: 8 },
++    addDropSetText: { fontSize: 12, fontWeight: '600' }
+ });
+ 
+ export default AddExerciseDetailsScreen;

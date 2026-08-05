@@ -1,0 +1,15 @@
+--- src/screens/WorkoutSessionScreen.js
++++ src/screens/WorkoutSessionScreen.js
+@@ -570,6 +570,12 @@
+                 </View>
+             )}
+ 
++            {/* Form Guide Modal */}
++            <Modal visible={showFormGuide} animationType="slide" transparent={true} onRequestClose={() => setShowFormGuide(false)}>
++                <View style={styles.modalOverlay}>
++                    <View style={[styles.modalContent, { backgroundColor: '#0A0F0C' }]}>
++                        <View style={[styles.modalHeader, { borderBottomColor: theme.border }]}>
++                            <Text style={styles.modalTitle}>Form Guide</Text>
+                             <TouchableOpacity onPress={() => setShowFormGuide(false)}>
+                                 <Ionicons name="close" size={24} color={theme.textPrimary} />
+                             </TouchableOpacity>

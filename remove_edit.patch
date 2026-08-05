@@ -1,0 +1,18 @@
+--- src/screens/WorkoutSelectionScreen.js
++++ src/screens/WorkoutSelectionScreen.js
+@@ -447,15 +447,6 @@
+                                             <Text style={styles.modalDayTitle}>{session.title}</Text>
+                                             <Text style={styles.modalDayZones}>{session.zones.join(' • ')}</Text>
+                                         </View>
+-                                        <TouchableOpacity
+-                                            style={styles.editDayButton}
+-                                            onPress={() => {
+-                                                setShowPlanModal(false);
+-                                                navigation.navigate('SplitExerciseEditor', { dayIndex: idx });
+-                                            }}
+-                                        >
+-                                            <Ionicons name="create-outline" size={18} color={theme.brandWorkout} />
+-                                        </TouchableOpacity>
+                                     </View>
+                                     {session.exercises && session.exercises.length > 0 && (
+                                         <View style={styles.exerciseListPreview}>

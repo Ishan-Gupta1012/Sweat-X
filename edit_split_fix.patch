@@ -1,0 +1,26 @@
+--- src/screens/WorkoutSelectionScreen.js
++++ src/screens/WorkoutSelectionScreen.js
+@@ -261,7 +261,22 @@
+ 
+                             <View style={styles.menuDivider} />
+ 
+-                            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('BeginnerSetup')}>
++                            <TouchableOpacity style={styles.menuItem} onPress={() => {
++                                if (plan?.splitType === 'Custom Weekly Routine') {
++                                    // Pre-fill the modal with their current schedule
++                                    const mappedDays = plan.schedule.map(d => ({
++                                        title: d.title === 'Rest Day' ? '' : d.title,
++                                        zones: d.zones || [],
++                                        exercises: d.exercises || []
++                                    }));
++                                    // Ensure it has 7 days
++                                    while(mappedDays.length < 7) mappedDays.push({ title: '', zones: [], exercises: [] });
++                                    setRoutineDays(mappedDays);
++                                    setShowManualRoutineModal(true);
++                                } else {
++                                    navigation.navigate('BeginnerSetup');
++                                }
++                            }}>
+                                 <View style={styles.menuIcon}>
+                                     <Ionicons name="create-outline" size={20} color={theme.brandWorkout} />
+                                 </View>

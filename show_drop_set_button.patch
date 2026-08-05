@@ -1,0 +1,10 @@
+--- src/screens/WorkoutSessionScreen.js
++++ src/screens/WorkoutSessionScreen.js
+@@ -820,7 +820,7 @@
+ 
+                                                 {/* Add Drop Set Button - Only for non-cardio */}
+-                                                {!set.completed && exercise.category !== 'cardio' && (
++                                                {exercise.category !== 'cardio' && (
+                                                     <TouchableOpacity
+                                                         style={[styles.addDropSetBtn, { borderColor: theme.warning + '50' }]}
+                                                         onPress={() => addDropSet(exercise.id, set.id)}

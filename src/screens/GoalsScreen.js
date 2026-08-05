@@ -14,6 +14,7 @@ const GoalsScreen = ({ navigation }) => {
     const [showModal, setShowModal] = useState(false);
     const [showEditGoalModal, setShowEditGoalModal] = useState(false);
     const [todayWeight, setTodayWeight] = useState('');
+    const [graphLayout, setGraphLayout] = useState({ width: 0, height: 0 });
 
     // Temporary state for editing goals
     const [tempTargetWeight, setTempTargetWeight] = useState(String(userData.targetWeight || 65));
@@ -218,27 +219,99 @@ const GoalsScreen = ({ navigation }) => {
                             <Text style={styles.yLabel}>{minWeight.toFixed(0)}</Text>
                         </View>
 
-                        <View style={styles.barsContainer}>
-                            <View style={[styles.targetLine, {
-                                bottom: `${((targetWeight - minWeight) / range) * 100}%`,
-                                borderTopColor: theme.success
-                            }]}>
-                                <Text style={[styles.targetLabel, { color: theme.success }]}>Target: {targetWeight}kg</Text>
-                            </View>
+                        <View 
+                            style={styles.barsContainer}
+                            onLayout={(e) => setGraphLayout(e.nativeEvent.layout)}
+                        >
+                            {graphLayout.height > 0 && (
+                                <View style={[styles.targetLine, {
+                                    top: (graphLayout.height - 30) - ((targetWeight - minWeight) / range) * (graphLayout.height - 30) + 10,
+                                    borderTopColor: theme.success
+                                }]}>
+                                    <Text style={[styles.targetLabel, { color: theme.success }]}>Target: {targetWeight}kg</Text>
+                                </View>
+                            )}
 
-                            {weightHistory.map((item, index) => {
-                                const height = ((item.weight - minWeight) / range) * 100;
+                            {graphLayout.width > 0 && weightHistory.map((item, index) => {
                                 const isToday = index === weightHistory.length - 1;
+                                const usableWidth = graphLayout.width - 20;
+                                const usableHeight = graphLayout.height - 30; // Leave space for labels at the bottom
+                                
+                                const cx = (index / Math.max(1, weightHistory.length - 1)) * usableWidth + 10;
+                                const cy = usableHeight - ((item.weight - minWeight) / range) * usableHeight + 10;
+                                
+                                let lineSegment = null;
+                                if (index > 0) {
+                                    const prevItem = weightHistory[index - 1];
+                                    const prevCx = ((index - 1) / Math.max(1, weightHistory.length - 1)) * usableWidth + 10;
+                                    const prevCy = usableHeight - ((prevItem.weight - minWeight) / range) * usableHeight + 10;
+                                    
+                                    const dx = cx - prevCx;
+                                    const dy = cy - prevCy;
+                                    const length = Math.sqrt(dx * dx + dy * dy);
+                                    const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+                                    const midX = (prevCx + cx) / 2;
+                                    const midY = (prevCy + cy) / 2;
+                                    
+                                    lineSegment = (
+                                        <View 
+                                            key={`line-${index}`}
+                                            style={{
+                                                position: 'absolute',
+                                                left: midX - length / 2,
+                                                top: midY - 1.5,
+                                                width: length,
+                                                height: 3,
+                                                backgroundColor: theme.brandProfile,
+                                                transform: [{ rotate: `${angle}deg` }],
+                                                opacity: 0.8
+                                            }}
+                                        />
+                                    );
+                                }
+                                
                                 return (
-                                    <View key={index} style={styles.barWrapper}>
-                                        <View style={[
-                                            styles.bar,
-                                            { height: `${height}%`, backgroundColor: isToday ? theme.brandProfile : theme.brandProfile + '40' },
-                                        ]}>
-                                            <Text style={[styles.barValue, { color: isToday ? '#fff' : theme.textPrimary }]}>{item.weight}</Text>
-                                        </View>
-                                        <Text style={styles.barLabel}>{item.date}</Text>
-                                    </View>
+                                    <React.Fragment key={index}>
+                                        {lineSegment}
+                                        <View 
+                                            style={{ 
+                                                position: 'absolute', 
+                                                left: cx - 6, 
+                                                top: cy - 6, 
+                                                width: 12, 
+                                                height: 12, 
+                                                borderRadius: 6, 
+                                                backgroundColor: isToday ? '#fff' : theme.brandProfile,
+                                                borderWidth: 2,
+                                                borderColor: theme.cardBackground,
+                                                zIndex: 10
+                                            }} 
+                                        />
+                                        <Text style={{
+                                            position: 'absolute',
+                                            left: cx - 20,
+                                            top: cy - 20,
+                                            width: 40,
+                                            textAlign: 'center',
+                                            fontSize: 9,
+                                            fontWeight: '700',
+                                            color: isToday ? '#fff' : theme.textPrimary
+                                        }}>
+                                            {item.weight}
+                                        </Text>
+                                        <Text style={{
+                                            position: 'absolute',
+                                            left: cx - 20,
+                                            bottom: 5,
+                                            width: 40,
+                                            textAlign: 'center',
+                                            fontSize: 10,
+                                            fontWeight: '500',
+                                            color: theme.textSecondary
+                                        }}>
+                                            {item.date}
+                                        </Text>
+                                    </React.Fragment>
                                 );
                             })}
                         </View>

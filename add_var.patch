@@ -1,0 +1,13 @@
+--- src/screens/DashboardScreen.js
++++ src/screens/DashboardScreen.js
+@@ -113,6 +113,10 @@
+         }).start(() => setShowWeightLogger(false));
+     };
+ 
++    const d = new Date();
++    const todayString = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
++    const hasTrainedToday = userData.lastWorkoutDate === todayString && !userData.activeWorkoutSession;
++
+     const styles = useMemo(() => createStyles(theme), [theme]);
+ 
+     return (

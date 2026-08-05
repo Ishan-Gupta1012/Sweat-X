@@ -1,0 +1,40 @@
+--- src/screens/AddExerciseDetailsScreen.js
++++ src/screens/AddExerciseDetailsScreen.js
+@@ -97,6 +97,36 @@
+         ));
+     };
+ 
++    const addDropSet = (setId) => {
++        setSets(sets.map(set => {
++            if (set.id === setId) {
++                const dropSets = set.dropSets || [];
++                return {
++                    ...set,
++                    dropSets: [...dropSets, { id: dropSets.length + 1, weight: '', reps: '' }]
++                };
++            }
++            return set;
++        }));
++    };
++
++    const removeDropSet = (setId, dropSetId) => {
++        setSets(sets.map(set => {
++            if (set.id === setId) {
++                return { ...set, dropSets: (set.dropSets || []).filter(ds => ds.id !== dropSetId).map((ds, idx) => ({ ...ds, id: idx + 1 })) };
++            }
++            return set;
++        }));
++    };
++
++    const updateDropSet = (setId, dropSetId, field, value) => {
++        setSets(sets.map(set => {
++            if (set.id === setId) {
++                return { ...set, dropSets: (set.dropSets || []).map(ds => ds.id === dropSetId ? { ...ds, [field]: value } : ds) };
++            }
++            return set;
++        }));
++    };
++
+     const toggleSetComplete = (setId) => {
+         setSets(sets.map(set => {
+             if (set.id === setId) {

@@ -447,6 +447,15 @@ const WorkoutSelectionScreen = ({ navigation }) => {
                                             <Text style={styles.modalDayTitle}>{session.title}</Text>
                                             <Text style={styles.modalDayZones}>{session.zones.join(' • ')}</Text>
                                         </View>
+                                        <TouchableOpacity
+                                            style={styles.editDayButton}
+                                            onPress={() => {
+                                                setShowPlanModal(false);
+                                                navigation.navigate('SplitExerciseEditor', { dayIndex: idx });
+                                            }}
+                                        >
+                                            <Ionicons name="create-outline" size={18} color={theme.brandWorkout} />
+                                        </TouchableOpacity>
                                     </View>
                                     {session.exercises && session.exercises.length > 0 && (
                                         <View style={styles.exerciseListPreview}>
@@ -454,7 +463,7 @@ const WorkoutSelectionScreen = ({ navigation }) => {
                                                 <View key={exIdx} style={styles.exercisePreviewItem}>
                                                     <Ionicons name="barbell-outline" size={12} color={theme.textMuted} />
                                                     <Text style={styles.exercisePreviewText}>{ex.name}</Text>
-                                                    <Text style={styles.exercisePreviewReps}>{Array.isArray(ex.sets) ? ex.sets.length : (ex.sets || 0)}×{ex.reps || (Array.isArray(ex.sets) && ex.sets[0]?.reps) || 0}</Text>
+                                                    <Text style={styles.exercisePreviewReps}>{Array.isArray(ex.sets) ? ex.sets.length : (ex.sets || 0)}×{ex.reps || 0}</Text>
                                                 </View>
                                             ))}
                                             {session.exercises.length > 4 && (

@@ -1,0 +1,40 @@
+--- src/screens/DashboardScreen.js
++++ src/screens/DashboardScreen.js
+@@ -194,6 +194,10 @@
+     const dailyQuote = getDailyQuote();
+ 
+     const isOverLimit = caloriesConsumed > caloriesGoal;
++    
++    const d = new Date();
++    const todayString = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
++    const hasTrainedToday = userData.lastWorkoutDate === todayString && !userData.activeWorkoutSession;
+ 
+     return (
+         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+@@ -211,10 +215,24 @@
+                 {/* Today's Training */}
+                 <Animated.View style={[styles.glassCard, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+                     <View style={styles.cardHeader}>
+-                        <Text style={styles.cardTitle}>TODAY'S TRAINING</Text>
++                        <Text style={styles.cardTitle}>{hasTrainedToday ? "NUTRITION" : "TODAY'S TRAINING"}</Text>
+                     </View>
+                     
+-                    {userData.activeWorkoutSession ? (
++                    {hasTrainedToday ? (
++                        <TouchableOpacity
++                            style={[styles.trainingCard, { backgroundColor: theme.primary + '15', borderColor: theme.primary + '40' }]}
++                            onPress={() => navigation.navigate('CreateMeal')}
++                        >
++                            <View style={styles.trainingInfo}>
++                                <Text style={[styles.trainingBadge, { color: theme.primary }]}>LOG FOOD</Text>
++                                <Text style={styles.trainingTitle}>Track Nutrition</Text>
++                                <Text style={styles.trainingSub}>Add meals to reach your goals</Text>
++                            </View>
++                            <View style={[styles.playButton, { backgroundColor: theme.primary }]}>
++                                <Ionicons name="fast-food" size={20} color="#000" />
++                            </View>
++                        </TouchableOpacity>
++                    ) : userData.activeWorkoutSession ? (
+                         <TouchableOpacity
+                             style={[styles.trainingCard, { backgroundColor: theme.brandWorkout + '15', borderColor: theme.brandWorkout + '40' }]}
+                             onPress={() => navigation.navigate('WorkoutSession', { resumeSession: true, skipTimeModal: true })}

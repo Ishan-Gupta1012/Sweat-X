@@ -287,16 +287,29 @@ const CreateMealScreen = ({ navigation, route }) => {
 
                         {currentFood && nutrition && (
                             <>
-                                <View style={styles.nutritionPreview}>
-                                    <Text style={[styles.nutritionCalories, { color: theme.brandNutrition }]}>{nutrition.calories} kcal</Text>
-                                    <View style={styles.macrosRow}>
-                                        <Text style={[styles.macro, { color: theme.protein || '#FF3B30' }]}>P:{nutrition.protein}g</Text>
-                                        <Text style={[styles.macro, { color: theme.carbs || '#FF9500' }]}>C:{nutrition.carbs}g</Text>
-                                        <Text style={[styles.macro, { color: theme.fats || '#34C759' }]}>F:{nutrition.fats}g</Text>
+                                <View style={styles.nutritionCard}>
+                                    <View style={styles.nutritionHeader}>
+                                        <Text style={[styles.nutritionTitle, { color: theme.brandNutrition }]}>
+                                            {nutrition.grams}g = {nutrition.calories} kcal
+                                        </Text>
+                                    </View>
+                                    <View style={styles.macrosRowDetail}>
+                                        <View style={styles.macroItem}>
+                                            <Text style={[styles.macroValue, { color: theme.protein || '#FF3B30' }]}>{nutrition.protein}g</Text>
+                                            <Text style={styles.macroLabel}>Protein</Text>
+                                        </View>
+                                        <View style={styles.macroItem}>
+                                            <Text style={[styles.macroValue, { color: theme.carbs || '#FF9500' }]}>{nutrition.carbs}g</Text>
+                                            <Text style={styles.macroLabel}>Carbs</Text>
+                                        </View>
+                                        <View style={styles.macroItem}>
+                                            <Text style={[styles.macroValue, { color: theme.fats || '#34C759' }]}>{nutrition.fats}g</Text>
+                                            <Text style={styles.macroLabel}>Fats</Text>
+                                        </View>
                                     </View>
                                 </View>
 
-                                <Text style={styles.inputLabel}>Serving</Text>
+                                <Text style={styles.inputLabel}>Serving Size</Text>
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.servingScroll}>
                                     {SERVING_TYPES.map((s) => (
                                         <TouchableOpacity
@@ -305,7 +318,7 @@ const CreateMealScreen = ({ navigation, route }) => {
                                             onPress={() => setServingType(s.key)}
                                         >
                                             <Text style={styles.servingEmoji}>{s.emoji}</Text>
-                                            <Text style={[styles.servingLabel, servingType === s.key && { color: '#fff' }]}>{s.label}</Text>
+                                            <Text style={[styles.servingLabel, servingType === s.key && { color: '#fff', fontWeight: '600' }]}>{s.label}</Text>
                                         </TouchableOpacity>
                                     ))}
                                 </ScrollView>
@@ -314,17 +327,37 @@ const CreateMealScreen = ({ navigation, route }) => {
                                 <View style={styles.quantityRow}>
                                     <TouchableOpacity
                                         style={styles.qtyBtn}
-                                        onPress={() => setQuantity(Math.max(0.5, quantity - 0.5))}
+                                        onPress={() => {
+                                            const step = servingType === 'gm' ? 10 : (quantity <= 5 ? 0.25 : 0.5);
+                                            setQuantity(Math.max(servingType === 'gm' ? 10 : 0.25, quantity - step));
+                                        }}
                                     >
                                         <Ionicons name="remove" size={24} color={theme.textPrimary} />
                                     </TouchableOpacity>
                                     <Text style={[styles.qtyValue, { color: theme.brandNutrition }]}>{servingType === 'gm' ? `${quantity}g` : quantity}</Text>
                                     <TouchableOpacity
                                         style={styles.qtyBtn}
-                                        onPress={() => setQuantity(quantity + 0.5)}
+                                        onPress={() => {
+                                            const step = servingType === 'gm' ? 10 : (quantity < 5 ? 0.25 : 0.5);
+                                            setQuantity(quantity + step);
+                                        }}
                                     >
                                         <Ionicons name="add" size={24} color={theme.textPrimary} />
                                     </TouchableOpacity>
+                                </View>
+
+                                <View style={styles.quickQuantities}>
+                                    {(servingType === 'gm' ? [50, 100, 150, 200, 250, 500] : [0.5, 1, 1.5, 2, 3, 5]).map((q) => (
+                                        <TouchableOpacity
+                                            key={q}
+                                            style={[styles.quickQtyBtn, quantity === q && { backgroundColor: theme.brandNutrition }]}
+                                            onPress={() => setQuantity(q)}
+                                        >
+                                            <Text style={[styles.quickQtyText, { color: quantity === q ? '#fff' : theme.textMuted, fontWeight: quantity === q ? '600' : '400' }]}>
+                                                {servingType === 'gm' ? `${q}g` : q}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
                                 </View>
 
                                 <TouchableOpacity style={[styles.addBtn, { backgroundColor: theme.brandNutrition }]} onPress={addFoodToMeal}>
@@ -388,22 +421,29 @@ const createStyles = (theme) => StyleSheet.create({
     modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.lg },
     modalTitle: { fontSize: 18, fontWeight: '700', color: theme.textPrimary },
 
-    nutritionPreview: { backgroundColor: theme.cardBackground, borderRadius: borderRadius.md, padding: spacing.lg, alignItems: 'center', marginBottom: spacing.lg },
-    nutritionCalories: { fontSize: 28, fontWeight: '800' },
-    macrosRow: { flexDirection: 'row', gap: spacing.lg, marginTop: spacing.sm },
-    macro: { fontSize: 14, fontWeight: '600' },
+    nutritionCard: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 16, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    nutritionHeader: { alignItems: 'center', marginBottom: 16 },
+    nutritionTitle: { fontSize: 20, fontWeight: '800' },
+    macrosRowDetail: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16 },
+    macroItem: { alignItems: 'center' },
+    macroValue: { fontSize: 16, fontWeight: '700', marginBottom: 4 },
+    macroLabel: { fontSize: 11, color: '#888' },
 
-    inputLabel: { fontSize: 13, fontWeight: '600', color: theme.textMuted, marginBottom: spacing.xs },
-    servingScroll: { marginBottom: spacing.lg },
-    servingBtn: { alignItems: 'center', backgroundColor: theme.cardBackground, borderRadius: borderRadius.md, padding: spacing.sm, marginRight: spacing.sm, minWidth: 65 },
-    servingEmoji: { fontSize: 22 },
-    servingLabel: { fontSize: 10, color: theme.textMuted },
+    inputLabel: { fontSize: 13, fontWeight: '700', color: theme.textPrimary, letterSpacing: 1, marginBottom: 12, textTransform: 'uppercase' },
+    servingScroll: { marginBottom: 24 },
+    servingBtn: { alignItems: 'center', backgroundColor: theme.cardBackground, borderRadius: borderRadius.md, padding: spacing.sm, marginRight: spacing.sm, minWidth: 65, borderWidth: 1, borderColor: theme.border },
+    servingEmoji: { fontSize: 22, marginBottom: 4 },
+    servingLabel: { fontSize: 11, color: theme.textMuted },
 
-    quantityRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xl, marginBottom: spacing.lg },
-    qtyBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.cardBackground, alignItems: 'center', justifyContent: 'center' },
+    quantityRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xl, marginBottom: 16 },
+    qtyBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.cardBackground, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border },
     qtyValue: { fontSize: 24, fontWeight: '800' },
 
-    addBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, borderRadius: borderRadius.lg, paddingVertical: spacing.md },
+    quickQuantities: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 },
+    quickQtyBtn: { flex: 1, minWidth: '28%', alignItems: 'center', paddingVertical: 12, borderRadius: 12, backgroundColor: theme.cardBackground, borderWidth: 1, borderColor: theme.border },
+    quickQtyText: { fontSize: 14 },
+
+    addBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, borderRadius: borderRadius.lg, paddingVertical: 16 },
     addBtnText: { fontSize: 16, fontWeight: '700', color: '#fff' },
 });
 

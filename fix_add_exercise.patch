@@ -1,0 +1,10 @@
+--- src/screens/WorkoutSessionScreen.js
++++ src/screens/WorkoutSessionScreen.js
+@@ -244,6 +244,7 @@
+             );
+             return;
+         }
++    };
+     const toggleExerciseExpand = (exerciseId) => {
+         toggleExerciseStart(exerciseId);
+     };

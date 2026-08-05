@@ -30,6 +30,7 @@ import BeginnerSetupScreen from '../screens/BeginnerSetupScreen';
 import CreateCustomSplitScreen from '../screens/CreateCustomSplitScreen';
 import SplitExerciseEditorScreen from '../screens/SplitExerciseEditorScreen';
 import AddExerciseDetailsScreen from '../screens/AddExerciseDetailsScreen';
+import ExerciseSelectionScreen from '../screens/ExerciseSelectionScreen';
 import AdminDashboardScreen from '../screens/AdminDashboardScreen';
 
 const Stack = createNativeStackNavigator();
@@ -86,6 +87,14 @@ const AppNavigator = () => {
                     options={{
                         animation: 'slide_from_bottom',
                         gestureEnabled: false,
+                    }}
+                />
+
+                <Stack.Screen
+                    name="ExerciseSelection"
+                    component={ExerciseSelectionScreen}
+                    options={{
+                        animation: 'slide_from_bottom',
                     }}
                 />
 

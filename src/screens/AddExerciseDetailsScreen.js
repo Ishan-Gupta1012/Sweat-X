@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { spacing, borderRadius } from '../constants/colors';
@@ -39,6 +39,7 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
     const [isResting, setIsResting] = useState(false);
     const [restTimer, setRestTimer] = useState(0);
     const restTimerRef = useRef(null);
+    const restEndTimeRef = useRef(null);
 
     useEffect(() => {
         return () => {
@@ -49,16 +50,17 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
     const startRest = () => {
         setIsResting(true);
         setRestTimer(globalRestTime);
+        restEndTimeRef.current = Date.now() + (globalRestTime * 1000);
         if (restTimerRef.current) clearInterval(restTimerRef.current);
         restTimerRef.current = setInterval(() => {
-            setRestTimer((prev) => {
-                if (prev <= 1) {
-                    clearInterval(restTimerRef.current);
-                    setIsResting(false);
-                    return 0;
-                }
-                return prev - 1;
-            });
+            const remaining = Math.max(0, Math.ceil((restEndTimeRef.current - Date.now()) / 1000));
+            if (remaining <= 0) {
+                clearInterval(restTimerRef.current);
+                setIsResting(false);
+                setRestTimer(0);
+            } else {
+                setRestTimer(remaining);
+            }
         }, 1000);
     };
 
@@ -96,6 +98,38 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
             set.id === setId ? { ...set, [field]: value } : set
         ));
     };
+
+    const addDropSet = (setId) => {
+        setSets(sets.map(set => {
+            if (set.id === setId) {
+                const dropSets = set.dropSets || [];
+                return {
+                    ...set,
+                    dropSets: [...dropSets, { id: dropSets.length + 1, weight: '', reps: '' }]
+                };
+            }
+            return set;
+        }));
+    };
+
+    const removeDropSet = (setId, dropSetId) => {
+        setSets(sets.map(set => {
+            if (set.id === setId) {
+                return { ...set, dropSets: (set.dropSets || []).filter(ds => ds.id !== dropSetId).map((ds, idx) => ({ ...ds, id: idx + 1 })) };
+            }
+            return set;
+        }));
+    };
+
+    const updateDropSet = (setId, dropSetId, field, value) => {
+        setSets(sets.map(set => {
+            if (set.id === setId) {
+                return { ...set, dropSets: (set.dropSets || []).map(ds => ds.id === dropSetId ? { ...ds, [field]: value } : ds) };
+            }
+            return set;
+        }));
+    };
+
 
     const toggleSetComplete = (setId) => {
         setSets(sets.map(set => {
@@ -296,7 +330,54 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
                             </View>
                         ) : null}
 
+                        {/* Drop Sets Section */}
+                        {(set.dropSets || []).map((dropSet) => (
+                            <View key={`drop-${dropSet.id}`} style={[styles.dropSetCard, { backgroundColor: theme.warning + '12' }]}>
+                                <View style={styles.dropSetHeader}>
+                                    <View style={[styles.dropSetTag, { backgroundColor: theme.warning + '25' }]}>
+                                        <Text style={[styles.dropSetTagText, { color: theme.warning }]}>DROP {dropSet.id}</Text>
+                                    </View>
+                                    <TouchableOpacity onPress={() => removeDropSet(set.id, dropSet.id)} style={styles.dropSetRemoveBtn}>
+                                        <Ionicons name="close-circle" size={20} color={theme.error} />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={styles.dropSetInputRow}>
+                                    <View style={styles.dropSetInputGroup}>
+                                        <TextInput
+                                            style={[styles.dropSetInput, { backgroundColor: theme.cardBackground, color: theme.textPrimary, borderColor: theme.warning + '40' }]}
+                                            placeholder="0"
+                                            placeholderTextColor={theme.textMuted}
+                                            keyboardType="numeric"
+                                            value={dropSet.weight}
+                                            onChangeText={(v) => updateDropSet(set.id, dropSet.id, 'weight', v)}
+                                        />
+                                        <Text style={[styles.dropSetInputLabel, { color: theme.warning }]}>KG</Text>
+                                    </View>
+                                    <View style={styles.dropSetInputGroup}>
+                                        <TextInput
+                                            style={[styles.dropSetInput, { backgroundColor: theme.cardBackground, color: theme.textPrimary, borderColor: theme.warning + '40' }]}
+                                            placeholder="0"
+                                            placeholderTextColor={theme.textMuted}
+                                            keyboardType="numeric"
+                                            value={dropSet.reps}
+                                            onChangeText={(v) => updateDropSet(set.id, dropSet.id, 'reps', v)}
+                                        />
+                                        <Text style={[styles.dropSetInputLabel, { color: theme.warning }]}>REPS</Text>
+                                    </View>
+                                </View>
+                            </View>
+                        ))}
 
+                        {/* Add Drop Set Button */}
+                        {!isCardio && (
+                            <TouchableOpacity
+                                style={[styles.addDropSetBtn, { borderColor: theme.warning + '50' }]}
+                                onPress={() => addDropSet(set.id)}
+                            >
+                                <Ionicons name="add" size={14} color={theme.warning} />
+                                <Text style={[styles.addDropSetText, { color: theme.warning }]}>Add Drop Set</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                 ))}
 
@@ -312,10 +393,21 @@ const AddExerciseDetailsScreen = ({ navigation, route }) => {
                             <Text style={[styles.stickyRestTimeText, { color: theme.brandWorkout }]}>{formatTime(restTimer)}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-                            <TouchableOpacity onPress={() => setRestTimer(prev => Math.max(0, prev - 15))} style={styles.smallAdjustBtn}>
+                            <TouchableOpacity onPress={() => {
+                                const currentRemaining = Math.max(0, Math.ceil((restEndTimeRef.current - Date.now()) / 1000));
+                                const newTime = Math.max(0, currentRemaining - 15);
+                                restEndTimeRef.current = Date.now() + (newTime * 1000);
+                                setRestTimer(newTime);
+                                if (newTime === 0) { setIsResting(false); if (restTimerRef.current) clearInterval(restTimerRef.current); }
+                            }} style={styles.smallAdjustBtn}>
                                 <Text style={{ color: theme.textSecondary, fontWeight: '700' }}>-15s</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setRestTimer(prev => prev + 15)} style={styles.smallAdjustBtn}>
+                            <TouchableOpacity onPress={() => {
+                                const currentRemaining = Math.max(0, Math.ceil((restEndTimeRef.current - Date.now()) / 1000));
+                                const newTime = currentRemaining + 15;
+                                restEndTimeRef.current = Date.now() + (newTime * 1000);
+                                setRestTimer(newTime);
+                            }} style={styles.smallAdjustBtn}>
                                 <Text style={{ color: theme.textSecondary, fontWeight: '700' }}>+15s</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => {
@@ -502,34 +594,21 @@ const createStyles = (theme) => StyleSheet.create({
         textAlign: 'center'
     },
 
-    footer: {
-        padding: spacing.lg,
-        borderTopWidth: 1,
-        borderTopColor: theme.border,
-        backgroundColor: theme.background
-    },
-    saveButton: {
-        paddingVertical: 16
-    },
-    stickyRestTimer: {
-        position: 'absolute',
-        bottom: 90,
-        left: 20,
-        right: 20,
-        padding: 16,
-        borderRadius: 16,
-        elevation: 8,
-        shadowColor: '#000',
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 4 },
-        zIndex: 100
-    },
-    stickyRestTimeText: {
-        fontSize: 28,
-        fontWeight: '900',
-        fontVariant: ['tabular-nums']
-    },
+    footer: { padding: spacing.lg, paddingBottom: Platform.OS === 'ios' ? 32 : spacing.lg, backgroundColor: theme.background, borderTopWidth: 1, borderTopColor: theme.border },
+    saveButton: { borderRadius: borderRadius.pill },
+    stickyRestTimer: { position: 'absolute', bottom: 100, left: 20, right: 20, borderRadius: 16, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 8, zIndex: 100 },
+    stickyRestTimeText: { fontSize: 24, fontWeight: '800', fontVariant: ['tabular-nums'] },
+    dropSetCard: { marginTop: 12, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#FFB70320' },
+    dropSetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+    dropSetTag: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
+    dropSetTagText: { fontSize: 10, fontWeight: '800', letterSpacing: 1 },
+    dropSetRemoveBtn: { padding: 4 },
+    dropSetInputRow: { flexDirection: 'row', gap: 12 },
+    dropSetInputGroup: { flex: 1, flexDirection: 'row', alignItems: 'center', borderRadius: 8, borderWidth: 1, paddingRight: 12 },
+    dropSetInput: { flex: 1, height: 40, paddingHorizontal: 12, fontSize: 14, fontWeight: '600', borderWidth: 0, borderRightWidth: 1 },
+    dropSetInputLabel: { fontSize: 10, fontWeight: '700', marginLeft: 12 },
+    addDropSetBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, marginTop: 12, borderWidth: 1, borderStyle: 'dashed', borderRadius: 8 },
+    addDropSetText: { fontSize: 12, fontWeight: '600' },
     smallAdjustBtn: {
         padding: 8,
         backgroundColor: 'rgba(255,255,255,0.1)',
