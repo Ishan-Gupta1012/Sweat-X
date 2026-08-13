@@ -76,7 +76,9 @@ const FoodSearchScreen = ({ navigation, route }) => {
             food,
             mealType: initialMealType,
             isEditing: false,
-            replaceAIFoodIndex: route.params?.replaceAIFoodIndex
+            replaceAIFoodIndex: route.params?.replaceAIFoodIndex,
+            addAIFood: route.params?.addAIFood,
+            aiFoods: route.params?.aiFoods
         });
     };
 
@@ -89,10 +91,20 @@ const FoodSearchScreen = ({ navigation, route }) => {
             proteinPer100g: meal.totalProtein,
             carbsPer100g: meal.totalCarbs,
             fatsPer100g: meal.totalFats,
-            defaultServing: 'plate',
-            isVegetarian: true, // Show green leaf for meals by default
+            fiberPer100g: meal.totalFiber,
+            servingSizes: {
+                serving: 100 // Abstract 100g base for scaling
+            }
         };
-        handleFoodSelect(mealAsFood);
+
+        navigation.navigate('FoodQuantity', {
+            food: mealAsFood,
+            mealType: initialMealType,
+            isEditing: false,
+            replaceAIFoodIndex: route.params?.replaceAIFoodIndex,
+            addAIFood: route.params?.addAIFood,
+            aiFoods: route.params?.aiFoods
+        });
     };
 
     const handleDeleteMeal = (mealId) => {

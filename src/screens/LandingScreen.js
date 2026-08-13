@@ -4,252 +4,261 @@ import {
     Text,
     StyleSheet,
     StatusBar,
-    ImageBackground,
     Animated,
     Dimensions,
     Platform,
-    Image
+    TouchableOpacity,
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { spacing, borderRadius, colors } from '../constants/colors';
-import PrimaryButton from '../components/PrimaryButton';
 import { useTheme } from '../context/ThemeContext';
 import { useUser } from '../context/UserContext';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const LandingScreen = ({ navigation }) => {
     const { theme } = useTheme();
     const { userData } = useUser();
-    const styles = useMemo(() => createStyles(theme), [theme]);
 
-    // Animation refs
-    const fadeAnim = useRef(new Animated.Value(0)).current;
-    const slideAnim = useRef(new Animated.Value(30)).current;
-    const bannerScale = useRef(new Animated.Value(1)).current;
+    // Premium Animation Refs
+    const bgScale = useRef(new Animated.Value(1)).current;
+    
+    const ring1Scale = useRef(new Animated.Value(0.8)).current;
+    const ring1Opacity = useRef(new Animated.Value(0)).current;
+
+    const textOpacity = useRef(new Animated.Value(0)).current;
+    const textTranslateY = useRef(new Animated.Value(20)).current;
+    
+    const taglineOpacity = useRef(new Animated.Value(0)).current;
+    const buttonOpacity = useRef(new Animated.Value(0)).current;
+    const buttonTranslateY = useRef(new Animated.Value(30)).current;
 
     useEffect(() => {
-        Animated.parallel([
-            Animated.timing(fadeAnim, {
-                toValue: 1,
-                duration: 1200,
-                useNativeDriver: true,
+        // Continuous, extremely slow cinematic zoom (no bounce back)
+        Animated.timing(bgScale, {
+            toValue: 1.2,
+            duration: 40000,
+            useNativeDriver: true,
+        }).start();
+
+        // Fluid, staggered entrance animation for all elements
+        Animated.stagger(400, [
+            // 1. Logo fades and scales in gracefully
+            Animated.parallel([
+                Animated.timing(ring1Opacity, { 
+                    toValue: 1, 
+                    duration: 1200, 
+                    useNativeDriver: true 
+                }),
+                Animated.spring(ring1Scale, { 
+                    toValue: 1, 
+                    friction: 8,
+                    tension: 20,
+                    useNativeDriver: true 
+                }),
+            ]),
+            
+            // 2. Brand text slides up smoothly
+            Animated.parallel([
+                Animated.timing(textOpacity, { 
+                    toValue: 1, 
+                    duration: 1000, 
+                    useNativeDriver: true 
+                }),
+                Animated.spring(textTranslateY, { 
+                    toValue: 0, 
+                    friction: 9,
+                    tension: 30,
+                    useNativeDriver: true 
+                }),
+            ]),
+            
+            // 3. Tagline fades in softly
+            Animated.timing(taglineOpacity, { 
+                toValue: 1, 
+                duration: 800, 
+                useNativeDriver: true 
             }),
-            Animated.timing(slideAnim, {
-                toValue: 0,
-                duration: 1000,
-                useNativeDriver: true,
-            })
+            
+            // 4. Button glides up into place
+            Animated.parallel([
+                Animated.timing(buttonOpacity, { 
+                    toValue: 1, 
+                    duration: 800, 
+                    useNativeDriver: true 
+                }),
+                Animated.spring(buttonTranslateY, { 
+                    toValue: 0, 
+                    friction: 7, 
+                    tension: 40,
+                    useNativeDriver: true 
+                }),
+            ])
         ]).start();
     }, []);
+
+    const handleBegin = () => {
+        if (userData?.onboardingComplete) {
+            navigation.reset({ index: 0, routes: [{ name: 'MainApp' }] });
+        } else {
+            navigation.navigate('SignUp');
+        }
+    };
 
     return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-
-            <View style={styles.bgWrapper} pointerEvents="none">
-                <ImageBackground
-                    source={require('../../assets/gym_hero.jpg')}
-                    style={styles.fullScreenBg}
+            
+            {/* Cinematic Moving Background */}
+            <View style={styles.absoluteFill}>
+                <Animated.Image 
+                    source={require('../assets/gym_hero.jpg')}
+                    style={[
+                        styles.absoluteFill,
+                        { transform: [{ scale: bgScale }] }
+                    ]}
                     resizeMode="cover"
-                >
-                    {/* Multi-layered Gradient for Depth */}
-                    <LinearGradient
-                        colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)', theme.background]}
-                        style={styles.gradientOverlay}
-                    />
-                    <LinearGradient
-                        colors={['transparent', `rgba(82,183,136,0.1)`, 'transparent']}
-                        style={styles.accentGradient}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                    />
-                </ImageBackground>
+                />
+                <LinearGradient
+                    colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.75)', '#000000']}
+                    style={styles.absoluteFill}
+                />
             </View>
 
-            <SafeAreaView style={styles.content} pointerEvents="box-none">
-                {/* Header Top */}
-                <Animated.View style={[
-                    styles.header,
-                    { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
-                ]}>
-                    <View style={styles.logoContainer}>
-                        <Text style={styles.appName}>Sweat-X</Text>
-                        <View style={styles.accentLine} />
-                    </View>
-                    <Text style={styles.subtitle}>ELITE PERFORMANCE TRACKER</Text>
-                </Animated.View>
+            <SafeAreaView style={styles.safeArea}>
+                <View style={styles.centerStage}>
+                    
+                    {/* Premium App Logo */}
+                    <Animated.View style={[
+                        styles.logoContainer,
+                        { 
+                            opacity: ring1Opacity,
+                            transform: [{ scale: ring1Scale }] 
+                        }
+                    ]}>
+                        <Image 
+                            source={require('../assets/sweatx_logo_transparent.png')}
+                            style={styles.logoImage}
+                            resizeMode="contain"
+                        />
+                    </Animated.View>
 
+                    {/* Majestic Typography */}
+                    <Animated.View style={{ 
+                        opacity: textOpacity, 
+                        transform: [{ translateY: textTranslateY }],
+                        alignItems: 'center'
+                    }}>
+                        <Text style={styles.brandText}>SWEAT-X</Text>
+                    </Animated.View>
 
-                {/* Content Bottom */}
+                    <Animated.View style={{ opacity: taglineOpacity, marginTop: 12 }}>
+                        <Text style={styles.taglineText}>OPTIMIZE EVERY MOVEMENT</Text>
+                    </Animated.View>
+
+                </View>
+
+                {/* Premium Pill Button */}
                 <Animated.View style={[
                     styles.bottomSection,
-                    { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
+                    { 
+                        opacity: buttonOpacity,
+                        transform: [{ translateY: buttonTranslateY }] 
+                    }
                 ]}>
-                    <View style={styles.taglineWrapper}>
-                        <View style={styles.taglineLine} />
-                        <Text style={styles.taglineText}>FORGED FOR FOCUS</Text>
-                        <View style={styles.taglineLine} />
-                    </View>
-
-                    <Text
-                        style={styles.mainHeadline}
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
+                    <TouchableOpacity 
+                        style={styles.premiumButton} 
+                        onPress={handleBegin}
+                        activeOpacity={0.8}
                     >
-                        Break Your <Text style={styles.highlightText}>Boundaries.</Text>
-                    </Text>
-
-                    <PrimaryButton
-                        title="Begin Transformation"
-                        onPress={() => {
-                            if (userData?.onboardingComplete) {
-                                navigation.reset({
-                                    index: 0,
-                                    routes: [{ name: 'MainApp' }],
-                                });
-                            } else {
-                                navigation.navigate('SignUp');
-                            }
-                        }}
-                        style={styles.ctaButton}
-                        icon={<Ionicons name="sparkles-outline" size={20} color="#fff" />}
-                    />
-
-                    <View style={styles.footer}>
-                        <Ionicons name="shield-checkmark" size={14} color={theme.textMuted} />
-                        <Text style={styles.footerText}>
-                            100% FREE • NO ADS • FOREVER
-                        </Text>
-                    </View>
+                        <LinearGradient
+                            colors={['rgba(255, 255, 255, 0.12)', 'rgba(255, 255, 255, 0.05)']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 0, y: 1 }}
+                            style={styles.premiumButtonGradient}
+                        >
+                            <Text style={styles.premiumButtonText}>BEGIN TRANSFORMATION</Text>
+                        </LinearGradient>
+                    </TouchableOpacity>
                 </Animated.View>
             </SafeAreaView>
         </View>
     );
 };
 
-const createStyles = (theme) => StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.background,
+        backgroundColor: '#000',
     },
-    bgWrapper: {
-        ...StyleSheet.absoluteFillObject,
-        zIndex: 0,
-    },
-    fullScreenBg: {
-        flex: 1,
-        width: '100%',
-    },
-    gradientOverlay: {
+    absoluteFill: {
         ...StyleSheet.absoluteFillObject,
     },
-    accentGradient: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    content: {
+    safeArea: {
         flex: 1,
         justifyContent: 'space-between',
-        paddingHorizontal: spacing.md,
-        zIndex: 1,
-        paddingTop: Platform.OS === 'web' ? spacing.xxl : spacing.xl,
-        paddingBottom: spacing.xl,
-    },
-    header: {
         alignItems: 'center',
-        marginTop: height * 0.05,
+    },
+    centerStage: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
     },
     logoContainer: {
+        width: width * 0.45,
+        height: width * 0.45,
+        justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 30,
     },
-    appName: {
-        fontSize: 48,
-        fontWeight: '900',
+    logoImage: {
+        width: '100%',
+        height: '100%',
+    },
+    brandText: {
+        fontSize: 38,
+        fontWeight: '300', // Very light, sleek typography
         color: '#FFFFFF',
-        letterSpacing: 10,
-        textAlign: 'center',
-        textShadowColor: 'rgba(82, 183, 136, 0.4)',
-        textShadowOffset: { width: 0, height: 0 },
-        textShadowRadius: 20,
+        letterSpacing: 8, // Extremely wide tracking for premium feel
+        textTransform: 'uppercase',
     },
-    subtitle: {
-        color: theme.brandWorkout,
-        fontSize: 12,
-        fontWeight: '800',
+    taglineText: {
+        fontSize: 10,
+        fontWeight: '600',
+        color: '#666666',
         letterSpacing: 4,
-        marginTop: spacing.sm,
-        opacity: 0.9,
-    },
-    accentLine: {
-        width: 60,
-        height: 4,
-        backgroundColor: theme.brandWorkout,
-        marginTop: spacing.xs,
-        borderRadius: borderRadius.full,
+        textTransform: 'uppercase',
     },
     bottomSection: {
         width: '100%',
-        paddingBottom: spacing.lg,
+        paddingHorizontal: 32,
+        paddingBottom: Platform.OS === 'ios' ? 60 : 40,
     },
-    taglineWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: spacing.md,
-        gap: spacing.md,
-    },
-    taglineLine: {
-        flex: 1,
-        height: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    },
-    taglineText: {
-        color: theme.textSecondary,
-        fontSize: 10,
-        fontWeight: '900',
-        letterSpacing: 3,
-    },
-    mainHeadline: {
-        color: theme.isDark ? '#FFFFFF' : theme.textPrimary,
-        fontSize: 30,
-        fontWeight: '900',
-        textAlign: 'center',
-        lineHeight: 48,
-        marginBottom: spacing.xl,
-    },
-    highlightText: {
-        color: theme.brandWorkout,
-    },
-    ctaButton: {
-        height: 64, // Taller for premium feel
-        borderRadius: borderRadius.lg,
-        shadowColor: theme.brandWorkout,
+    premiumButton: {
+        width: '100%',
+        height: 60,
+        borderRadius: 30,
+        // Neon green glow effect
+        shadowColor: '#52B788',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 6,
+        shadowRadius: 16,
+        elevation: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(82, 183, 136, 0.5)', // Subtle green border
     },
-    ctaButtonActive: {
-        shadowOffset: { width: 0, height: 16 },
-        shadowOpacity: 0.8,
-        shadowRadius: 24,
-        elevation: 20,
-        transform: [{ scale: 0.98 }]
-    },
-    footer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    premiumButtonGradient: {
+        flex: 1,
+        borderRadius: 30,
         justifyContent: 'center',
-        marginTop: spacing.xl,
-        gap: spacing.xs,
-        opacity: 0.6,
+        alignItems: 'center',
     },
-    footerText: {
-        fontSize: 10,
+    premiumButtonText: {
+        fontSize: 16,
         fontWeight: '800',
-        color: theme.textMuted,
+        color: '#FFFFFF',
         letterSpacing: 2,
     },
 });

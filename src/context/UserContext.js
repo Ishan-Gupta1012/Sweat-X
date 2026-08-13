@@ -209,40 +209,39 @@ const calculateCalorieGoal = (userData) => {
 // Calculate macros based on calorie goal and primary goal
 const calculateMacros = (calorieGoal, primaryGoal, weight) => {
     const w = parseFloat(weight) || 70;
-    let proteinRatio, carbsRatio, fatsRatio;
+    let proteinMultiplier, fatsRatioOfTotal;
 
     switch (primaryGoal) {
         case 'fat_loss':
-            // High protein, moderate fat, lower carbs
-            proteinRatio = 0.35; // 35% protein
-            fatsRatio = 0.30;    // 30% fat
-            carbsRatio = 0.35;   // 35% carbs
+            proteinMultiplier = 1.8; // Higher protein to preserve muscle in deficit
+            fatsRatioOfTotal = 0.30; // 30% of total calories from fat
             break;
         case 'muscle_gain':
-            // High protein, high carbs, moderate fat
-            proteinRatio = 0.30; // 30% protein
-            fatsRatio = 0.25;    // 25% fat
-            carbsRatio = 0.45;   // 45% carbs
+            proteinMultiplier = 1.5; // 1.5x bodyweight as requested
+            fatsRatioOfTotal = 0.25; // 25% of total calories from fat
             break;
         case 'build_strength':
-            // High protein, balanced
-            proteinRatio = 0.30; // 30% protein
-            fatsRatio = 0.30;    // 30% fat
-            carbsRatio = 0.40;   // 40% carbs
+            proteinMultiplier = 1.6; // 1.6x bodyweight
+            fatsRatioOfTotal = 0.30; // 30% of total calories from fat
             break;
         case 'general_fitness':
         default:
-            // Balanced macros
-            proteinRatio = 0.25; // 25% protein
-            fatsRatio = 0.30;    // 30% fat
-            carbsRatio = 0.45;   // 45% carbs
+            proteinMultiplier = 1.2; // 1.2x bodyweight for general maintenance
+            fatsRatioOfTotal = 0.30; // 30% of total calories from fat
             break;
     }
 
-    // Calculate grams (protein & carbs = 4 cal/g, fat = 9 cal/g)
-    const proteinGoal = Math.round((calorieGoal * proteinRatio) / 4);
-    const carbsGoal = Math.round((calorieGoal * carbsRatio) / 4);
-    const fatsGoal = Math.round((calorieGoal * fatsRatio) / 9);
+    // 1. Calculate Protein (fixed based on bodyweight)
+    const proteinGoal = Math.round(w * proteinMultiplier);
+    
+    // 2. Calculate Fats (percentage of total calories)
+    const fatsGoal = Math.round((calorieGoal * fatsRatioOfTotal) / 9);
+    
+    // 3. Calculate Carbs (fill the remaining calories)
+    const proteinCals = proteinGoal * 4;
+    const fatsCals = fatsGoal * 9;
+    const remainingCals = calorieGoal - proteinCals - fatsCals;
+    const carbsGoal = Math.max(0, Math.round(remainingCals / 4));
 
     return { proteinGoal, carbsGoal, fatsGoal };
 };
@@ -581,7 +580,7 @@ export const UserProvider = ({ children }) => {
 
             return {
                 ...prev,
-                meals: [...prev.meals, { ...meal, id: Date.now(), timestamp: new Date().toISOString() }],
+                meals: [...prev.meals, { ...meal, id: Date.now().toString() + Math.random().toString(36).substr(2, 5), timestamp: new Date().toISOString() }],
                 dailyCalories: prev.dailyCalories + calories,
                 proteinConsumed: (prev.proteinConsumed || 0) + mealProtein,
                 carbsConsumed: (prev.carbsConsumed || 0) + mealCarbs,
@@ -1269,40 +1268,35 @@ export const UserProvider = ({ children }) => {
         if (dateString === getTodayDate()) {
             // Delete today's meal
             setUserData(prev => {
-                const meal = prev.meals.find(m => m.id === mealId);
-                const calories = meal?.calories || 0;
-                const mealType = meal?.type || 'other';
+                const newMeals = prev.meals.filter(m => m.id !== mealId);
 
-                // Calculate macros from the meal being deleted
-                const mealProtein = meal?.protein || (meal?.foods || []).reduce((sum, f) => sum + (f.protein || 0), 0);
-                const mealCarbs = meal?.carbs || (meal?.foods || []).reduce((sum, f) => sum + (f.carbs || 0), 0);
-                const mealFats = meal?.fats || (meal?.foods || []).reduce((sum, f) => sum + (f.fats || 0), 0);
-                const mealFiber = meal?.fiber || (meal?.foods || []).reduce((sum, f) => sum + (f.fiber || 0), 0);
+                // Recalculate totals directly to prevent floating-point drift or sync glitches on rapid deletions
+                const newDailyCalories = newMeals.reduce((sum, m) => sum + (m.calories || 0), 0);
+                
+                const getMacroSum = (macro) => newMeals.reduce((sum, m) => {
+                    return sum + (m[macro] || (m.foods || []).reduce((s, f) => s + (f[macro] || 0), 0));
+                }, 0);
 
-                let breakfastSnackCalories = prev.breakfastSnackCalories;
-                let lunchSnackCalories = prev.lunchSnackCalories;
-                let dinnerCalories = prev.dinnerCalories;
+                const newProtein = getMacroSum('protein');
+                const newCarbs = getMacroSum('carbs');
+                const newFats = getMacroSum('fats');
+                const newFiber = getMacroSum('fiber');
 
-                // Subtract from appropriate category
-                if (mealType === 'breakfast' || mealType === 'morningSnack') {
-                    breakfastSnackCalories -= calories;
-                } else if (mealType === 'lunch' || mealType === 'eveningSnack') {
-                    lunchSnackCalories -= calories;
-                } else if (mealType === 'dinner') {
-                    dinnerCalories -= calories;
-                }
+                const newBreakfast = newMeals.filter(m => m.type === 'breakfast' || m.type === 'morningSnack').reduce((sum, m) => sum + (m.calories || 0), 0);
+                const newLunch = newMeals.filter(m => m.type === 'lunch' || m.type === 'eveningSnack').reduce((sum, m) => sum + (m.calories || 0), 0);
+                const newDinner = newMeals.filter(m => m.type === 'dinner').reduce((sum, m) => sum + (m.calories || 0), 0);
 
                 return {
                     ...prev,
-                    meals: prev.meals.filter(m => m.id !== mealId),
-                    dailyCalories: Math.max(0, prev.dailyCalories - calories),
-                    proteinConsumed: Math.max(0, (prev.proteinConsumed || 0) - mealProtein),
-                    carbsConsumed: Math.max(0, (prev.carbsConsumed || 0) - mealCarbs),
-                    fatsConsumed: Math.max(0, (prev.fatsConsumed || 0) - mealFats),
-                    fiberConsumed: Math.max(0, (prev.fiberConsumed || 0) - mealFiber),
-                    breakfastSnackCalories: Math.max(0, breakfastSnackCalories),
-                    lunchSnackCalories: Math.max(0, lunchSnackCalories),
-                    dinnerCalories: Math.max(0, dinnerCalories),
+                    meals: newMeals,
+                    dailyCalories: newDailyCalories,
+                    proteinConsumed: newProtein,
+                    carbsConsumed: newCarbs,
+                    fatsConsumed: newFats,
+                    fiberConsumed: newFiber,
+                    breakfastSnackCalories: newBreakfast,
+                    lunchSnackCalories: newLunch,
+                    dinnerCalories: newDinner,
                 };
             });
         } else {
@@ -1311,8 +1305,8 @@ export const UserProvider = ({ children }) => {
                 const dayData = prev.nutritionLog[dateString];
                 if (!dayData) return prev;
 
-                const meal = dayData.meals.find(m => m.id === mealId);
-                const calories = meal?.calories || 0;
+                const newMeals = dayData.meals.filter(m => m.id !== mealId);
+                const newTotalCalories = newMeals.reduce((sum, m) => sum + (m.calories || 0), 0);
 
                 return {
                     ...prev,
@@ -1320,8 +1314,8 @@ export const UserProvider = ({ children }) => {
                         ...prev.nutritionLog,
                         [dateString]: {
                             ...dayData,
-                            meals: dayData.meals.filter(m => m.id !== mealId),
-                            totalCalories: Math.max(0, dayData.totalCalories - calories),
+                            meals: newMeals,
+                            totalCalories: newTotalCalories,
                         },
                     },
                 };

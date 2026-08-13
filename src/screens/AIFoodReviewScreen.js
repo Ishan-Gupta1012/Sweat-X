@@ -31,43 +31,36 @@ const AIFoodReviewScreen = ({ navigation, route }) => {
     );
 
     useEffect(() => {
-        if (route.params?.updatedFood && route.params?.replaceAIFoodIndex !== undefined) {
-            const { updatedFood, replaceAIFoodIndex } = route.params;
-            const newFoods = [...foods];
-            // Replace the AI item with the structured DB item
-            newFoods[replaceAIFoodIndex] = {
-                _id: updatedFood.foods[0].id,
-                name: updatedFood.foods[0].name,
-                isAI: false, // it's now a DB item
-                calories: updatedFood.calories,
-                protein: updatedFood.protein,
-                carbs: updatedFood.carbs,
-                fats: updatedFood.fats,
-                fiber: updatedFood.fiber,
-                quantity: updatedFood.quantity,
-                isVegetarian: updatedFood.foods[0].isVegetarian,
-                // Add DB metrics so they can be saved properly
-                caloriesPer100g: updatedFood.foods[0].caloriesPer100g,
-                proteinPer100g: updatedFood.foods[0].proteinPer100g,
-                carbsPer100g: updatedFood.foods[0].carbsPer100g,
-                fatsPer100g: updatedFood.foods[0].fatsPer100g,
-                fiberPer100g: updatedFood.foods[0].fiberPer100g,
-                servingSizes: updatedFood.foods[0].servingSizes
-            };
-            setFoods(newFoods);
-
-            // Clear the params so it doesn't trigger again
-            navigation.setParams({ updatedFood: undefined, replaceAIFoodIndex: undefined });
+        if (route.params?.aiFoods) {
+            setFoods(route.params.aiFoods.map((f, i) => ({
+                _id: f._id || f.id || 'ai_' + Date.now() + '_' + i,
+                name: f.name || f.foodName,
+                isAI: f.isAI ?? (f.cuisine === 'Saved Meal' || f.caloriesPer100g ? false : true),
+                calories: f.calories,
+                protein: f.protein,
+                carbs: f.carbs,
+                fats: f.fats,
+                fiber: f.fiber || 0,
+                quantity: f.quantity,
+                isVegetarian: f.isVegetarian || false,
+                caloriesPer100g: f.caloriesPer100g || (f.foods && f.foods[0]?.caloriesPer100g),
+                proteinPer100g: f.proteinPer100g || (f.foods && f.foods[0]?.proteinPer100g),
+                carbsPer100g: f.carbsPer100g || (f.foods && f.foods[0]?.carbsPer100g),
+                fatsPer100g: f.fatsPer100g || (f.foods && f.foods[0]?.fatsPer100g),
+                fiberPer100g: f.fiberPer100g || (f.foods && f.foods[0]?.fiberPer100g),
+                servingSizes: f.servingSizes || (f.foods && f.foods[0]?.servingSizes),
+            })));
         }
-    }, [route.params?.updatedFood, route.params?.replaceAIFoodIndex]);
+    }, [route.params?.aiFoods]);
 
     const handleEditFood = (foodIndex) => {
         const food = foods[foodIndex];
         // Navigate to search screen with replace parameters
-        navigation.navigate('FoodSearch', {
+        navigation.push('FoodSearch', {
             replaceAIFoodIndex: foodIndex,
             initialQuery: food.name,
-            mealType
+            mealType,
+            aiFoods: foods
         });
     };
 
@@ -114,8 +107,16 @@ const AIFoodReviewScreen = ({ navigation, route }) => {
             addMeal(mealData);
         });
 
-        navigation.goBack(); // go back to search
-        navigation.goBack(); // go back to nutrition log
+        // Navigate explicitly back to the main app dashboard
+        navigation.navigate('MainApp', { screen: 'Dashboard' });
+    };
+
+    const handleAddAnother = () => {
+        navigation.push('FoodSearch', {
+            addAIFood: true,
+            mealType,
+            aiFoods: foods
+        });
     };
 
     const totalCalories = foods.reduce((sum, f) => sum + (f.calories || 0), 0);
@@ -162,10 +163,18 @@ const AIFoodReviewScreen = ({ navigation, route }) => {
                 ))}
 
                 <TouchableOpacity
+                    style={[styles.saveBtn, { backgroundColor: theme.cardBackground, borderWidth: 1, borderColor: theme.primary, marginBottom: spacing.sm }]}
+                    onPress={handleAddAnother}
+                >
+                    <Ionicons name="add" size={22} color={theme.primary} />
+                    <Text style={[styles.saveBtnText, { color: theme.primary }]}>Add Another Food</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
                     style={[styles.saveBtn, { backgroundColor: theme.primary }]}
                     onPress={handleSaveAll}
                 >
-                    <Ionicons name="add-circle" size={22} color="#fff" />
+                    <Ionicons name="checkmark-circle" size={22} color="#fff" />
                     <Text style={styles.saveBtnText}>Log {foods.length} items</Text>
                 </TouchableOpacity>
             </ScrollView>

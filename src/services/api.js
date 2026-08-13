@@ -287,7 +287,7 @@ export const exerciseApi = {
 
 // AI API
 export const aiApi = {
-    async chat(prompt, temperature = 0.7, maxTokens = 400) {
+    async chat(prompt, temperature = 0.7, maxTokens = 4000) {
         try {
             const response = await fetch(`${API_URL}/ai/chat`, {
                 method: 'POST',

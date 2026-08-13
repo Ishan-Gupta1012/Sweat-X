@@ -180,9 +180,30 @@ const FoodQuantityScreen = ({ navigation, route }) => {
         };
 
         if (route.params?.replaceAIFoodIndex !== undefined) {
-            navigation.navigate('AIFoodReview', {
-                updatedFood: mealData,
-                replaceAIFoodIndex: route.params.replaceAIFoodIndex
+            const updatedAiFoods = [...(route.params.aiFoods || [])];
+            updatedAiFoods[route.params.replaceAIFoodIndex] = mealData;
+            
+            navigation.navigate({
+                name: 'AIFoodReview',
+                params: {
+                    aiFoods: updatedAiFoods,
+                    mealType: route.params.mealType || mealType
+                },
+                merge: true,
+            });
+            return;
+        }
+
+        if (route.params?.addAIFood) {
+            const updatedAiFoods = [...(route.params.aiFoods || []), mealData];
+            
+            navigation.navigate({
+                name: 'AIFoodReview',
+                params: {
+                    aiFoods: updatedAiFoods,
+                    mealType: route.params.mealType || mealType
+                },
+                merge: true,
             });
             return;
         }
